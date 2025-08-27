@@ -3,10 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>ROM • Daily Summary</title>
-
 <style>
 :root{
   --bg:#F6F7F9; --surface:#FFFFFF; --surface-2:#F1F4F8; --stroke:#E8EBF0;
@@ -16,8 +13,7 @@
   --fs-xs:clamp(11px,2vw,12px);
   --fs-s: clamp(13px,2.4vw,14px);
   --fs-m: clamp(15px,3vw,16px);
-  --fs-l: clamp(32px,6vw,38px); /* Apple header size */
-  --device-w:390px;
+  --fs-l: clamp(32px,6vw,38px); 
 }
 @media (prefers-color-scheme: dark){
   :root{
@@ -25,394 +21,144 @@
     --text:#E7EAF0; --muted:#AAB2C0; --accent:#74D2FF;
   }
 }
-
-/* Base */
 *{box-sizing:border-box}
-html,body{height:100%;margin:0;background:var(--bg);color:var(--text);
-  font-family:-apple-system,"SF Pro Text",Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased;}
-.stage{min-height:100%;display:grid;place-items:center;padding:16px;position:relative;}
-.heroGlow{position:absolute;inset:0;pointer-events:none;background:radial-gradient(700px 460px at 50% 0%, rgba(116,210,255,.12), transparent 65%);filter:blur(6px);}
-
-/* iPhone frame */
-.device{width:min(var(--device-w),95vw);aspect-ratio:390/844;border-radius:46px;
-  background:linear-gradient(180deg,#0a0a0a,#1a1a1a);
-  box-shadow:0 28px 90px rgba(0,0,0,.55),inset 0 0 0 1px rgba(255,255,255,.06),inset 0 0 0 10px #000;
-  position:relative;display:flex;align-items:center;justify-content:center;}
-.device::before{content:"";position:absolute;top:10px;left:50%;transform:translateX(-50%);
-  width:128px;height:36px;border-radius:20px;background:rgba(0,0,0,.85);
-  box-shadow:0 10px 24px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.05);z-index:2;}
-
-/* Screen */
-.screen{width:calc(100% - 22px);height:calc(100% - 22px);border-radius:36px;overflow:hidden;
-  border:1px solid var(--stroke);background:var(--surface);display:flex;flex-direction:column;}
-
-/* App bar (home + detail) */
-.appbar{padding:18px 16px 6px;position:sticky;top:0;z-index:5;
-  background:color-mix(in srgb, var(--surface) 88%, transparent);backdrop-filter:saturate(180%) blur(14px);
-  border-bottom:1px solid var(--stroke);display:flex;align-items:center;gap:8px;}
-.appTitle{font-size:var(--fs-l);font-weight:800;letter-spacing:-.02em;margin:0;flex:1}
+html,body{
+  margin:0; height:100%;
+  background:var(--bg); color:var(--text);
+  font-family:-apple-system,"SF Pro Text",Inter,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.app{max-width:500px;margin:0 auto;height:100%;display:flex;flex-direction:column;}
+.appbar{padding:18px 16px 6px;border-bottom:1px solid var(--stroke);background:var(--surface);position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between}
+.appTitle{font-size:var(--fs-l);font-weight:800;margin:0}
 .mode{font-size:var(--fs-s);color:var(--muted)}
-.back{display:none;padding:6px 10px;border-radius:10px;border:1px solid var(--stroke);background:var(--surface-2);
-  font-weight:700;cursor:pointer}
-
-.view{height:100%;overflow:auto;-webkit-overflow-scrolling:touch;padding:12px;display:grid;gap:12px}
-
-/* Input card */
-.card{background:var(--surface);border:1px solid var(--stroke);border-radius:var(--rx);box-shadow:0 1px 0 rgba(0,0,0,.03);}
-.add{padding:12px}
-.add h3{margin:0 0 8px;font-size:var(--fs-m);font-weight:800}
-textarea{width:100%;min-height:120px;border:1px solid var(--stroke);border-radius:14px;background:var(--surface);
-  padding:10px;font-size:var(--fs-m);line-height:1.55;color:var(--text);outline:none;resize:vertical;}
-.actions{display:flex;gap:8px;padding:10px 12px 12px}
-.btn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border-radius:14px;
-  border:1px solid var(--stroke);background:var(--surface-2);font-weight:800;font-size:var(--fs-m);cursor:pointer;user-select:none;transition:transform .05s ease}
-.btn:active{transform:translateY(1px)}
-.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
-.btn-ok{background:#E9F8EF;border-color:#CDEED8;color:#0B6B38}
-.hint{font-size:var(--fs-xs);color:var(--muted);padding:0 12px 12px}
-
-/* Lists */
-.group{margin-top:2px}
-.groupHeader{font-size:var(--fs-m);font-weight:800;padding:4px 6px 6px}
+.view{flex:1;overflow:auto;padding:16px;display:grid;gap:16px}
+.card{background:var(--surface);border:1px solid var(--stroke);border-radius:var(--rx);padding:12px}
+.card h3{margin:0 0 8px;font-size:var(--fs-m);font-weight:700}
+textarea{width:100%;min-height:100px;border:1px solid var(--stroke);border-radius:14px;padding:10px;font-size:var(--fs-m);background:var(--surface-2);color:var(--text)}
+.actions{display:flex;gap:8px;margin-top:8px}
+.btn{flex:1;text-align:center;padding:12px;border-radius:14px;border:1px solid var(--stroke);background:var(--surface-2);font-weight:700;cursor:pointer}
+.btn-primary{background:var(--accent);color:#fff;border:none}
+.btn-ok{background:#34C759;color:#fff;border:none}
+.groupHeader{font-size:var(--fs-m);font-weight:700;margin-bottom:6px}
 .list{background:var(--surface);border:1px solid var(--stroke);border-radius:var(--rx);overflow:hidden}
-.cell{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:14px 14px;border-top:1px solid var(--stroke)}
+.cell{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:12px 14px;border-top:1px solid var(--stroke)}
 .cell:first-child{border-top:0}
 .pill{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;color:#fff;font-size:16px;font-weight:800}
 .pill.red{background:var(--red)} .pill.blue{background:var(--blue)} .pill.orange{background:var(--orange)}
 .pill.green{background:var(--green)} .pill.purple{background:var(--purple)} .pill.gray{background:var(--gray)}
 .titleCol{min-width:0}
-.t1{font-weight:800;font-size:var(--fs-m);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.t1{font-weight:700;font-size:var(--fs-m);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .t2{font-size:var(--fs-xs);color:var(--muted);margin-top:2px}
 .chev{color:#98A2B3;font-size:20px}
 
-/* Detail page */
-.detail{display:none}
-.detailHero{padding:8px 12px}
-.detailTitle{font-size:clamp(26px,5.5vw,32px);font-weight:900;letter-spacing:-.02em;margin:4px 0}
-.detailSub{font-size:var(--fs-s);color:var(--muted);margin:0 0 12px}
-.detailCard{background:var(--surface);border:1px solid var(--stroke);border-radius:var(--rx);padding:12px}
-.detailCard h4{margin:6px 0 8px;font-size:var(--fs-m)}
-.detailCard ul{margin:0 0 0 18px;padding:0}
-.detailCard li{padding:4px 0;font-size:var(--fs-m)}
-.detailActions{display:flex;gap:8px;margin-top:10px}
-.smallNote{font-size:var(--fs-xs);color:var(--muted);margin-top:8px}
-
-/* Footer */
-.footer{position:sticky;bottom:0;left:0;right:0;padding:10px 12px;border-top:1px solid var(--stroke);
-  background:color-mix(in srgb, var(--surface) 88%, transparent);display:flex;gap:8px;align-items:center}
-.ghost{flex:1;color:var(--muted);font-size:var(--fs-s)}
-.toggle{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:var(--fs-s)}
-.toggle input{transform:scale(1.05)}
+/* Horizontal suggestions */
+.suggestions{display:flex;overflow-x:auto;gap:12px;padding-bottom:6px}
+.suggestions::-webkit-scrollbar{display:none}
+.suggCard{flex:0 0 auto;min-width:220px;background:var(--surface);border:1px solid var(--stroke);border-radius:var(--rx);padding:14px;font-size:var(--fs-m);font-weight:600;line-height:1.4}
 </style>
 </head>
 <body>
-  <div class="stage">
-    <div class="heroGlow"></div>
+  <div class="app">
+    <div class="appbar">
+      <h1 class="appTitle">Daily Summary</h1>
+      <div class="mode">Mode: <strong id="mode">Auto</strong></div>
+    </div>
 
-    <div class="device">
-      <div class="screen">
-        <!-- Appbar -->
-        <div class="appbar">
-          <button class="back" id="backBtn">‹ Back</button>
-          <h1 class="appTitle" id="appTitle">Home</h1>
-          <div class="mode">Mode: <strong id="mode">Auto</strong></div>
-        </div>
-
-        <!-- HOME VIEW -->
-        <div class="view" id="homeView">
-          <!-- Input -->
-          <div class="card add">
-            <h3>Top Picks</h3>
-            <textarea id="in" placeholder="Paste 8–20 subjects/notes — one per line
-e.g.
-Deck for investor intro
+    <div class="view">
+      <div class="card">
+        <h3>Enter tasks/notes</h3>
+        <textarea id="in" placeholder="Deck for investor intro
 Meeting moved to 3pm with product
 Contract redlines due Friday
-Invoice paid – Stripe
-Bug: login loop on prod
-Ship 1.0.2 release notes
-Reminder: homework due tomorrow"></textarea>
-            <div class="actions">
-              <div class="btn" id="demo">Demo</div>
-              <div class="btn" id="clear">Clear</div>
-              <div class="btn btn-primary" id="go">Make my day simple</div>
-            </div>
-            <div class="actions" style="padding-top:0">
-              <div class="btn btn-ok" id="done">Mark all done</div>
-            </div>
-            <div class="hint">Local-first; nothing stored. We only summarize what you paste.</div>
-          </div>
-
-          <!-- Groups -->
-          <div class="group">
-            <div class="groupHeader">📌 Today’s Highlights</div>
-            <div class="list" id="highList"></div>
-          </div>
-
-          <div class="group">
-            <div class="groupHeader">⚡ Urgent</div>
-            <div class="list" id="urgentList"></div>
-          </div>
-
-          <div class="group">
-            <div class="groupHeader">🌙 For Tomorrow</div>
-            <div class="list" id="tomorrowList"></div>
-          </div>
-
-          <div class="group">
-            <div class="groupHeader">✨ Suggestions</div>
-            <div class="list" id="suggestList"></div>
-          </div>
-
-          <div class="footer">
-            <div class="ghost">ROM • calm layer</div>
-            <label class="toggle">
-              <input id="communityToggle" type="checkbox" checked />
-              <span>Share a welcome/suggestion to Discord</span>
-            </label>
-          </div>
+Invoice paid – Stripe"></textarea>
+        <div class="actions">
+          <div class="btn" id="demo">Demo</div>
+          <div class="btn" id="clear">Clear</div>
+          <div class="btn btn-primary" id="go">Make my day simple</div>
         </div>
+      </div>
 
-        <!-- DETAIL VIEW -->
-        <div class="view detail" id="detailView">
-          <div class="detailHero">
-            <div class="detailTitle" id="dTitle">Title</div>
-            <div class="detailSub" id="dSub">Context & timing</div>
-          </div>
+      <div>
+        <div class="groupHeader">📌 Today’s Highlights</div>
+        <div class="list" id="highList"></div>
+      </div>
 
-          <div class="card detailCard">
-            <h4>What to do next</h4>
-            <ul id="dSteps"></ul>
-            <div class="detailActions">
-              <div class="btn btn-ok" id="dDone">Mark done</div>
-              <div class="btn" id="dCopy">Copy</div>
-            </div>
-            <div class="smallNote">soon you’ll be able to connect advanced AI for deeper context & auto-drafts.</div>
-          </div>
-        </div>
+      <div>
+        <div class="groupHeader">⚡ Urgent</div>
+        <div class="list" id="urgentList"></div>
+      </div>
+
+      <div>
+        <div class="groupHeader">🌙 For Tomorrow</div>
+        <div class="list" id="tomorrowList"></div>
+      </div>
+
+      <div>
+        <div class="groupHeader">✨ Suggestions</div>
+        <div class="suggestions" id="suggestList"></div>
       </div>
     </div>
   </div>
 
 <script>
-/* ==== CONFIG ==== */
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxZcplRYBylrz8AQzvZhxtbpQet_EBp76qRnByAkT9WIgy7V06Meye19NipOh36mzfk/exec";
-const DISCORD_WEBHOOK_URL = ""; // keep empty if you don’t want to expose it
+const $=id=>document.getElementById(id);
+const input=$('in'), high=$('highList'), urg=$('urgentList'), tom=$('tomorrowList'), sugg=$('suggestList');
 
-/* ==== ELEMENTS ==== */
-const $ = id => document.getElementById(id);
-const appTitle = $('appTitle'), modeEl = $('mode'), backBtn = $('backBtn');
-const homeView = $('homeView'), detailView = $('detailView');
-const input = $('in');
-const highList = $('highList'), urgentList = $('urgentList'), tomorrowList = $('tomorrowList'), suggestList = $('suggestList');
-const dTitle = $('dTitle'), dSub = $('dSub'), dSteps = $('dSteps');
-
-/* ==== DEMO/CLEAR ==== */
-$('demo').onclick = ()=>{
-  input.value = `Deck for investor intro
+$('demo').onclick=()=>{
+  input.value=`Deck for investor intro
 Meeting moved to 3pm with product
 Contract redlines due Friday
 Invoice paid – Stripe
 Bug: login loop on prod
-Ship 1.0.2 release notes
-Reminder: homework due tomorrow
-Customer asks about pricing update
-TA session moved to Thu 4pm
-Follow up with Michelle on pilot`;
-  clearAll();
+Reminder: homework due tomorrow`;
+  [high,urg,tom,sugg].forEach(x=>x.innerHTML='');
 };
-$('clear').onclick = ()=>{ input.value=''; clearAll(); };
-function clearAll(){ [highList, urgentList, tomorrowList, suggestList].forEach(x=>x.innerHTML=''); }
+$('clear').onclick=()=>{input.value='';[high,urg,tom,sugg].forEach(x=>x.innerHTML='');};
 
-/* ==== UTIL ==== */
-const esc = s => String(s).replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
-const cap = s => s ? s.charAt(0).toUpperCase()+s.slice(1).toLowerCase() : '';
-const toText = x => typeof x==='string' ? x : (x?.text||'');
-
-function extractTime(t){ const m=t.match(/\b((?:[01]?\d|2[0-3]):[0-5]\d)\b|\b(\d{1,2})\s*(am|pm)\b/i); return m ? (m[1] || (m[2]+m[3])) : ''; }
-function extractDay(t){
-  const m=t.match(/\b(mon|tue|wed|thu|fri|sat|sun|today|tomorrow|monday|tuesday|weds?|thurs?|friday|saturday|sunday|next|week)\b/i);
-  return m? m[0] : '';
+function classify(t){
+  const isUrg=/(urgent|asap|due|today|deadline)/i.test(t);
+  const isTomorrow=/tomorrow|thu|fri|sat|sun|next/i.test(t);
+  let section=isUrg?'urgent':isTomorrow?'tomorrow':'today';
+  return {section,title:t};
 }
-function isFutureWord(d){ return /^(tomorrow|mon|tue|wed|thu|fri|sat|sun|monday|tuesday|weds?|thurs?|friday|saturday|sunday|next|week)$/i.test(d); }
-
-/* classify → meta object */
-function classify(text){
-  const t = String(text||'').trim();
-  const isBug   = /(bug|issue|crash|prod|outage|hotfix|error)/i.test(t);
-  const isMoney = /(invoice|paid|payment|stripe|pricing|quote|po)/i.test(t);
-  const isMeet  = /(meet|call|zoom|calendar|intro|sync|moved|resched)/i.test(t);
-  const isShip  = /(ship|release|launch|deploy|version|notes|build|rc)/i.test(t);
-  const isDoc   = /(contract|redline|spec|doc|proposal)/i.test(t);
-  const isUrg   = /(urgent|asap|blocker|critical|due|deadline|eod|eow|today)/i.test(t);
-
-  const time = extractTime(t);
-  const dayWord = extractDay(t);
-  const future = dayWord && isFutureWord(dayWord);
-
-  let section = future ? 'tomorrow' : 'today';
-  if (isUrg) section = 'today';
-
-  let pill='gray', glyph='•', title=t, subtitle='';
-  if (isBug){ pill='red'; glyph='⎌'; subtitle='Needs attention'; }
-  else if (isMoney){ pill='green'; glyph='＄'; subtitle='Completed'; }
-  else if (isShip){ pill='purple'; glyph='🚀'; subtitle='Release'; }
-  else if (isDoc){ pill='orange'; glyph='📄'; subtitle= dayWord ? cap(dayWord) : 'Docs'; }
-  else if (isMeet){ pill='blue'; glyph='🕘'; subtitle= time || (future? cap(dayWord) : 'Today'); if (future) title='Prep: '+title; }
-  else { subtitle = time || (future? cap(dayWord) : 'Today'); }
-
-  return { section, pill, glyph, title, subtitle, urgent:isUrg, raw:t };
-}
-
-/* render list of metas */
-function renderCells(container, metas){
-  container.innerHTML='';
-  if (!metas.length){
-    container.innerHTML = `
-      <div class="cell">
-        <div class="pill gray">•</div>
-        <div class="titleCol">
-          <div class="t1">Nothing here yet</div>
-          <div class="t2">Paste a few lines and tap “Make my day simple”.</div>
-        </div>
-        <div class="chev">›</div>
-      </div>`;
-    return;
-  }
-  metas.forEach(meta=>{
+function renderList(el,items){
+  el.innerHTML='';
+  if(!items.length){el.innerHTML='<div class="cell"><div class="pill gray">•</div><div class="titleCol"><div class="t1">Nothing here yet</div></div><div class="chev">›</div></div>';return;}
+  items.forEach(t=>{
     const row=document.createElement('div');
     row.className='cell';
-    row.innerHTML=`
-      <div class="pill ${meta.pill}">${meta.glyph}</div>
-      <div class="titleCol">
-        <div class="t1">${esc(meta.title)}</div>
-        <div class="t2">${esc(meta.subtitle)}</div>
-      </div>
-      <div class="chev">›</div>`;
-    row.addEventListener('click', ()=>openDetail(meta));
-    container.appendChild(row);
+    row.innerHTML=`<div class="pill blue">🗒</div><div class="titleCol"><div class="t1">${t.title}</div></div><div class="chev">›</div>`;
+    el.appendChild(row);
+  });
+}
+function renderSuggestions(items){
+  sugg.innerHTML='';
+  if(!items.length){sugg.innerHTML='<div class="suggCard">☀️ Pick 3 for tomorrow & archive the rest</div>';return;}
+  items.forEach(txt=>{
+    const card=document.createElement('div');
+    card.className='suggCard';
+    card.textContent=txt;
+    sugg.appendChild(card);
   });
 }
 
-/* suggestions → metas (FIX for undefined) */
-function buildSuggestionsMetas(metas){
-  const urg = metas.filter(x=>x.urgent);
-  const tom = metas.filter(x=>x.section==='tomorrow');
-  const out = [];
-
-  if (urg.length) out.push({pill:'orange', glyph:'✨', title:`Draft replies for top ${Math.min(urg.length,3)} urgent threads`, subtitle:''});
-  if (tom.length) out.push({pill:'orange', glyph:'✨', title:`Block 30 min for: ${tom[0].title.replace(/^Prep:\s*/,'')}`, subtitle:''});
-  if (metas.some(x=>/(bug|issue|prod|outage|error)/i.test(x.raw))) out.push({pill:'orange', glyph:'✨', title:'File a bug & assign owner', subtitle:''});
-  if (metas.some(x=>/(invoice|paid|stripe|pricing)/i.test(x.raw))) out.push({pill:'orange', glyph:'✨', title:'Update finance dashboard', subtitle:''});
-  if (metas.some(x=>/(release|launch|deploy|version|notes|ship)/i.test(x.raw))) out.push({pill:'orange', glyph:'✨', title:'Post concise release note', subtitle:''});
-  if (!tom.length) out.push({pill:'orange', glyph:'✨', title:'Workout 20 min', subtitle:''});
-  out.push({pill:'orange', glyph:'✨', title:'Pick 3 for tomorrow & archive the rest', subtitle:''});
-
-  return out;
-}
-
-/* local reasoning (default to TODAY unless explicit future) */
-function reasonLocally(lines){
-  const metas = lines.map(classify);
-  const today = metas.filter(m=>m.section==='today');
-  const urgent = metas.filter(m=>m.urgent);
-  let tomorrow = metas.filter(m=>m.section==='tomorrow');
-
-  if (tomorrow.length===0){
-    tomorrow = [{section:'tomorrow', pill:'blue', glyph:'🕘', title:'Prep: quick workout', subtitle:'Tomorrow', urgent:false, raw:'Workout'}];
-  }
-  return { metas, today, urgent, tomorrow };
-}
-
-/* remote (optional) — used only to set Mode label */
-async function pingAppsScript(lines){
-  const params=new URLSearchParams(); lines.forEach(v=>params.append('items', v));
-  const r=await fetch(WEB_APP_URL,{method:'POST',body:params});
-  let data={}; try{ data=await r.json(); }catch{}
-  if (!r.ok || data.error || (data.status && data.status!==200)) throw new Error();
-}
-
-/* MAIN */
-$('go').onclick = async ()=>{
-  const lines = input.value.split('\n').map(s=>s.trim()).filter(Boolean);
-  if (!lines.length){ alert('Paste a few lines first 🙂'); return; }
-  const btn=$('go'); btn.disabled=true; btn.textContent='Summarizing…';
-  try{
-    const local = reasonLocally(lines);
-    try{ await pingAppsScript(lines); modeEl.textContent='LLM'; }catch{ modeEl.textContent='Local'; }
-
-    // Today should never be empty: if empty, promote from urgent/first items
-    if (!local.today.length){
-      local.today = local.urgent.slice(0,2);
-      if (!local.today.length) local.today = local.metas.slice(0,3);
-    }
-
-    renderCells(highList, local.today.slice(0,6));
-    renderCells(urgentList, local.urgent.slice(0,3));
-    renderCells(tomorrowList, local.tomorrow.slice(0,4));
-    renderCells(suggestList, buildSuggestionsMetas(local.metas));
-  } finally{
-    btn.disabled=false; btn.textContent='Make my day simple';
-  }
+$('go').onclick=()=>{
+  const lines=input.value.split('\n').map(s=>s.trim()).filter(Boolean);
+  const metas=lines.map(classify);
+  const today=metas.filter(m=>m.section==='today');
+  const urgent=metas.filter(m=>m.section==='urgent');
+  const tomorrow=metas.filter(m=>m.section==='tomorrow');
+  renderList(high,today);
+  renderList(urg,urgent);
+  renderList(tom,tomorrow);
+  renderSuggestions([
+    "📝 Draft replies for urgent threads",
+    "🗓️ Block 30 min for tomorrow’s prep",
+    "💡 File bugs immediately if found",
+    "🚀 Share concise release notes"
+  ]);
 };
-
-/* Mark all done */
-$('done').onclick = ()=>{
-  document.querySelectorAll('.t1').forEach(t1=>{ t1.style.textDecoration='line-through'; t1.style.opacity='0.55'; });
-};
-
-/* ========= Detail page (full page, Library style) ========= */
-let currentMeta = null;
-function openDetail(meta){
-  currentMeta = meta;
-  appTitle.textContent = 'Library';
-  backBtn.style.display = 'inline-block';
-  $('mode').parentElement.style.visibility = 'hidden';
-  homeView.style.display = 'none';
-  detailView.style.display = 'grid';
-
-  dTitle.textContent = meta.title;
-  dSub.textContent = detailSubtitle(meta);
-  dSteps.innerHTML = '';
-  detailSteps(meta).forEach(x=>{
-    const li=document.createElement('li'); li.textContent=x; dSteps.appendChild(li);
-  });
-}
-function closeDetail(){
-  currentMeta = null;
-  appTitle.textContent = 'Home';
-  backBtn.style.display = 'none';
-  $('mode').parentElement.style.visibility = 'visible';
-  detailView.style.display = 'none';
-  homeView.style.display = 'grid';
-}
-backBtn.addEventListener('click', closeDetail);
-$('dCopy').addEventListener('click', ()=>{ if(currentMeta) navigator.clipboard.writeText(currentMeta.title + ' — ' + detailSubtitle(currentMeta)); });
-$('dDone').addEventListener('click', ()=>{
-  if (!currentMeta) return;
-  // strike in the home list
-  const rows = Array.from(document.querySelectorAll('.t1'));
-  const row = rows.find(r => r.textContent === currentMeta.title);
-  if (row){ row.style.textDecoration='line-through'; row.style.opacity='0.55'; }
-  closeDetail();
-});
-
-/* Detail helpers */
-function detailSubtitle(m){
-  if (/today/i.test(m.subtitle) || m.section==='today') return 'Today';
-  if (/tomorrow/i.test(m.subtitle) || m.section==='tomorrow') return 'Tomorrow';
-  return m.subtitle || 'Soon';
-}
-function detailSteps(m){
-  const t = m.raw.toLowerCase(), out=[];
-  if (m.pill==='red') out.push('Create a bug ticket and assign an owner','Attach logs/screenshot','Notify channel if customer-facing');
-  else if (m.pill==='green') out.push('Record payment in tracker','Notify stakeholders','Archive email thread');
-  else if (m.pill==='purple') out.push('Write 3-line release note','Post in channel','Plan a 10-min retro');
-  else if (m.pill==='blue') out.push('Confirm agenda','Prep 1 question/doc','Join 5 minutes early');
-  else if (/contract|redline/.test(t)) out.push('Skim redlines & mark blockers','Send 1-line summary back');
-  else out.push('Define the next smallest step','Block 20–30 min focus');
-  return out;
-}
 </script>
 </body>
 </html>
