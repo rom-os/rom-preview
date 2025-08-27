@@ -6,92 +6,79 @@
 <title>ROM • Daily Summary</title>
 
 <style>
-/* ===== Theme (auto light/dark) ===== */
 :root{
-  --bg:#F6F7F9; --surface:#FFFFFF; --surface-2:#F1F4F8; --stroke:#E8EBF0;
-  --text:#0B1220; --muted:#667085; --accent:#0A84FF;
-  --red:#FF3B30; --blue:#0A84FF; --orange:#FF9F0A; --green:#34C759; --purple:#AF52DE; --gray:#8E8E93;
-  --rx:18px;
-  --wrap:max(92vw, 320px);
-  --max:1000px;
-
-  --fs-xs:clamp(11px, 2vw, 12px);
-  --fs-s: clamp(13px, 2.2vw, 14px);
-  --fs-m: clamp(15px, 3vw, 16px);
-  --fs-l: clamp(28px, 6vw, 34px);
+  --bg:#0F1116; --surface:#171B24; --surface-2:#121621; --stroke:#222838;
+  --text:#E7EAF0; --muted:#AAB2C0; --accent:#74D2FF;
+  --green:#34C759; --rx:18px; --max:980px;
+  --fs-xs:clamp(11px,2vw,12px);
+  --fs-s: clamp(13px,2.2vw,14px);
+  --fs-m: clamp(15px,3vw,16px);
+  --fs-l: clamp(28px,6vw,34px);
 }
-@media (prefers-color-scheme: dark){
+@media (prefers-color-scheme: light){
   :root{
-    --bg:#0F1116; --surface:#171B24; --surface-2:#121621; --stroke:#222838;
-    --text:#E7EAF0; --muted:#AAB2C0; --accent:#74D2FF;
+    --bg:#F6F7F9; --surface:#FFFFFF; --surface-2:#F1F4F8; --stroke:#E8EBF0;
+    --text:#0B1220; --muted:#667085; --accent:#0A84FF;
   }
 }
-
-/* ===== Base ===== */
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;background:var(--bg);color:var(--text);
   font-family:-apple-system,"SF Pro Text",Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 a{color:inherit;text-decoration:none}
 
-/* ===== App Bar ===== */
-.bar{position:sticky;top:0;z-index:10;background:var(--surface);border-bottom:1px solid var(--stroke)}
-.barInner{max-width:var(--max);margin:0 auto;width:var(--wrap);padding:18px 16px 10px;display:flex;gap:12px;align-items:center}
+/* Top bar */
+.bar{position:sticky;top:0;z-index:10;background:radial-gradient(900px 420px at 50% -100px, rgba(116,210,255,.12), transparent),var(--surface);border-bottom:1px solid var(--stroke)}
+.barInner{max-width:var(--max);margin:0 auto;padding:18px 16px 10px;display:flex;gap:12px;align-items:center}
 h1{margin:0;font-size:var(--fs-l);font-weight:900;letter-spacing:-.02em;flex:1}
 .mode{font-size:var(--fs-s);color:var(--muted)}
 .back{display:none;padding:8px 12px;border-radius:12px;border:1px solid var(--stroke);background:var(--surface-2);font-weight:800;cursor:pointer}
 
-/* ===== Views ===== */
-.view{max-width:var(--max);margin:0 auto;width:var(--wrap);padding:16px;display:grid;gap:16px}
+/* Views */
+.view{max-width:var(--max);margin:0 auto;padding:16px;display:grid;gap:16px}
 
-/* ===== Input Card ===== */
+/* Input card (Landing) */
 .card{background:var(--surface);border:1px solid var(--stroke);border-radius:var(--rx);padding:16px}
 .card h3{margin:0 0 8px;font-size:var(--fs-m);font-weight:900}
 textarea{width:100%;min-height:120px;border:1px solid var(--stroke);border-radius:14px;background:var(--surface-2);
   color:var(--text);padding:12px;font-size:var(--fs-m);line-height:1.55;resize:vertical;outline:none}
-.actions{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
-.btn{flex:1;min-width:160px;text-align:center;padding:12px;border-radius:14px;border:1px solid var(--stroke);
-  background:var(--surface-2);font-weight:800;cursor:pointer;user-select:none}
-.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff}
-.btn-ok{background:#34C759;color:#fff;border:none}
-.hint{margin-top:6px;font-size:var(--fs-xs);color:var(--muted)}
+.actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.btn{flex:1;min-width:150px;text-align:center;padding:14px;border-radius:16px;border:1px solid var(--stroke);
+  background:var(--surface-2);font-weight:900;cursor:pointer;user-select:none}
+.btn-primary{background:var(--accent);border-color:transparent;color:#fff}
+.btn-ok{background:color-mix(in srgb, var(--green) 94%, transparent);color:#0B6B38;border:none}
+.hint{margin-top:10px;font-size:var(--fs-s);color:var(--muted)}
 
-/* ===== Section headings ===== */
+/* Sections container (hidden until summarize) */
+#sections{display:none}
+
+/* Headings + grids */
 .section h4{margin:0 0 8px;font-size:var(--fs-m);font-weight:900}
-
-/* ===== Card Grid ===== */
 .grid{display:grid;gap:14px}
 @media (min-width:760px){ .grid{grid-template-columns:1fr 1fr} }
 
-/* ===== Task Card (Asana/Trello/Equinox vibe) ===== */
+/* Task card (sleek) */
 .task{
   background:var(--surface);border:1px solid var(--stroke);border-radius:16px;padding:14px;
-  display:flex;flex-direction:column;gap:12px;box-shadow:0 2px 10px rgba(0,0,0,.05);
+  display:flex;flex-direction:column;gap:12px;box-shadow:0 2px 10px rgba(0,0,0,.25);
 }
 .t-header{display:flex;align-items:center;gap:12px}
-.t-avatar{
-  width:36px;height:36px;border-radius:12px;display:grid;place-items:center;color:#fff;font-weight:800;
-  background:linear-gradient(180deg,#7AA9FF,#3D7BFF);
-}
+.t-avatar{position:relative;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;color:#fff;font-weight:800;
+  background:linear-gradient(180deg,#9BC0FF,#3D7BFF)}
+.t-badge{position:absolute;right:-4px;bottom:-4px;width:18px;height:18px;border-radius:6px;display:grid;place-items:center;
+  background:var(--surface);border:1px solid var(--stroke);font-size:12px}
 .t-meta .t-app{font-weight:800}
 .t-meta .t-sub{font-size:var(--fs-xs);color:var(--muted)}
 .t-title{font-weight:900;font-size:var(--fs-m);letter-spacing:-.01em}
 .t-desc{margin:0;color:var(--muted);font-size:var(--fs-s)}
-.t-rom{
-  background:color-mix(in srgb, var(--accent) 12%, transparent);
-  border:1px solid color-mix(in srgb, var(--accent) 35%, transparent);
-  border-radius:12px;padding:10px;font-size:var(--fs-s);line-height:1.45
-}
+.t-rom{background:color-mix(in srgb, var(--accent) 12%, transparent);border:1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  border-radius:12px;padding:10px;font-size:var(--fs-s);line-height:1.45}
 .t-rom b{color:var(--accent)}
 .t-row{display:flex;gap:10px;flex-wrap:wrap}
-.t-btn{
-  margin-top:auto;padding:10px 12px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-weight:800;cursor:pointer
-}
+.t-btn{margin-top:auto;padding:10px 12px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-weight:800;cursor:pointer}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:var(--surface-2);border:1px solid var(--stroke);font-size:var(--fs-xs);font-weight:800}
 .t-cap{font-size:var(--fs-xs);color:var(--muted)}
 
-/* Pills for quick labels */
-.pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:var(--surface-2);border:1px solid var(--stroke);font-size:var(--fs-xs);font-weight:800}
-
-/* ===== Suggestions (horizontal) ===== */
+/* Suggestions (max 3) */
 .suggRow{display:flex;gap:12px;overflow-x:auto;padding:4px 2px 8px;scroll-snap-type:x mandatory}
 .suggRow::-webkit-scrollbar{display:none}
 .sugg{flex:0 0 auto;min-width:260px;scroll-snap-align:start;background:var(--surface);border:1px solid var(--stroke);
@@ -99,7 +86,7 @@ textarea{width:100%;min-height:120px;border:1px solid var(--stroke);border-radiu
 .sIcon{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:20px;background:var(--surface-2);border:1px solid var(--stroke)}
 .sText{font-weight:800;font-size:var(--fs-m);line-height:1.3}
 
-/* ===== Detail View ===== */
+/* Detail page */
 .detail{display:none}
 .d-hero{padding:4px 2px}
 .d-title{font-size:clamp(26px,5vw,32px);font-weight:900;letter-spacing:-.02em;margin:6px 0}
@@ -116,54 +103,49 @@ textarea{width:100%;min-height:120px;border:1px solid var(--stroke);border-radiu
   <div class="bar">
     <div class="barInner">
       <button class="back" id="backBtn">‹ Back</button>
-      <h1 id="topTitle">Daily Summary</h1>
-      <div class="mode">Mode: <strong id="mode">Auto</strong></div>
+      <h1 id="topTitle">Home</h1>
+      <div class="mode">Mode: <strong id="mode">Local</strong></div>
     </div>
   </div>
 
   <!-- HOME -->
   <div class="view" id="home">
-    <!-- Input -->
+    <!-- Landing input only -->
     <div class="card">
-      <h3>Enter tasks/notes</h3>
-      <textarea id="in" placeholder="Deck for investor intro
-Meeting moved to 3pm with product
-Contract redlines due Friday
-Invoice paid – Stripe
-Bug: login loop on prod
-Ship 1.0.2 release notes
-Reminder: homework due tomorrow"></textarea>
+      <h3>Top Picks</h3>
+      <textarea id="in" placeholder="Paste your agenda…"></textarea>
       <div class="actions">
         <div class="btn" id="demo">Demo</div>
         <div class="btn" id="clear">Clear</div>
         <div class="btn btn-primary" id="go">Make my day simple</div>
+      </div>
+      <div class="actions" style="margin-top:8px">
         <div class="btn btn-ok" id="done">Mark all done</div>
       </div>
       <div class="hint">Local-first; nothing stored. We only summarize what you paste.</div>
     </div>
 
-    <!-- Today -->
-    <div class="section">
-      <h4>📌 Today’s Highlights</h4>
-      <div class="grid" id="highGrid"></div>
-    </div>
+    <!-- Sections (hidden until summarize) -->
+    <div id="sections">
+      <div class="section">
+        <h4>📌 Today’s Highlights</h4>
+        <div class="grid" id="highGrid"></div>
+      </div>
 
-    <!-- Urgent -->
-    <div class="section">
-      <h4>⚡ Urgent</h4>
-      <div class="grid" id="urgentGrid"></div>
-    </div>
+      <div class="section">
+        <h4>⚡ Urgent</h4>
+        <div class="grid" id="urgentGrid"></div>
+      </div>
 
-    <!-- Tomorrow -->
-    <div class="section">
-      <h4>🌙 For Tomorrow</h4>
-      <div class="grid" id="tomorrowGrid"></div>
-    </div>
+      <div class="section">
+        <h4>🌙 For Tomorrow</h4>
+        <div class="grid" id="tomorrowGrid"></div>
+      </div>
 
-    <!-- Suggestions -->
-    <div class="section">
-      <h4>✨ Suggestions</h4>
-      <div class="suggRow" id="suggRow"></div>
+      <div class="section">
+        <h4>✨ Suggestions</h4>
+        <div class="suggRow" id="suggRow"></div>
+      </div>
     </div>
   </div>
 
@@ -185,14 +167,17 @@ Reminder: homework due tomorrow"></textarea>
   </div>
 
 <script>
-/* ===== Shortcuts ===== */
-const $ = (id)=>document.getElementById(id);
-const modeEl=$('mode'), topTitle=$('topTitle'), backBtn=$('backBtn');
-const home=$('home'), detail=$('detail');
+/* ===== Helpers ===== */
+const $ = id => document.getElementById(id);
+const topTitle=$('topTitle'), backBtn=$('backBtn'), modeEl=$('mode');
+const home=$('home'), detail=$('detail'), sections=$('sections');
 const input=$('in'), highGrid=$('highGrid'), urgentGrid=$('urgentGrid'), tomorrowGrid=$('tomorrowGrid'), suggRow=$('suggRow');
 const dTitle=$('dTitle'), dSub=$('dSub'), dSteps=$('dSteps');
 
-/* ===== Demo / Clear ===== */
+const esc = s => String(s).replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
+const cap = s => s ? s.charAt(0).toUpperCase()+s.slice(1).toLowerCase() : '';
+
+/* Demo + Clear */
 $('demo').onclick=()=>{
   input.value=`Deck for investor intro
 Meeting moved to 3pm with product
@@ -201,18 +186,18 @@ Invoice paid – Stripe
 Bug: login loop on prod
 Ship 1.0.2 release notes
 Reminder: homework due tomorrow
-Customer asks about pricing update
-TA session moved to Thu 4pm
-Follow up with Michelle on pilot`;
-  clearAll();
+Follow up with Michelle on pilot
+Asana: draft status for GTM
+Gmail: reply to onboarding`;
 };
-$('clear').onclick=()=>{ input.value=''; clearAll(); };
-function clearAll(){ [highGrid, urgentGrid, tomorrowGrid, suggRow].forEach(el=>el.innerHTML=''); }
+$('clear').onclick=()=>{ input.value=''; hideSections(); clearGrids(); };
+$('done').onclick=()=>{ document.querySelectorAll('.t-title').forEach(t=>{ t.style.textDecoration='line-through'; t.style.opacity='.55'; }); };
 
-/* ===== Heuristics ===== */
-const esc = s => String(s).replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
-const cap = s => s ? s.charAt(0).toUpperCase()+s.slice(1).toLowerCase() : '';
+function clearGrids(){ [highGrid,urgentGrid,tomorrowGrid,suggRow].forEach(el=>el.innerHTML=''); }
+function showSections(){ sections.style.display='grid'; }
+function hideSections(){ sections.style.display='none'; }
 
+/* Light reasoning */
 function timeOf(t){ const m=t.match(/\b((?:[01]?\d|2[0-3]):[0-5]\d)\b|\b(\d{1,2})\s*(am|pm)\b/i); return m ? (m[1]||m[2]+m[3]) : ''; }
 function dayWord(t){
   const m=t.match(/\b(today|tomorrow|mon|tue|wed|thu|fri|sat|sun|monday|tuesday|weds?|thurs?|friday|saturday|sunday|next|week)\b/i);
@@ -220,65 +205,68 @@ function dayWord(t){
 }
 function isFuture(w){ return /^(tomorrow|next|week|mon|tue|wed|thu|fri|sat|sun|monday|tuesday|weds?|thurs?|friday|saturday|sunday)$/i.test(w); }
 
+/* App detection → tiny badges + colors */
+function detectApp(t){
+  const s=t.toLowerCase();
+  if (s.includes('asana'))   return {app:'Asana',   color:'linear-gradient(180deg,#FFAEBC,#FF3D6E)', badge:'🅰️'};
+  if (s.includes('trello'))  return {app:'Trello',  color:'linear-gradient(180deg,#9BC0FF,#3D7BFF)', badge:'🟦'};
+  if (s.includes('gmail')||s.includes('email')||s.includes('inbox')) return {app:'Gmail',  color:'linear-gradient(180deg,#FFD0D0,#FF4D4D)', badge:'✉️'};
+  if (s.includes('slack'))   return {app:'Slack',   color:'linear-gradient(180deg,#E9D5FF,#A855F7)', badge:'💬'};
+  if (s.includes('zoom')||s.includes('meet')) return {app:'Meeting', color:'linear-gradient(180deg,#BEE3FF,#3D7BFF)', badge:'📹'};
+  if (s.includes('doc')||s.includes('contract')||s.includes('redline')) return {app:'Docs', color:'linear-gradient(180deg,#FFE3AD,#FF9F0A)', badge:'📄'};
+  if (s.includes('notion'))  return {app:'Notion',  color:'linear-gradient(180deg,#E5E7EB,#9CA3AF)', badge:'N'};
+  if (s.includes('stripe')||s.includes('invoice')||s.includes('paid')) return {app:'Finance', color:'linear-gradient(180deg,#B6F5C7,#34C759)', badge:'💵'};
+  if (s.includes('github')||s.includes('pr ')||s.includes('pull request')) return {app:'GitHub', color:'linear-gradient(180deg,#E5E7EB,#9CA3AF)', badge:'🐙'};
+  return {app:'Task', color:'linear-gradient(180deg,#9BC0FF,#3D7BFF)', badge:'✓'};
+}
+
 /* classify a line → meta */
 function classify(text){
   const t=String(text||'').trim();
+  const {app,color,badge}=detectApp(t);
   const isBug=/(bug|issue|crash|prod|outage|hotfix|error)/i.test(t);
-  const isMoney=/(invoice|paid|payment|stripe|pricing|quote|po)/i.test(t);
-  const isMeet=/(meet|call|zoom|calendar|intro|sync|moved|resched)/i.test(t);
-  const isShip=/(ship|release|launch|deploy|version|notes|build|rc)/i.test(t);
-  const isDoc=/(contract|redline|spec|doc|proposal)/i.test(t);
   const isUrg=/(urgent|asap|blocker|critical|due|deadline|eod|eow|today)/i.test(t);
-
+  const isMeet=/(meet|call|zoom|calendar|intro|sync|moved|resched)/i.test(t);
   const time=timeOf(t), dw=dayWord(t), future=dw && isFuture(dw);
-
-  // section
-  let section = isUrg ? 'today' : (future ? 'tomorrow' : 'today');
-
-  // app "guess" + color
-  let app='Task', color='blue', sub=time || (future?'Tomorrow':'Today');
-  if (isBug){ app='Issue'; color='red'; sub='Needs attention'; }
-  else if (isMoney){ app='Finance'; color='green'; sub='Payment/Invoice'; }
-  else if (isShip){ app='Release'; color='purple'; sub='Release notes'; }
-  else if (isDoc){ app='Docs'; color='orange'; sub=dw?cap(dw):'Docs'; }
-  else if (isMeet){ app='Meeting'; color='blue'; sub=time || (future?'Tomorrow':'Today'); if (future) text='Prep: '+t; }
-
+  const section = isUrg ? 'today' : (future ? 'tomorrow' : 'today');
   const title = (isMeet && future) ? 'Prep: '+t : t;
+  const sub = time || (future ? 'Tomorrow' : 'Today');
 
-  // action label
+  // action
   let action='Open';
   if (app==='Meeting') action='Join / Prep';
-  else if (app==='Issue') action='Fix / Assign';
+  else if (isBug) action='Fix / Assign';
   else if (app==='Finance') action='Record';
-  else if (app==='Release') action='Share Note';
   else if (app==='Docs') action='View Doc';
   else if (isUrg) action='Handle Now';
 
-  return { section, app, color, title, sub, urgent:isUrg, raw:t, action };
+  return {section, app, color, badge, title, sub, urgent:isUrg, raw:t, action, isBug};
 }
 
-/* Suggestions */
+/* Suggestions (max 3) */
 function buildSuggestions(metas){
   const urg=metas.filter(x=>x.urgent);
   const tom=metas.filter(x=>x.section==='tomorrow');
-  const out=[];
-  if (urg.length) out.push({icon:'📝', text:`Draft replies for top ${Math.min(urg.length,3)} urgent threads`});
-  if (tom.length) out.push({icon:'🗓️', text:`Block 30 min for: ${tom[0].title.replace(/^Prep:\s*/,'')}`});
-  if (metas.some(x=>/(bug|issue|prod|outage|error)/i.test(x.raw))) out.push({icon:'🐞', text:'File a bug & assign owner'});
-  if (metas.some(x=>/(invoice|paid|stripe|pricing)/i.test(x.raw))) out.push({icon:'💸', text:'Update finance dashboard'});
-  if (metas.some(x=>/(release|launch|deploy|version|notes|ship)/i.test(x.raw))) out.push({icon:'🚀', text:'Post concise release note'});
-  if (!tom.length) out.push({icon:'🏃', text:'Workout 20 min'});
-  out.push({icon:'☀️', text:'Pick 3 for tomorrow & archive the rest'});
-  return out;
+  const all=[];
+  if (urg.length) all.push({icon:'📝', text:`Draft replies for ${Math.min(urg.length,3)} urgent threads`});
+  if (tom.length) all.push({icon:'🗓️', text:`Block 30 min for: ${tom[0].title.replace(/^Prep:\s*/,'')}`});
+  if (metas.some(x=>x.isBug)) all.push({icon:'🐞', text:'File a bug & assign owner'});
+  if (metas.some(x=>/(invoice|paid|stripe|pricing)/i.test(x.raw))) all.push({icon:'💸', text:'Update finance dashboard'});
+  if (!tom.length) all.push({icon:'🏃', text:'Quick workout (20 min)'}); // fallback
+  all.push({icon:'☀️', text:'Pick 3 for tomorrow & archive the rest'});
+  return all.slice(0,3); // cap to 3
 }
 
-/* Render a task card */
+/* Renderers */
 function renderCard(meta){
   const div=document.createElement('div');
   div.className='task';
   div.innerHTML=`
     <div class="t-header">
-      <div class="t-avatar" style="${avatarStyle(meta.color)}">${initial(meta.app)}</div>
+      <div class="t-avatar" style="background:${meta.color}">
+        ${esc(meta.app.charAt(0))}
+        <div class="t-badge">${meta.badge}</div>
+      </div>
       <div class="t-meta">
         <div class="t-app">${esc(meta.app)}</div>
         <div class="t-sub">${esc(meta.sub)}</div>
@@ -292,56 +280,38 @@ function renderCard(meta){
 
     <div class="t-row">
       <button class="t-btn">${esc(meta.action)}</button>
-      <span class="pill">${meta.urgent ? 'Urgent' : 'Today'}</span>
+      <span class="pill">${meta.urgent?'Urgent':'Today'}</span>
     </div>
 
     <div class="t-cap">${captionLine(meta)}</div>
   `;
-  // Open detail on card click (but allow button to still work)
-  div.addEventListener('click', (e)=>{ if(e.target.tagName!=='BUTTON') openDetail(meta); });
+  div.addEventListener('click', (e)=>{ if (e.target.tagName!=='BUTTON') openDetail(meta); });
   return div;
 }
-
-/* Helpers for card content */
-function initial(s){ return (s||'?').trim().charAt(0).toUpperCase(); }
-function avatarStyle(color){
-  const palettes = {
-    red:['#FFA3A1','#FF5D58'], blue:['#9BC0FF','#3D7BFF'], orange:['#FFD38A','#FF9F0A'],
-    green:['#B6F5C7','#34C759'], purple:['#D8C3FF','#AF52DE'], gray:['#C7CBD6','#8E8E93']
-  };
-  const p = palettes[color] || palettes.blue;
-  return `background:linear-gradient(180deg, ${p[0]}, ${p[1]});`;
-}
 function contextLine(m){
-  if (m.app==='Meeting') return 'Agenda ready • 1-page prep helps';
-  if (m.app==='Issue') return 'Add logs/screenshot • notify owner';
+  if (m.app==='Meeting') return 'Agenda ready • 1-pager prep helps';
+  if (m.isBug) return 'Add logs/screenshot • notify owner';
   if (m.app==='Finance') return 'Log payment in tracker';
-  if (m.app==='Release') return 'Write 3-line release note';
   if (m.app==='Docs') return 'Skim redlines • mark blockers';
   return 'Smallest next step wins';
 }
 function assistLine(m){
-  if (m.app==='Meeting') return 'Need a prep outline or questions?';
-  if (m.app==='Issue') return 'Draft a bug ticket with steps + assignee?';
-  if (m.app==='Finance') return 'Want me to draft a receipt/email?';
-  if (m.app==='Release') return 'Summarize changes & post to channel?';
+  if (m.app==='Meeting') return 'Want a prep outline or 3 questions?';
+  if (m.isBug) return 'Draft a bug ticket with steps + assignee?';
+  if (m.app==='Finance') return 'Draft receipt/status message?';
   if (m.app==='Docs') return 'Summarize deltas & reply with blockers?';
   return 'Turn this into a 1-sentence task?';
 }
 function captionLine(m){
   if (m.app==='Meeting') return 'ROM composes a quick prep checklist';
-  if (m.app==='Issue') return 'ROM drafts ticket from your note';
+  if (m.isBug) return 'ROM drafts ticket from your note';
   if (m.app==='Finance') return 'ROM formats a status snippet';
-  if (m.app==='Release') return 'ROM drafts release note for you';
   if (m.app==='Docs') return 'ROM trims legalese to action';
   return 'ROM keeps it short & actionable';
 }
-
-/* Render suggestions */
 function renderSuggestions(row, list){
   row.innerHTML='';
-  if (!list.length) list=[{icon:'☀️',text:'Pick 3 for tomorrow & archive the rest'}];
-  list.forEach(s=>{
+  (list.length?list:[{icon:'☀️',text:'Pick 3 for tomorrow & archive the rest'}]).forEach(s=>{
     const c=document.createElement('div');
     c.className='sugg';
     c.innerHTML=`<div class="sIcon">${s.icon||'✨'}</div><div class="sText">${esc(s.text)}</div>`;
@@ -349,10 +319,10 @@ function renderSuggestions(row, list){
   });
 }
 
-/* MAIN: summarize & render */
+/* Summarize click */
 $('go').onclick=()=>{
   const lines=input.value.split('\n').map(s=>s.trim()).filter(Boolean);
-  if (!lines.length){ alert('Paste a few lines first 🙂'); return; }
+  if (!lines.length){ alert('Paste your agenda first 🙂'); return; }
 
   const metas = lines.map(classify);
   let today = metas.filter(m=>m.section==='today');
@@ -360,22 +330,18 @@ $('go').onclick=()=>{
   let tomorrow = metas.filter(m=>m.section==='tomorrow');
 
   if (!today.length){ today = urgent.slice(0,2); if (!today.length) today = metas.slice(0,3); }
-  if (!tomorrow.length){ tomorrow = [{section:'tomorrow', app:'Meeting', color:'blue', title:'Prep: quick workout', sub:'Tomorrow', urgent:false, raw:'Workout', action:'Plan'}]; }
+  if (!tomorrow.length){ tomorrow = [{section:'tomorrow', app:'Meeting', color:'linear-gradient(180deg,#BEE3FF,#3D7BFF)', badge:'📹', title:'Prep: quick workout', sub:'Tomorrow', urgent:false, raw:'Workout', action:'Plan'}]; }
 
-  // wipe
-  [highGrid, urgentGrid, tomorrowGrid].forEach(g=>g.innerHTML='');
-
-  // render cards
+  clearGrids();
   today.slice(0,6).forEach(m=>highGrid.appendChild(renderCard(m)));
   urgent.slice(0,4).forEach(m=>urgentGrid.appendChild(renderCard(m)));
   tomorrow.slice(0,6).forEach(m=>tomorrowGrid.appendChild(renderCard(m)));
-
   renderSuggestions(suggRow, buildSuggestions(metas));
-  modeEl.textContent = 'Local';
-};
 
-/* Mark all done (visual) */
-$('done').onclick=()=>{ document.querySelectorAll('.t-title').forEach(t=>{t.style.textDecoration='line-through'; t.style.opacity='.55';}); };
+  showSections();
+  topTitle.textContent='Home';
+  modeEl.textContent='Local';
+};
 
 /* ===== Detail page ===== */
 let currentMeta=null;
@@ -385,16 +351,14 @@ function openDetail(meta){
   backBtn.style.display='inline-block';
   home.style.display='none';
   detail.style.display='grid';
-
   dTitle.textContent = meta.title;
   dSub.textContent = meta.section==='tomorrow' ? 'Tomorrow' : 'Today';
-
   dSteps.innerHTML='';
   detailSteps(meta).forEach(x=>{ const li=document.createElement('li'); li.textContent=x; dSteps.appendChild(li); });
 }
 function closeDetail(){
   currentMeta=null;
-  topTitle.textContent='Daily Summary';
+  topTitle.textContent='Home';
   backBtn.style.display='none';
   detail.style.display='none';
   home.style.display='grid';
@@ -407,14 +371,12 @@ $('dDone').addEventListener('click', ()=>{
   if (el){ el.style.textDecoration='line-through'; el.style.opacity='.55'; }
   closeDetail();
 });
-
 function detailSteps(m){
-  const t=m.raw.toLowerCase(), out=[];
-  if (m.app==='Issue') out.push('Create a bug ticket & assign owner','Attach logs/screenshot','Notify channel if customer-facing');
+  const t=m.raw?.toLowerCase()||'', out=[];
+  if (m.isBug) out.push('Create a bug ticket & assign owner','Attach logs/screenshot','Notify channel if customer-facing');
   else if (m.app==='Finance') out.push('Record in tracker','Send confirmation to stakeholder');
-  else if (m.app==='Release') out.push('Write 3-line release note','Share to channel','Plan mini retro');
+  else if (m.app==='Docs') out.push('Skim redlines & mark blockers','Reply with summary');
   else if (m.app==='Meeting') out.push('Confirm agenda','Prep 1 doc/question','Join 5 min early');
-  else if (/contract|redline/.test(t)) out.push('Skim redlines & mark blockers','Reply with summary');
   else out.push('Define smallest next step','Block 20–30 min focus');
   return out;
 }
