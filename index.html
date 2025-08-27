@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- keep viewport first -->
+  <!-- keep viewport first so iOS computes the right layout -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>ROM • Daily Summary</title>
@@ -9,8 +9,8 @@
   <style>
   :root{
     --bg:#0F1116; --surface:#171B24; --surface-2:#121621; --stroke:#222838;
-    --text:#E7EAF0; --muted:#AAB2C0; --accent:#74D2FF;
-    --green:#34C759; --rx:18px; --max:980px;
+    --text:#E7EAF0; --muted:#AAB2C0; --accent:#74D2FF; --green:#34C759;
+    --rx:18px; --max:980px;
     --fs-xs:clamp(11px,2vw,12px);
     --fs-s: clamp(13px,2.2vw,14px);
     --fs-m: clamp(15px,3vw,16px);
@@ -26,7 +26,7 @@
   html,body{
     margin:0;height:100%;background:var(--bg);color:var(--text);
     font-family:-apple-system,"SF Pro Text",Inter,system-ui,sans-serif;
-    -webkit-font-smoothing:antialiased
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
   }
   a{color:inherit;text-decoration:none}
 
@@ -40,16 +40,16 @@
   .mode{font-size:var(--fs-s);color:var(--muted)}
   .back{display:none;padding:8px 12px;border-radius:12px;border:1px solid var(--stroke);background:var(--surface-2);font-weight:800;cursor:pointer}
 
-  /* Views */
-  .view{max-width:var(--max);margin:0 auto;padding:16px;display:grid;gap:16px}
+  /* View container */
+  .view{max-width:var(--max);margin:0 auto;padding:16px;display:grid;gap:18px}
 
-  /* Input card (Landing) */
+  /* Input/Landing */
   .card{background:var(--surface);border:1px solid var(--stroke);border-radius:var(--rx);padding:16px}
   .card h3{margin:0 0 8px;font-size:var(--fs-m);font-weight:900}
   textarea{
     width:100%;min-height:120px;border:1px solid var(--stroke);border-radius:14px;background:var(--surface-2);
     color:var(--text);padding:12px;font-size:var(--fs-m);line-height:1.55;resize:vertical;outline:none;
-    word-break: break-word; overflow-wrap: anywhere;
+    word-break:break-word; overflow-wrap:anywhere;
   }
   .actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
   .btn{flex:1;min-width:150px;text-align:center;padding:14px;border-radius:16px;border:1px solid var(--stroke);
@@ -58,7 +58,7 @@
   .btn-ok{background:color-mix(in srgb, var(--green) 94%, transparent);color:#0B6B38;border:none}
   .hint{margin-top:10px;font-size:var(--fs-s);color:var(--muted)}
 
-  /* Sections container (hidden until summarize) */
+  /* Sections (hidden until summarize) */
   #sections{display:none}
 
   /* Headings + grids */
@@ -66,7 +66,7 @@
   .grid{display:grid;gap:14px}
   @media (min-width:760px){ .grid{grid-template-columns:1fr 1fr} }
 
-  /* Task card */
+  /* Task card (vertical feed) */
   .task{
     background:var(--surface);border:1px solid var(--stroke);border-radius:16px;padding:14px;
     display:flex;flex-direction:column;gap:12px;box-shadow:0 2px 10px rgba(0,0,0,.25);
@@ -78,7 +78,8 @@
     background:var(--surface);border:1px solid var(--stroke);font-size:12px}
   .t-meta .t-app{font-weight:800}
   .t-meta .t-sub{font-size:var(--fs-xs);color:var(--muted)}
-  .t-title{font-weight:900;font-size:var(--fs-m);letter-spacing:-.01em}
+  .t-title{font-weight:900;font-size:var(--fs-m);letter-spacing:-.01em;
+    white-space:normal; word-break:break-word; overflow-wrap:anywhere;}
   .t-desc{margin:0;color:var(--muted);font-size:var(--fs-s)}
   .t-rom{background:color-mix(in srgb, var(--accent) 12%, transparent);border:1px solid color-mix(in srgb, var(--accent) 35%, transparent);
     border-radius:12px;padding:10px;font-size:var(--fs-s);line-height:1.45}
@@ -88,13 +89,39 @@
   .pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:var(--surface-2);border:1px solid var(--stroke);font-size:var(--fs-xs);font-weight:800}
   .t-cap{font-size:var(--fs-xs);color:var(--muted)}
 
-  /* Suggestions (max 3) */
-  .suggRow{display:flex;gap:12px;overflow-x:auto;padding:4px 2px 8px;scroll-snap-type:x mandatory}
+  /* ---------- Carousels: creative cards (Apple Podcasts style) ---------- */
+  .carousel{display:flex;gap:14px;overflow-x:auto;padding:4px 2px 8px;scroll-snap-type:x mandatory}
+  .carousel::-webkit-scrollbar{display:none}
+  .creative{
+    flex:0 0 78%;
+    max-width:78%;
+    scroll-snap-align:start;
+    border-radius:22px;
+    background:linear-gradient(160deg,#283142, #131923);
+    border:1px solid var(--stroke);
+    padding:14px;
+    display:flex;gap:12px;align-items:center;
+  }
+  .creative .thumb{
+    width:92px;height:92px;border-radius:20px;flex:0 0 auto;
+    display:grid;place-items:center;font-size:40px;color:#fff;
+    background: radial-gradient(120px 90px at 20% 10%, rgba(255,255,255,.18), transparent 60%),
+                linear-gradient(180deg,#9BC0FF,#3D7BFF);
+    border:1px solid rgba(255,255,255,.12);
+  }
+  .creative .meta{display:flex;flex-direction:column;gap:6px;min-width:0}
+  .creative .meta .t{font-weight:900; font-size:clamp(16px,4.6vw,20px); white-space:normal; word-break:break-word; overflow-wrap:anywhere;}
+  .creative .meta .s{font-size:var(--fs-s); color:var(--muted); white-space:normal}
+  .creative .cta{margin-left:auto}
+  .chip{padding:10px 12px;border-radius:12px;border:1px solid var(--stroke);background:var(--surface-2);font-weight:800}
+
+  /* Suggestions chips row (max 3) */
+  .suggRow{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 8px;scroll-snap-type:x mandatory}
   .suggRow::-webkit-scrollbar{display:none}
-  .sugg{flex:0 0 auto;min-width:260px;scroll-snap-align:start;background:var(--surface);border:1px solid var(--stroke);
-    border-radius:16px;padding:14px;display:flex;gap:12px;align-items:center}
-  .sIcon{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:20px;background:var(--surface-2);border:1px solid var(--stroke)}
-  .sText{font-weight:800;font-size:var(--fs-m);line-height:1.3}
+  .sugg{flex:0 0 auto;scroll-snap-align:start;display:inline-flex;align-items:center;gap:10px;
+    padding:10px 12px;border:1px solid var(--stroke);border-radius:999px;background:var(--surface)}
+  .sIcon{font-size:18px}
+  .sText{font-weight:800;font-size:var(--fs-s)}
 
   /* Detail page */
   .detail{display:none}
@@ -108,30 +135,14 @@
   .d-actions{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
   .small{font-size:var(--fs-xs);color:var(--muted);margin-top:8px}
 
-  /* ===== FINAL MOBILE OVERRIDES (win on iOS) ===== */
+  /* FINAL mobile wrap enforcement (wins on iOS) */
   @media (max-width: 999px){
-    .barInner, .view{
-      max-width: 720px !important;
-      padding-left: 16px !important;
-      padding-right: 16px !important;
-    }
-    .grid{
-      grid-template-columns: 1fr !important;  /* single column feed */
-      gap: 16px !important;
-    }
-    .task, .card{ width: 100% !important; border-radius: 20px !important; }
-    .task *, .t-title, .t-desc, .t-rom, .t-app, .t-sub, textarea{
-      max-width: 100% !important;
-      white-space: normal !important;
-      word-break: break-word !important;
-      overflow-wrap: anywhere !important;
-      line-height: 1.4;
-    }
-    .actions{ display:flex; flex-wrap:wrap; gap:10px }
-    .actions .btn{ flex:1 1 48%; min-width:120px; text-align:center }
-    @media (max-width: 420px){
-      .actions .btn{ flex-basis:100% }
-    }
+    .barInner,.view{max-width:720px;padding-left:16px;padding-right:16px}
+    .grid{grid-template-columns:1fr;gap:16px}
+    .task,.card{width:100%;border-radius:20px}
+    .actions{flex-wrap:wrap}
+    .actions .btn{flex:1 1 48%;min-width:120px}
+    @media (max-width:420px){ .actions .btn{flex-basis:100%} }
   }
   </style>
 </head>
@@ -147,7 +158,8 @@
 
   <!-- HOME -->
   <div class="view" id="home">
-    <!-- Landing input only -->
+
+    <!-- Landing (only this is visible at first) -->
     <div class="card">
       <h3>Top Picks</h3>
       <textarea id="in" placeholder="Paste your agenda…"></textarea>
@@ -156,13 +168,17 @@
         <div class="btn" id="clear">Clear</div>
         <div class="btn btn-primary" id="go">Make my day simple</div>
       </div>
-
       <!-- Hidden until summarized -->
       <div class="actions" id="postActions" style="display:none;margin-top:8px">
         <div class="btn btn-ok" id="done">Mark all done</div>
       </div>
-
       <div class="hint">Local-first; nothing stored. We only summarize what you paste.</div>
+    </div>
+
+    <!-- Creatives carousel (hidden until summarize) -->
+    <div id="creativesSection" style="display:none">
+      <div class="section"><h4>Top Picks</h4></div>
+      <div class="carousel" id="creativeRow"></div>
     </div>
 
     <!-- Sections (hidden until summarize) -->
@@ -210,8 +226,11 @@
 /* ===== Helpers ===== */
 const $ = id => document.getElementById(id);
 const topTitle=$('topTitle'), backBtn=$('backBtn'), modeEl=$('mode');
-const home=$('home'), detail=$('detail'), sections=$('sections');
-const input=$('in'), highGrid=$('highGrid'), urgentGrid=$('urgentGrid'), tomorrowGrid=$('tomorrowGrid'), suggRow=$('suggRow');
+const home=$('home'), detail=$('detail'),
+      sections=$('sections'), creativesSection=$('creativesSection');
+const input=$('in'),
+      highGrid=$('highGrid'), urgentGrid=$('urgentGrid'),
+      tomorrowGrid=$('tomorrowGrid'), suggRow=$('suggRow'), creativeRow=$('creativeRow');
 const dTitle=$('dTitle'), dSub=$('dSub'), dSteps=$('dSteps');
 const postActions=$('postActions');
 
@@ -231,14 +250,14 @@ Follow up with Michelle on pilot
 Asana: draft status for GTM
 Gmail: reply to onboarding`;
 };
-$('clear').onclick=()=>{ input.value=''; hideSections(); clearGrids(); postActions.style.display='none'; };
+$('clear').onclick=()=>{ input.value=''; hideSections(); clearGrids(); postActions.style.display='none'; creativesSection.style.display='none'; };
 $('done').onclick=()=>{ document.querySelectorAll('.t-title').forEach(t=>{ t.style.textDecoration='line-through'; t.style.opacity='.55'; }); };
 
-function clearGrids(){ [highGrid,urgentGrid,tomorrowGrid,suggRow].forEach(el=>el.innerHTML=''); }
+function clearGrids(){ [highGrid,urgentGrid,tomorrowGrid,suggRow,creativeRow].forEach(el=>el.innerHTML=''); }
 function showSections(){ sections.style.display='grid'; }
 function hideSections(){ sections.style.display='none'; }
 
-/* Light reasoning */
+/* Time & intent helpers */
 function timeOf(t){ const m=t.match(/\b((?:[01]?\d|2[0-3]):[0-5]\d)\b|\b(\d{1,2})\s*(am|pm)\b/i); return m ? (m[1]||m[2]+m[3]) : ''; }
 function dayWord(t){
   const m=t.match(/\b(today|tomorrow|mon|tue|wed|thu|fri|sat|sun|monday|tuesday|weds?|thurs?|friday|saturday|sunday|next|week)\b/i);
@@ -246,25 +265,25 @@ function dayWord(t){
 }
 function isFuture(w){ return /^(tomorrow|next|week|mon|tue|wed|thu|fri|sat|sun|monday|tuesday|weds?|thurs?|friday|saturday|sunday)$/i.test(w); }
 
-/* App detection → tiny badges + colors */
+/* App detection → badges + gradient hints */
 function detectApp(t){
   const s=t.toLowerCase();
-  if (s.includes('asana'))   return {app:'Asana',   color:'linear-gradient(180deg,#FFAEBC,#FF3D6E)', badge:'🅰️'};
-  if (s.includes('trello'))  return {app:'Trello',  color:'linear-gradient(180deg,#9BC0FF,#3D7BFF)', badge:'🟦'};
-  if (s.includes('gmail')||s.includes('email')||s.includes('inbox')) return {app:'Gmail',  color:'linear-gradient(180deg,#FFD0D0,#FF4D4D)', badge:'✉️'};
-  if (s.includes('slack'))   return {app:'Slack',   color:'linear-gradient(180deg,#E9D5FF,#A855F7)', badge:'💬'};
-  if (s.includes('zoom')||s.includes('meet')) return {app:'Meeting', color:'linear-gradient(180deg,#BEE3FF,#3D7BFF)', badge:'📹'};
-  if (s.includes('doc')||s.includes('contract')||s.includes('redline')) return {app:'Docs', color:'linear-gradient(180deg,#FFE3AD,#FF9F0A)', badge:'📄'};
-  if (s.includes('notion'))  return {app:'Notion',  color:'linear-gradient(180deg,#E5E7EB,#9CA3AF)', badge:'N'};
-  if (s.includes('stripe')||s.includes('invoice')||s.includes('paid')) return {app:'Finance', color:'linear-gradient(180deg,#B6F5C7,#34C759)', badge:'💵'};
-  if (s.includes('github')||s.includes('pr ')||s.includes('pull request')) return {app:'GitHub', color:'linear-gradient(180deg,#E5E7EB,#9CA3AF)', badge:'🐙'};
-  return {app:'Task', color:'linear-gradient(180deg,#9BC0FF,#3D7BFF)', badge:'✓'};
+  if (s.includes('asana'))   return {app:'Asana',   color:'linear-gradient(180deg,#FFAEBC,#FF3D6E)', badge:'🅰️', emoji:'🗂️'};
+  if (s.includes('trello'))  return {app:'Trello',  color:'linear-gradient(180deg,#9BC0FF,#3D7BFF)', badge:'🟦', emoji:'🧩'};
+  if (s.includes('gmail')||s.includes('email')||s.includes('inbox')) return {app:'Gmail',  color:'linear-gradient(180deg,#FFD0D0,#FF4D4D)', badge:'✉️', emoji:'✉️'};
+  if (s.includes('slack'))   return {app:'Slack',   color:'linear-gradient(180deg,#E9D5FF,#A855F7)', badge:'💬', emoji:'💬'};
+  if (s.includes('zoom')||s.includes('meet')) return {app:'Meeting', color:'linear-gradient(180deg,#BEE3FF,#3D7BFF)', badge:'📹', emoji:'📅'};
+  if (s.includes('doc')||s.includes('contract')||s.includes('redline')) return {app:'Docs', color:'linear-gradient(180deg,#FFE3AD,#FF9F0A)', badge:'📄', emoji:'📄'};
+  if (s.includes('notion'))  return {app:'Notion',  color:'linear-gradient(180deg,#E5E7EB,#9CA3AF)', badge:'N', emoji:'🗒️'};
+  if (s.includes('stripe')||s.includes('invoice')||s.includes('paid')) return {app:'Finance', color:'linear-gradient(180deg,#B6F5C7,#34C759)', badge:'💵', emoji:'💵'};
+  if (s.includes('github')||s.includes('pr ')||s.includes('pull request')) return {app:'GitHub', color:'linear-gradient(180deg,#E5E7EB,#9CA3AF)', badge:'🐙', emoji:'🐙'};
+  return {app:'Task', color:'linear-gradient(180deg,#9BC0FF,#3D7BFF)', badge:'✓', emoji:'✅'};
 }
 
 /* classify a line → meta */
 function classify(text){
   const t=String(text||'').trim();
-  const {app,color,badge}=detectApp(t);
+  const {app,color,badge,emoji}=detectApp(t);
   const isBug=/(bug|issue|crash|prod|outage|hotfix|error)/i.test(t);
   const isUrg=/(urgent|asap|blocker|critical|due|deadline|eod|eow|today)/i.test(t);
   const isMeet=/(meet|call|zoom|calendar|intro|sync|moved|resched)/i.test(t);
@@ -273,7 +292,6 @@ function classify(text){
   const title = (isMeet && future) ? 'Prep: '+t : t;
   const sub = time || (future ? 'Tomorrow' : 'Today');
 
-  // action
   let action='Open';
   if (app==='Meeting') action='Join / Prep';
   else if (isBug) action='Fix / Assign';
@@ -281,7 +299,7 @@ function classify(text){
   else if (app==='Docs') action='View Doc';
   else if (isUrg) action='Handle Now';
 
-  return {section, app, color, badge, title, sub, urgent:isUrg, raw:t, action, isBug};
+  return {section, app, color, badge, emoji, title, sub, urgent:isUrg, raw:t, action, isBug};
 }
 
 /* Suggestions (max 3) */
@@ -294,8 +312,7 @@ function buildSuggestions(metas){
   if (metas.some(x=>x.isBug)) all.push({icon:'🐞', text:'File a bug & assign owner'});
   if (metas.some(x=>/(invoice|paid|stripe|pricing)/i.test(x.raw))) all.push({icon:'💸', text:'Update finance dashboard'});
   if (!tom.length) all.push({icon:'🏃', text:'Quick workout (20 min)'}); // fallback
-  all.push({icon:'☀️', text:'Pick 3 for tomorrow & archive the rest'});
-  return all.slice(0,3); // cap to 3
+  return all.slice(0,3);
 }
 
 /* Renderers */
@@ -325,12 +342,37 @@ function renderCard(meta){
   div.addEventListener('click', (e)=>{ if (e.target.tagName!=='BUTTON') openDetail(meta); });
   return div;
 }
+function renderCreative(meta){
+  const el=document.createElement('div');
+  el.className='creative';
+  el.innerHTML = `
+    <div class="thumb" style="background:
+      radial-gradient(120px 90px at 20% 10%, rgba(255,255,255,.18), transparent 60%),
+      ${meta.color};">${meta.emoji}</div>
+    <div class="meta">
+      <div class="t">${esc(meta.title)}</div>
+      <div class="s">${esc(creativeSub(meta))}</div>
+    </div>
+    <div class="cta"><span class="chip">${esc(meta.action)}</span></div>
+  `;
+  el.addEventListener('click', ()=>openDetail(meta));
+  return el;
+}
+
+/* Copy lines */
 function contextLine(m){
   if (m.app==='Meeting') return 'Agenda ready • 1-pager prep helps';
   if (m.isBug) return 'Add logs/screenshot • notify owner';
   if (m.app==='Finance') return 'Log payment in tracker';
   if (m.app==='Docs') return 'Skim redlines • mark blockers';
   return 'Smallest next step wins';
+}
+function creativeSub(m){
+  if (m.app==='Meeting') return 'Join / prep questions';
+  if (m.isBug) return 'Draft ticket • assign';
+  if (m.app==='Finance') return 'Record & confirm';
+  if (m.app==='Docs') return 'Summarize deltas';
+  return 'Tap for next step';
 }
 function assistLine(m){
   if (m.app==='Meeting') return 'Want a prep outline or 3 questions?';
@@ -367,16 +409,23 @@ $('go').onclick=()=>{
   let tomorrow = metas.filter(m=>m.section==='tomorrow');
 
   if (!today.length){ today = urgent.slice(0,2); if (!today.length) today = metas.slice(0,3); }
-  if (!tomorrow.length){ tomorrow = [{section:'tomorrow', app:'Meeting', color:'linear-gradient(180deg,#BEE3FF,#3D7BFF)', badge:'📹', title:'Prep: quick workout', sub:'Tomorrow', urgent:false, raw:'Workout', action:'Plan'}]; }
+  if (!tomorrow.length){ tomorrow = [{section:'tomorrow', app:'Meeting', color:'linear-gradient(180deg,#BEE3FF,#3D7BFF)', badge:'📹', emoji:'📅', title:'Prep: quick workout', sub:'Tomorrow', urgent:false, raw:'Workout', action:'Plan'}]; }
 
   clearGrids();
+
+  // Creatives carousel: top 4 items across all metas
+  const showcase = metas.slice(0,4);
+  showcase.forEach(m=>creativeRow.appendChild(renderCreative(m)));
+  creativesSection.style.display = showcase.length ? 'block' : 'none';
+
+  // Stacked feeds
   today.slice(0,6).forEach(m=>highGrid.appendChild(renderCard(m)));
   urgent.slice(0,4).forEach(m=>urgentGrid.appendChild(renderCard(m)));
   tomorrow.slice(0,6).forEach(m=>tomorrowGrid.appendChild(renderCard(m)));
   renderSuggestions(suggRow, buildSuggestions(metas));
 
   showSections();
-  postActions.style.display='flex';         // <-- show “Mark all done” AFTER summarize
+  postActions.style.display='flex';         // show “Mark all done” AFTER summarize
   topTitle.textContent='Home';
   modeEl.textContent='Local';
 };
@@ -420,4 +469,4 @@ function detailSteps(m){
 }
 </script>
 </body>
-</html> 
+</html>
