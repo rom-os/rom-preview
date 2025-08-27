@@ -1,6 +1,61 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <style id="rom-mobile-wrap-fixes">
+  /* ——— Layout constraints ——— */
+  :root{
+    /* slightly narrower max to avoid edge clipping on iOS */
+    --max: 720px;
+    --fs-l: clamp(24px, 4.5vw, 32px); /* calmer title scale on phones */
+  }
+  .barInner, .view{
+    width: 100%;
+    max-width: var(--max);
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  /* ——— Cards ——— */
+  .card, .task{ border-radius: 20px; }
+  .task *{ max-width: 100%; }                 /* prevent any child from overflowing */
+  .t-title{
+    white-space: normal;                      /* allow wrapping */
+    overflow-wrap: anywhere;                  /* break long words if needed */
+    word-break: break-word;
+    line-height: 1.25;
+    text-decoration-thickness: 2px;           /* nicer strike-through */
+  }
+  .t-desc, .t-rom, .t-app, .t-sub{
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+  .t-rom{ padding: 12px; }                    /* a touch more breathing room */
+
+  /* ——— Grids ——— */
+  .grid{ display: grid; gap: 14px; grid-template-columns: 1fr; }
+  @media (min-width: 900px){
+    .grid{ grid-template-columns: 1fr 1fr; }  /* two columns only on roomy screens */
+  }
+
+  /* ——— Buttons / actions ——— */
+  .actions{ gap: 10px; }
+  .actions .btn{ flex: 1 1 48%; }             /* two per row on mid screens */
+  @media (max-width: 420px){
+    .actions .btn{ flex-basis: 100%; }        /* single column buttons on small phones */
+  }
+
+  /* ——— Section headings ——— */
+  .section h4{ font-size: clamp(18px, 4.2vw, 20px); margin-top: 2px; }
+
+  /* ——— Textarea container ——— */
+  textarea{
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+</style>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>ROM • Daily Summary</title>
