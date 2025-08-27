@@ -54,7 +54,61 @@
     line-height: 1.5;
     overflow-wrap: anywhere;
     word-break: break-word;
+  } 
+    /* === Mobile-first wrapping + card feed === */
+.view {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;              /* consistent spacing between sections */
+  max-width: 720px;       /* keeps content from stretching too wide */
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* Cards full width on mobile */
+.task {
+  width: 100%;
+  border-radius: 18px;
+  padding: 16px;
+  background: #11151c;
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Titles wrap instead of cut off */
+.t-title, .t-desc, .t-rom {
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  line-height: 1.4;
+}
+
+/* Grid: one column default, two only on desktop */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+@media (min-width: 1000px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
   }
+}
+
+/* Buttons look consistent across breakpoints */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.actions .btn {
+  flex: 1;
+  min-width: 120px;
+  text-align: center;
+}
 </style>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
