@@ -1,158 +1,155 @@
-<!doctype html>
+<<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-  <title>ROM • Daily Summary</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>ROM • Daily Summary</title>
 
-  <style>
-  /* ---------- tokens ---------- */
-  :root{
-    --bg:#0F1116; --surface:#171B24; --surface-2:#121621; --stroke:#222838;
-    --text:#E7EAF0; --muted:#AAB2C0; --accent:#0A84FF; --green:#34C759;
-    --rx:18px; --max:980px;
-    --fs-xs:clamp(11px,2vw,12px);
-    --fs-s: clamp(13px,2.2vw,14px);
-    --fs-m: clamp(15px,3vw,16px);
-    --fs-l: clamp(28px,6vw,34px);
-  }
-  @media (prefers-color-scheme: light){
-    :root{
-      --bg:#F6F7F9; --surface:#FFFFFF; --surface-2:#F1F4F8; --stroke:#E8EBF0;
-      --text:#0B1220; --muted:#667085; --accent:#0A84FF;
-    }
-  }
-  *{box-sizing:border-box}
-  html,body{
-    margin:0;height:100%;background:var(--bg);color:var(--text);
-    font-family:-apple-system,"SF Pro Text",Inter,system-ui,sans-serif;
-    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
-  }
-  a{color:inherit;text-decoration:none}
-  .wrap{min-height:100dvh;display:grid;grid-template-rows:auto 1fr auto}
+<style>
+/* ---------- iOS-light tokens (forced white) ---------- */
+:root{
+  --bg:#F6F7FB;
+  --surface:#FFFFFF;
+  --surface-2:#F2F5F8;
+  --stroke:#E8EDF4;
+  --text:#0B1220;
+  --muted:#667085;
+  --accent:#0A84FF;
+  --green:#34C759;
+  --radius:22px;
+  --max:1000px;
 
-  /* ---------- top bar ---------- */
-  .bar{position:sticky;top:0;z-index:10;
-    background:radial-gradient(900px 420px at 50% -100px, rgba(116,210,255,.12), transparent),var(--surface);
-    border-bottom:1px solid var(--stroke)}
-  .barInner{max-width:var(--max);margin:0 auto;padding:18px 16px 10px;display:flex;gap:12px;align-items:center}
-  h1{margin:0;font-size:var(--fs-l);font-weight:900;letter-spacing:-.02em;flex:1}
-  .mode{font-size:var(--fs-s);color:var(--muted)}
-  .back{display:none;padding:8px 12px;border-radius:12px;border:1px solid var(--stroke);
-    background:var(--surface-2);font-weight:800;cursor:pointer}
+  --fs-xs:clamp(11px,2.4vw,12px);
+  --fs-s: clamp(13px,2.6vw,14px);
+  --fs-m: clamp(15px,3.2vw,16px);
+  --fs-l: clamp(28px,6vw,34px);
+}
+*{box-sizing:border-box}
+html,body{
+  margin:0;height:100%;
+  background:var(--bg);color:var(--text);
+  font-family:-apple-system,"SF Pro Text",Inter,system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+}
+a{color:inherit;text-decoration:none}
 
-  /* ---------- views ---------- */
-  .view{display:none;max-width:var(--max);margin:0 auto;padding:16px;gap:18px}
-  .view.active{display:grid}
+.wrap{min-height:100dvh;display:grid;grid-template-rows:auto 1fr auto}
 
-  /* podcasts-style section headings */
-  .section h4{margin:0 0 8px;font-size:var(--fs-l);font-weight:900;letter-spacing:-.02em}
+/* ---------- Top bar ---------- */
+.bar{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--stroke)}
+.barInner{max-width:var(--max);margin:0 auto;padding:18px 16px 12px;display:flex;gap:12px;align-items:center}
+h1{margin:0;font-size:var(--fs-l);font-weight:900;letter-spacing:-.02em;flex:1}
+.mode{font-size:var(--fs-s);color:var(--muted)}
+.back{display:none;padding:8px 12px;border-radius:12px;border:1px solid var(--stroke);background:var(--surface-2);font-weight:800;cursor:pointer}
 
-  /* ---------- input card ---------- */
-  .card{background:var(--surface);border:1px solid var(--stroke);border-radius:var(--rx);padding:16px}
-  .card h3{margin:0 0 8px;font-size:var(--fs-m);font-weight:900}
-  textarea{
-    width:100%;min-height:120px;border:1px solid var(--stroke);border-radius:14px;background:var(--surface-2);
-    color:var(--text);padding:12px;font-size:var(--fs-m);line-height:1.55;resize:vertical;outline:none;
-    word-break:break-word; overflow-wrap:anywhere;
-  }
-  .actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
-  .btn{flex:1;min-width:150px;text-align:center;padding:14px;border-radius:16px;border:1px solid var(--stroke);
-    background:var(--surface-2);font-weight:900;cursor:pointer;user-select:none}
-  .btn-primary{background:var(--accent);border-color:transparent;color:#fff}
-  .btn-ok{background:color-mix(in srgb, var(--green) 94%, transparent);color:#0B6B38;border:none}
-  .hint{margin-top:10px;font-size:var(--fs-s);color:var(--muted)}
+/* ---------- Views ---------- */
+.view{display:none;max-width:var(--max);margin:0 auto;padding:16px;gap:18px}
+.view.active{display:grid}
 
-  /* ---------- vertical task cards ---------- */
-  .grid{display:grid;gap:14px}
-  @media (min-width:760px){ .grid{grid-template-columns:1fr 1fr} }
-  .task{
-    background:var(--surface);border:1px solid var(--stroke);border-radius:16px;padding:14px;
-    display:flex;flex-direction:column;gap:12px;box-shadow:0 2px 10px rgba(0,0,0,.25);
-  }
-  .t-header{display:flex;align-items:center;gap:12px}
-  .t-avatar{position:relative;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;color:#fff;font-weight:800;
-    background:linear-gradient(180deg,#9BC0FF,#3D7BFF)}
-  .t-badge{position:absolute;right:-4px;bottom:-4px;width:18px;height:18px;border-radius:6px;display:grid;place-items:center;
-    background:var(--surface);border:1px solid var(--stroke);font-size:12px}
-  .t-meta .t-app{font-weight:800}
-  .t-meta .t-sub{font-size:var(--fs-xs);color:var(--muted)}
-  .t-title{font-weight:900;font-size:var(--fs-m);letter-spacing:-.01em;
-    white-space:normal;word-break:break-word;overflow-wrap:anywhere}
-  .t-desc{margin:0;color:var(--muted);font-size:var(--fs-s)}
-  .t-rom{background:color-mix(in srgb, var(--accent) 12%, transparent);border:1px solid color-mix(in srgb, var(--accent) 35%, transparent);
-    border-radius:12px;padding:10px;font-size:var(--fs-s);line-height:1.45}
-  .t-rom b{color:var(--accent)}
-  .t-row{display:flex;gap:10px;flex-wrap:wrap}
-  .t-btn{margin-top:auto;padding:10px 12px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-weight:800;cursor:pointer}
-  .pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:var(--surface-2);border:1px solid var(--stroke);font-size:var(--fs-xs);font-weight:800}
-  .t-cap{font-size:var(--fs-xs);color:var(--muted)}
+/* ---------- Section titles ---------- */
+.section h4{margin:0 0 8px;font-size:var(--fs-l);font-weight:900;letter-spacing:-.02em}
 
-  /* ---------- carousels (Top Picks, Suggestions) ---------- */
-  .carousel{display:flex;gap:14px;overflow-x:auto;padding:4px 2px 8px;scroll-snap-type:x mandatory}
-  .carousel::-webkit-scrollbar{display:none}
+/* ---------- Input card ---------- */
+.card{background:var(--surface);border:1px solid var(--stroke);border-radius:var(--radius);padding:16px;box-shadow:0 10px 24px rgba(16,24,40,.06)}
+.card h3{margin:0 0 8px;font-size:var(--fs-m);font-weight:900}
+textarea{
+  width:100%;min-height:120px;border:1px solid var(--stroke);border-radius:16px;background:var(--surface-2);
+  color:var(--text);padding:12px;font-size:var(--fs-m);line-height:1.55;resize:vertical;outline:none;
+  word-break:break-word;overflow-wrap:anywhere;
+}
+.actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.btn{flex:1;min-width:150px;text-align:center;padding:14px;border-radius:14px;border:1px solid var(--stroke);background:var(--surface-2);font-weight:900;cursor:pointer;user-select:none}
+.btn-primary{background:var(--accent);border-color:transparent;color:#fff}
+.btn-ok{background:color-mix(in srgb, var(--green) 96%, transparent);color:#0B6B38;border:none}
+.hint{margin-top:10px;font-size:var(--fs-s);color:var(--muted)}
 
-  .creative{
-    flex:0 0 78%;max-width:78%;
-    scroll-snap-align:start;border-radius:22px;border:1px solid var(--stroke);
-    background:linear-gradient(160deg,#283142, #131923);
-    padding:14px;display:flex;gap:12px;align-items:center;
-  }
-  .creative .thumb{
-    width:92px;height:92px;border-radius:20px;flex:0 0 auto;
-    display:grid;place-items:center;font-size:40px;color:#fff;
-    background: radial-gradient(120px 90px at 20% 10%, rgba(255,255,255,.18), transparent 60%),
-                linear-gradient(180deg,#9BC0FF,#3D7BFF);
-    border:1px solid rgba(255,255,255,.12);
-  }
-  .creative .meta{display:flex;flex-direction:column;gap:6px;min-width:0}
-  .creative .meta .t{font-weight:900;font-size:clamp(16px,4.6vw,20px);white-space:normal;word-break:break-word;overflow-wrap:anywhere}
-  .creative .meta .s{font-size:var(--fs-s);color:var(--muted);white-space:normal}
-  .creative .cta{margin-left:auto}
-  .chip{padding:10px 12px;border-radius:12px;border:1px solid var(--stroke);background:var(--surface-2);font-weight:800}
+/* ---------- Grids ---------- */
+.grid{display:grid;gap:16px}
+@media (min-width:900px){ .grid{grid-template-columns:1fr 1fr} }
 
-  .suggRow{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 8px;scroll-snap-type:x mandatory}
-  .suggRow::-webkit-scrollbar{display:none}
-  .sugg{flex:0 0 auto;scroll-snap-align:start;display:inline-flex;align-items:center;gap:10px;
-    padding:10px 12px;border:1px solid var(--stroke);border-radius:999px;background:var(--surface)}
-  .sIcon{font-size:18px}
-  .sText{font-weight:800;font-size:var(--fs-s)}
+/* ---------- Tile card (Podcast-style) ---------- */
+.tile{
+  display:grid;grid-template-columns:88px 1fr;gap:14px;
+  background:var(--surface);border:1px solid var(--stroke);border-radius:20px;padding:14px;
+  box-shadow:0 10px 24px rgba(16,24,40,.06);
+}
+.art{
+  width:88px;height:88px;border-radius:18px;display:grid;place-items:center;position:relative;
+  color:#fff;font-size:36px;font-weight:800;user-select:none;
+  background: radial-gradient(120px 90px at 20% 10%, rgba(255,255,255,.18), transparent 60%), linear-gradient(180deg,#A7C5FF,#3D7BFF);
+  border:1px solid rgba(0,0,0,.06);
+}
+.badge{position:absolute;right:-6px;bottom:-6px;background:var(--surface);border:1px solid var(--stroke);border-radius:999px;padding:4px 8px;font-size:12px;color:var(--muted)}
+.body{min-width:0;display:flex;flex-direction:column;gap:8px}
+.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.app{font-weight:800}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:var(--surface-2);border:1px solid var(--stroke);font-size:var(--fs-xs);font-weight:800;color:var(--muted)}
+.title{font-weight:900;font-size:var(--fs-m);letter-spacing:-.01em;line-height:1.28;white-space:normal;word-break:break-word;overflow-wrap:anywhere}
+.desc{margin:0;color:var(--muted);font-size:var(--fs-s)}
+.rom{background:#E9F2FF;border:1px solid #D7E7FF;color:#0B3B8F;padding:10px;border-radius:12px;font-size:var(--fs-s)}
+.cta{margin-left:auto}
+.btn-mini{padding:8px 10px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-weight:800}
 
-  /* ---------- bottom tab bar ---------- */
-  .tabs{position:sticky;bottom:0;background:var(--surface);border-top:1px solid var(--stroke)}
-  .tabsInner{max-width:var(--max);margin:0 auto;display:flex;justify-content:space-around;gap:6px;padding:6px 8px}
-  .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px;border-radius:12px;color:var(--muted);font-size:12px;cursor:pointer}
-  .tab.active{color:var(--text);background:var(--surface-2);border:1px solid var(--stroke)}
-  .ico{font-size:18px}
+/* ---------- Carousels ---------- */
+.carousel{display:flex;gap:14px;overflow-x:auto;padding:4px 2px 8px;scroll-snap-type:x mandatory}
+.carousel::-webkit-scrollbar{display:none}
+.creative{
+  flex:0 0 78%;max-width:78%;
+  scroll-snap-align:start;border-radius:22px;border:1px solid var(--stroke);
+  background:linear-gradient(145deg,#EEF3FF,#FFFFFF);
+  padding:14px;display:flex;gap:12px;align-items:center;box-shadow:0 10px 24px rgba(16,24,40,.06)
+}
+.creative .thumb{
+  width:92px;height:92px;border-radius:20px;flex:0 0 auto;
+  display:grid;place-items:center;font-size:40px;color:#fff;
+  background: radial-gradient(120px 90px at 20% 10%, rgba(255,255,255,.20), transparent 60%),
+              linear-gradient(180deg,#A7C5FF,#3D7BFF);
+  border:1px solid rgba(0,0,0,.06);
+}
+.creative .meta{display:flex;flex-direction:column;gap:6px;min-width:0}
+.creative .meta .t{font-weight:900;font-size:clamp(16px,4.6vw,20px);white-space:normal;word-break:break-word;overflow-wrap:anywhere}
+.creative .meta .s{font-size:var(--fs-s);color:var(--muted)}
+.chip{padding:10px 12px;border-radius:12px;border:1px solid var(--stroke);background:var(--surface-2);font-weight:800}
 
-  /* ---------- detail ---------- */
-  .detail{display:none}
-  .detail.active{display:grid}
-  .d-hero{padding:4px 2px}
-  .d-title{font-size:clamp(26px,5vw,32px);font-weight:900;letter-spacing:-.02em;margin:6px 0}
-  .d-sub{font-size:var(--fs-s);color:var(--muted);margin:0 0 12px}
-  .d-card{background:var(--surface);border:1px solid var(--stroke);border-radius:16px;padding:14px}
-  .d-card h5{margin:6px 0 8px;font-size:var(--fs-m)}
-  .d-card ul{margin:0 0 0 18px;padding:0}
-  .d-card li{padding:4px 0;font-size:var(--fs-m)}
-  .d-actions{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
-  .small{font-size:var(--fs-xs);color:var(--muted);margin-top:8px}
+/* ---------- Suggestions chips ---------- */
+.suggRow{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 8px;scroll-snap-type:x mandatory}
+.suggRow::-webkit-scrollbar{display:none}
+.sugg{flex:0 0 auto;scroll-snap-align:start;display:inline-flex;align-items:center;gap:10px;
+  padding:10px 12px;border:1px solid var(--stroke);border-radius:999px;background:var(--surface);box-shadow:0 6px 16px rgba(16,24,40,.04)}
+.sIcon{font-size:18px}
+.sText{font-weight:800;font-size:var(--fs-s)}
 
-  /* ---------- mobile wrap enforcement ---------- */
-  @media (max-width: 999px){
-    .barInner,.view{max-width:720px;padding-left:16px;padding-right:16px}
-    .grid{grid-template-columns:1fr;gap:16px}
-    .task,.card{width:100%;border-radius:20px}
-    .actions{flex-wrap:wrap}
-    .actions .btn{flex:1 1 48%;min-width:120px}
-    @media (max-width:420px){ .actions .btn{flex-basis:100%} }
-  }
-  </style>
+/* ---------- Bottom tabs (iOS) ---------- */
+.tabs{position:sticky;bottom:0;background:var(--surface);border-top:1px solid var(--stroke)}
+.tabsInner{max-width:var(--max);margin:0 auto;display:flex;justify-content:space-around;gap:6px;padding:8px 8px}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px;border-radius:12px;color:var(--muted);font-size:12px;cursor:pointer}
+.tab.active{color:var(--text);background:var(--surface-2);border:1px solid var(--stroke)}
+.ico{font-size:18px}
+
+/* ---------- Detail ---------- */
+.detail{display:none}
+.detail.active{display:grid}
+.d-hero{padding:4px 2px}
+.d-title{font-size:clamp(26px,5vw,32px);font-weight:900;letter-spacing:-.02em;margin:6px 0}
+.d-sub{font-size:var(--fs-s);color:var(--muted);margin:0 0 12px}
+.d-card{background:var(--surface);border:1px solid var(--stroke);border-radius:16px;padding:14px;box-shadow:0 10px 24px rgba(16,24,40,.06)}
+.d-card h5{margin:6px 0 8px;font-size:var(--fs-m)}
+.d-card ul{margin:0 0 0 18px;padding:0}
+.d-card li{padding:4px 0;font-size:var(--fs-m)}
+.d-actions{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
+.small{font-size:var(--fs-xs);color:var(--muted);margin-top:8px}
+
+/* ---------- Mobile wrapping enforcement ---------- */
+@media (max-width:999px){
+  .barInner,.view{max-width:720px;padding-left:16px;padding-right:16px}
+  .grid{grid-template-columns:1fr}
+}
+</style>
 </head>
 
 <body>
 <div class="wrap">
-  <!-- top bar -->
+  <!-- Top bar -->
   <div class="bar">
     <div class="barInner">
       <button class="back" id="backBtn">‹ Back</button>
@@ -162,10 +159,9 @@
   </div>
 
   <!-- ===== VIEWS ===== -->
-  <!-- Home (landing + results) -->
   <main class="view active" id="view-home">
     <div class="card">
-      <h3>Enter tasks/notes</h3>
+      <h3>Top Picks</h3>
       <textarea id="in" placeholder="Paste your agenda…"></textarea>
       <div class="actions">
         <div class="btn" id="demo">Demo</div>
@@ -178,8 +174,9 @@
       <div class="hint">Local-first; nothing stored. We only summarize what you paste.</div>
     </div>
 
+    <!-- Carousels + Sections (hidden until summarize) -->
     <section id="topPicks" style="display:none">
-      <div class="section"><h4>Top Picks</h4></div>
+      <div class="section"><h4>Browse</h4></div>
       <div class="carousel" id="creativeRow"></div>
     </section>
 
@@ -206,7 +203,7 @@
     </section>
   </main>
 
-  <!-- Agenda (just the input, for users who jump here first) -->
+  <!-- Agenda tab (mirrors input) -->
   <main class="view" id="view-agenda">
     <div class="card">
       <h3>Your Agenda</h3>
@@ -216,11 +213,10 @@
         <div class="btn" id="clear2">Clear</div>
         <div class="btn btn-primary" id="go2">Summarize</div>
       </div>
-      <div class="hint">We only summarize what’s on this page.</div>
     </div>
   </main>
 
-  <!-- Suggestions (chips only) -->
+  <!-- Suggestions tab -->
   <main class="view" id="view-suggest">
     <div class="section"><h4>Smart Suggestions</h4></div>
     <div class="suggRow" id="suggOnly"></div>
@@ -233,7 +229,7 @@
     <div class="card"><div class="hint">More options coming soon.</div></div>
   </main>
 
-  <!-- Detail view (overlay-style page) -->
+  <!-- Detail view -->
   <main class="view detail" id="view-detail">
     <div class="d-hero">
       <div class="d-title" id="dTitle">Title</div>
@@ -250,7 +246,7 @@
     </div>
   </main>
 
-  <!-- bottom tabs -->
+  <!-- Bottom tabs -->
   <nav class="tabs">
     <div class="tabsInner">
       <div class="tab active" data-view="home"><div class="ico">🏠</div>Home</div>
@@ -262,46 +258,34 @@
 </div>
 
 <script>
-/* ===== DOM helpers ===== */
-const $ = id => document.getElementById(id);
-const esc = s => String(s).replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
-
-const views = {
-  home: $('view-home'), agenda: $('view-agenda'),
-  suggest: $('view-suggest'), settings: $('view-settings'),
-  detail: $('view-detail')
-};
-const tabs = [...document.querySelectorAll('.tab')];
-const backBtn = $('backBtn'), topTitle = $('topTitle'), modeEl = $('mode');
-
+/* ---------- helpers ---------- */
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const views={home:$('view-home'),agenda:$('view-agenda'),suggest:$('view-suggest'),settings:$('view-settings'),detail:$('view-detail')};
+const tabs=[...document.querySelectorAll('.tab')];
+$('backBtn').addEventListener('click',()=>show('home'));
+tabs.forEach(t=>t.addEventListener('click',()=>show(t.dataset.view)));
 function show(name){
   Object.values(views).forEach(v=>v.classList.remove('active'));
   views[name].classList.add('active');
-  tabs.forEach(t=>t.classList.toggle('active', t.dataset.view===name));
-  topTitle.textContent = name==='home' ? 'Home' :
-                         name==='agenda' ? 'Agenda' :
-                         name==='suggest' ? 'Suggestions' :
-                         name==='settings' ? 'Settings' : 'Details';
-  backBtn.style.display = name==='detail' ? 'inline-block' : 'none';
-  window.scrollTo({top:0, behavior:'instant'});
+  tabs.forEach(t=>t.classList.toggle('active',t.dataset.view===name));
+  $('topTitle').textContent = name==='home'?'Home':name[0].toUpperCase()+name.slice(1);
+  $('backBtn').style.display = (name==='detail')?'inline-block':'none';
+  window.scrollTo({top:0,behavior:'instant'});
 }
-tabs.forEach(t=>t.addEventListener('click', ()=>show(t.dataset.view)));
-backBtn.addEventListener('click', ()=>show('home'));
 
-/* ===== Elements Home ===== */
-const input=$('in'), highGrid=$('highGrid'), urgentGrid=$('urgentGrid'),
-      tomorrowGrid=$('tomorrowGrid'), suggRow=$('suggRow'),
-      creativeRow=$('creativeRow'), sections=$('sections'),
-      topPicks=$('topPicks'), postActions=$('postActions'), suggOnly=$('suggOnly');
-
-/* ===== Agenda view mirrors input ===== */
-const in2=$('in2'); $('demo2').onclick=()=>{$('demo').click(); in2.value=input.value};
+/* ---------- inputs ---------- */
+const input=$('in'), in2=$('in2');
+$('demo').onclick=()=>{ input.value=demoText(); };
+$('demo2').onclick=()=>{ in2.value=demoText(); };
+$('clear').onclick=()=>{ input.value=''; clearUI(); };
 $('clear2').onclick=()=>{ in2.value=''; };
-$('go2').onclick=()=>{ input.value=in2.value; summarize(); show('home'); };
 
-/* Demo / Clear for Home */
-$('demo').onclick=()=>{
-  input.value=`Deck for investor intro
+$('go').onclick=summarize;
+$('go2').onclick=()=>{ input.value=in2.value; summarize(); show('home'); };
+$('done').onclick=()=>{ document.querySelectorAll('.title').forEach(t=>{t.style.textDecoration='line-through';t.style.opacity='.55';}); };
+
+function demoText(){return `Deck for investor intro
 Meeting moved to 3pm with product
 Contract redlines due Friday
 Invoice paid – Stripe
@@ -310,68 +294,58 @@ Ship 1.0.2 release notes
 Reminder: homework due tomorrow
 Follow up with Michelle on pilot
 Asana: draft status for GTM
-Gmail: reply to onboarding`;
-};
-$('clear').onclick=()=>{ input.value=''; clearUI(); };
+Gmail: reply to onboarding`;}
 
-/* Done marks current titles */
-$('done').onclick=()=>{ document.querySelectorAll('.t-title').forEach(t=>{ t.style.textDecoration='line-through'; t.style.opacity='.55'; }); };
+/* ---------- parsing ---------- */
+function timeOf(t){const m=t.match(/\b((?:[01]?\d|2[0-3]):[0-5]\d)\b|\b(\d{1,2})\s*(am|pm)\b/i);return m?(m[1]||m[2]+m[3]):'';}
+function dayWord(t){const m=t.match(/\b(today|tomorrow|mon|tue|wed|thu|fri|sat|sun|monday|tuesday|weds?|thurs?|friday|saturday|sunday|next|week)\b/i);return m?m[0]:'';}
+function isFuture(w){return /^(tomorrow|next|week|mon|tue|wed|thu|fri|sat|sun|monday|tuesday|weds?|thurs?|friday|saturday|sunday)$/i.test(w);}
 
-/* ===== classification logic ===== */
-function timeOf(t){ const m=t.match(/\b((?:[01]?\d|2[0-3]):[0-5]\d)\b|\b(\d{1,2})\s*(am|pm)\b/i); return m ? (m[1]||m[2]+m[3]) : ''; }
-function dayWord(t){
-  const m=t.match(/\b(today|tomorrow|mon|tue|wed|thu|fri|sat|sun|monday|tuesday|weds?|thurs?|friday|saturday|sunday|next|week)\b/i);
-  return m? m[0] : '';
-}
-function isFuture(w){ return /^(tomorrow|next|week|mon|tue|wed|thu|fri|sat|sun|monday|tuesday|weds?|thurs?|friday|saturday|sunday)$/i.test(w); }
 function detectApp(t){
   const s=t.toLowerCase();
-  if (s.includes('asana'))   return {app:'Asana',   color:'linear-gradient(180deg,#FFAEBC,#FF3D6E)', badge:'🅰️', emoji:'🗂️'};
-  if (s.includes('trello'))  return {app:'Trello',  color:'linear-gradient(180deg,#9BC0FF,#3D7BFF)', badge:'🟦', emoji:'🧩'};
-  if (s.includes('gmail')||s.includes('email')||s.includes('inbox')) return {app:'Gmail',  color:'linear-gradient(180deg,#FFD0D0,#FF4D4D)', badge:'✉️', emoji:'✉️'};
-  if (s.includes('slack'))   return {app:'Slack',   color:'linear-gradient(180deg,#E9D5FF,#A855F7)', badge:'💬', emoji:'💬'};
-  if (s.includes('zoom')||s.includes('meet')) return {app:'Meeting', color:'linear-gradient(180deg,#BEE3FF,#3D7BFF)', badge:'📹', emoji:'📅'};
-  if (s.includes('doc')||s.includes('contract')||s.includes('redline')) return {app:'Docs', color:'linear-gradient(180deg,#FFE3AD,#FF9F0A)', badge:'📄', emoji:'📄'};
-  if (s.includes('stripe')||s.includes('invoice')||s.includes('paid')) return {app:'Finance', color:'linear-gradient(180deg,#B6F5C7,#34C759)', badge:'💵', emoji:'💵'};
-  if (s.includes('notion'))  return {app:'Notion',  color:'linear-gradient(180deg,#E5E7EB,#9CA3AF)', badge:'N', emoji:'🗒️'};
-  if (s.includes('github')||s.includes('pr ')||s.includes('pull request')) return {app:'GitHub', color:'linear-gradient(180deg,#E5E7EB,#9CA3AF)', badge:'🐙', emoji:'🐙'};
-  return {app:'Task', color:'linear-gradient(180deg,#9BC0FF,#3D7BFF)', badge:'✓', emoji:'✅'};
+  if (s.includes('asana'))   return {app:'Asana',   grad:'linear-gradient(180deg,#FFB6C8,#FF3D6E)', emoji:'🗂️'};
+  if (s.includes('trello'))  return {app:'Trello',  grad:'linear-gradient(180deg,#A7C5FF,#3D7BFF)', emoji:'🧩'};
+  if (s.includes('gmail')||s.includes('email')||s.includes('inbox')) return {app:'Gmail', grad:'linear-gradient(180deg,#FFC9C9,#FF4D4D)', emoji:'✉️'};
+  if (s.includes('slack'))   return {app:'Slack',   grad:'linear-gradient(180deg,#E9D5FF,#A855F7)', emoji:'💬'};
+  if (s.includes('zoom')||s.includes('meet')) return {app:'Meeting', grad:'linear-gradient(180deg,#BEE3FF,#3D7BFF)', emoji:'📅'};
+  if (s.includes('doc')||s.includes('contract')||s.includes('redline')) return {app:'Docs', grad:'linear-gradient(180deg,#FFE3AD,#FF9F0A)', emoji:'📄'};
+  if (s.includes('stripe')||s.includes('invoice')||s.includes('paid')) return {app:'Finance', grad:'linear-gradient(180deg,#C6F7D0,#34C759)', emoji:'💵'};
+  if (s.includes('github')||s.includes('pr ')||s.includes('pull request')) return {app:'GitHub', grad:'linear-gradient(180deg,#E5E7EB,#9CA3AF)', emoji:'🐙'};
+  return {app:'Task', grad:'linear-gradient(180deg,#A7C5FF,#3D7BFF)', emoji:'✅'};
 }
 function classify(text){
   const t=String(text||'').trim();
-  const {app,color,badge,emoji}=detectApp(t);
+  const {app,grad,emoji}=detectApp(t);
   const isBug=/(bug|issue|crash|prod|outage|hotfix|error)/i.test(t);
   const isUrg=/(urgent|asap|blocker|critical|due|deadline|eod|eow|today)/i.test(t);
   const isMeet=/(meet|call|zoom|calendar|intro|sync|moved|resched)/i.test(t);
   const time=timeOf(t), dw=dayWord(t), future=dw && isFuture(dw);
-  const section = isUrg ? 'today' : (future ? 'tomorrow' : 'today');
-  const title = (isMeet && future) ? 'Prep: '+t : t;
-  const sub = time || (future ? 'Tomorrow' : 'Today');
-
+  const section=isUrg?'today':(future?'tomorrow':'today');
+  const title=(isMeet && future)?'Prep: '+t:t;
+  const sub=time || (future?'Tomorrow':'Today');
   let action='Open';
   if (app==='Meeting') action='Join / Prep';
   else if (isBug) action='Fix / Assign';
   else if (app==='Finance') action='Record';
   else if (app==='Docs') action='View Doc';
   else if (isUrg) action='Handle Now';
-
-  return {section, app, color, badge, emoji, title, sub, urgent:isUrg, raw:t, action, isBug};
+  return {section,app,grad,emoji,title,sub,urgent:isUrg,raw:t,action,isBug};
 }
 
-/* suggestions (max 3) */
+/* ---------- suggestions ---------- */
 function buildSuggestions(metas){
   const urg=metas.filter(x=>x.urgent);
   const tom=metas.filter(x=>x.section==='tomorrow');
-  const all=[];
-  if (urg.length) all.push({icon:'📝', text:`Draft replies for ${Math.min(urg.length,3)} urgent threads`});
-  if (tom.length) all.push({icon:'🗓️', text:`Block 30 min for: ${tom[0].title.replace(/^Prep:\s*/,'')}`});
-  if (metas.some(x=>x.isBug)) all.push({icon:'🐞', text:'File a bug & assign owner'});
-  if (metas.some(x=>/(invoice|paid|stripe|pricing)/i.test(x.raw))) all.push({icon:'💸', text:'Update finance dashboard'});
-  if (!tom.length) all.push({icon:'🏃', text:'Quick workout (20 min)'}); // fallback
-  return all.slice(0,3);
+  const out=[];
+  if (urg.length) out.push({icon:'📝',text:`Draft replies for ${Math.min(urg.length,3)} urgent threads`});
+  if (tom.length) out.push({icon:'🗓️',text:`Block 30 min for: ${tom[0].title.replace(/^Prep:\s*/,'')}`});
+  if (metas.some(x=>x.isBug)) out.push({icon:'🐞',text:'File a bug & assign owner'});
+  if (metas.some(x=>/(invoice|paid|stripe|pricing)/i.test(x.raw))) out.push({icon:'💸',text:'Update finance dashboard'});
+  if (!tom.length) out.push({icon:'🏃',text:'Quick workout (20 min)'});
+  return out.slice(0,3);
 }
 
-/* renderers */
+/* ---------- renderers ---------- */
 function contextLine(m){
   if (m.app==='Meeting') return 'Agenda ready • 1-pager prep helps';
   if (m.isBug) return 'Add logs/screenshot • notify owner';
@@ -386,139 +360,114 @@ function creativeSub(m){
   if (m.app==='Docs') return 'Summarize deltas';
   return 'Tap for next step';
 }
-function assistLine(m){
-  if (m.app==='Meeting') return 'Want a prep outline or 3 questions?';
-  if (m.isBug) return 'Draft a bug ticket with steps + assignee?';
-  if (m.app==='Finance') return 'Draft receipt/status message?';
-  if (m.app==='Docs') return 'Summarize deltas & reply with blockers?';
-  return 'Turn this into a 1-sentence task?';
+
+function renderTile(m){
+  const el=document.createElement('div');
+  el.className='tile';
+  el.innerHTML=`
+    <div class="art" style="background:
+      radial-gradient(120px 90px at 20% 10%, rgba(255,255,255,.18), transparent 60%),
+      ${m.grad};">${m.emoji}<span class="badge">${esc(m.app)}</span></div>
+    <div class="body">
+      <div class="row"><span class="app">${esc(m.app)}</span><span class="pill">${esc(m.sub)}</span>${m.urgent?'<span class="pill">Urgent</span>':''}</div>
+      <div class="title">${esc(m.title)}</div>
+      <p class="desc">${esc(contextLine(m))}</p>
+      <div class="rom"><b>ROM:</b> ${esc(
+        m.app==='Meeting'?'Want a prep outline or 3 questions?':
+        m.isBug?'Draft a bug ticket with steps + assignee?':
+        m.app==='Finance'?'Draft receipt/status message?':
+        m.app==='Docs'?'Summarize deltas & reply with blockers?':'Turn this into a 1-sentence task?'
+      )}</div>
+      <div class="row"><button class="btn-mini">${esc(m.action)}</button></div>
+    </div>`;
+  el.addEventListener('click',e=>{ if(e.target.tagName!=='BUTTON') openDetail(m); });
+  return el;
 }
-function captionLine(m){
-  if (m.app==='Meeting') return 'ROM composes a quick prep checklist';
-  if (m.isBug) return 'ROM drafts ticket from your note';
-  if (m.app==='Finance') return 'ROM formats a status snippet';
-  if (m.app==='Docs') return 'ROM trims legalese to action';
-  return 'ROM keeps it short & actionable';
-}
-function renderCard(meta){
-  const div=document.createElement('div');
-  div.className='task';
-  div.innerHTML=`
-    <div class="t-header">
-      <div class="t-avatar" style="background:${meta.color}">
-        ${esc(meta.app.charAt(0))}
-        <div class="t-badge">${meta.badge}</div>
-      </div>
-      <div class="t-meta">
-        <div class="t-app">${esc(meta.app)}</div>
-        <div class="t-sub">${esc(meta.sub)}</div>
-      </div>
-    </div>
-    <div class="t-title">${esc(meta.title)}</div>
-    <p class="t-desc">${contextLine(meta)}</p>
-    <div class="t-rom"><b>ROM:</b> ${assistLine(meta)}</div>
-    <div class="t-row">
-      <button class="t-btn">${esc(meta.action)}</button>
-      <span class="pill">${meta.urgent?'Urgent':'Today'}</span>
-    </div>
-    <div class="t-cap">${captionLine(meta)}</div>
-  `;
-  div.addEventListener('click', (e)=>{ if (e.target.tagName!=='BUTTON') openDetail(meta); });
-  return div;
-}
-function renderCreative(meta){
+
+function renderCreative(m){
   const el=document.createElement('div');
   el.className='creative';
   el.innerHTML=`
     <div class="thumb" style="background:
-      radial-gradient(120px 90px at 20% 10%, rgba(255,255,255,.18), transparent 60%),
-      ${meta.color};">${meta.emoji}</div>
+      radial-gradient(120px 90px at 20% 10%, rgba(255,255,255,.20), transparent 60%),
+      ${m.grad};">${m.emoji}</div>
     <div class="meta">
-      <div class="t">${esc(meta.title)}</div>
-      <div class="s">${esc(creativeSub(meta))}</div>
+      <div class="t">${esc(m.title)}</div>
+      <div class="s">${esc(creativeSub(m))}</div>
     </div>
-    <div class="cta"><span class="chip">${esc(meta.action)}</span></div>`;
-  el.addEventListener('click', ()=>openDetail(meta));
+    <div class="cta"><span class="chip">${esc(m.action)}</span></div>`;
+  el.addEventListener('click',()=>openDetail(m));
   return el;
 }
-function renderSuggestions(row, list){
+function renderChips(row,list){
   row.innerHTML='';
   (list.length?list:[{icon:'☀️',text:'Pick 3 for tomorrow & archive the rest'}]).forEach(s=>{
     const c=document.createElement('div');
     c.className='sugg';
-    c.innerHTML=`<div class="sIcon">${s.icon||'✨'}</div><div class="sText">${esc(s.text)}</div>`;
+    c.innerHTML=`<div class="sIcon">${s.icon}</div><div class="sText">${esc(s.text)}</div>`;
     row.appendChild(c);
   });
 }
 
-/* clear ui */
+/* ---------- summarize flow ---------- */
 function clearUI(){
   ['highGrid','urgentGrid','tomorrowGrid','suggRow','creativeRow','suggOnly'].forEach(id=>$(id).innerHTML='');
   $('sections').style.display='none';
   $('topPicks').style.display='none';
   $('postActions').style.display='none';
 }
-
-/* summarize flow */
-$('go').onclick = summarize;
 function summarize(){
-  const src = views.agenda.classList.contains('active') ? in2 : input;
-  if (src && src !== input) input.value = src.value;
+  const src=views.agenda.classList.contains('active')?in2:input;
+  if (src && src!==input) input.value=src.value;
 
-  const lines = input.value.split('\n').map(s=>s.trim()).filter(Boolean);
-  if (!lines.length){ alert('Paste your agenda first 🙂'); return; }
+  const lines=input.value.split('\n').map(s=>s.trim()).filter(Boolean);
+  if(!lines.length){ alert('Paste your agenda first 🙂'); return; }
 
-  const metas = lines.map(classify);
-  let today = metas.filter(m=>m.section==='today');
-  const urgent = metas.filter(m=>m.urgent);
-  let tomorrow = metas.filter(m=>m.section==='tomorrow');
+  const metas=lines.map(classify);
+  let today=metas.filter(m=>m.section==='today');
+  const urgent=metas.filter(m=>m.urgent);
+  let tomorrow=metas.filter(m=>m.section==='tomorrow');
 
-  if (!today.length){ today = urgent.slice(0,2); if (!today.length) today = metas.slice(0,3); }
-  if (!tomorrow.length){ tomorrow = [{section:'tomorrow', app:'Meeting', color:'linear-gradient(180deg,#BEE3FF,#3D7BFF)', badge:'📹', emoji:'📅', title:'Prep: quick workout', sub:'Tomorrow', urgent:false, raw:'Workout', action:'Plan'}]; }
+  if(!today.length){ today=urgent.slice(0,2); if(!today.length) today=metas.slice(0,3); }
+  if(!tomorrow.length){ tomorrow=[{section:'tomorrow',app:'Meeting',grad:'linear-gradient(180deg,#BEE3FF,#3D7BFF)',emoji:'📅',title:'Prep: quick workout',sub:'Tomorrow',urgent:false,raw:'Workout',action:'Plan'}]; }
 
   // fill UI
   clearUI();
   metas.slice(0,4).forEach(m=>$('creativeRow').appendChild(renderCreative(m)));
   $('topPicks').style.display='block';
 
-  today.slice(0,6).forEach(m=>$('highGrid').appendChild(renderCard(m)));
-  urgent.slice(0,4).forEach(m=>$('urgentGrid').appendChild(renderCard(m)));
-  tomorrow.slice(0,6).forEach(m=>$('tomorrowGrid').appendChild(renderCard(m)));
+  today.slice(0,6).forEach(m=>$('highGrid').appendChild(renderTile(m)));
+  urgent.slice(0,4).forEach(m=>$('urgentGrid').appendChild(renderTile(m)));
+  tomorrow.slice(0,6).forEach(m=>$('tomorrowGrid').appendChild(renderTile(m)));
 
-  const sugg = buildSuggestions(metas);
-  renderSuggestions($('suggRow'), sugg);
-  renderSuggestions($('suggOnly'), sugg);
+  const sugg=buildSuggestions(metas);
+  renderChips($('suggRow'),sugg);
+  renderChips($('suggOnly'),sugg);
 
   $('sections').style.display='grid';
   $('postActions').style.display='flex';
-  modeEl.textContent='Local';
+  $('mode').textContent='Local';
   show('home');
 }
 
-/* detail view */
+/* ---------- detail view ---------- */
 let currentMeta=null;
-function openDetail(meta){
-  currentMeta=meta;
-  $('dTitle').textContent=meta.title;
-  $('dSub').textContent=meta.section==='tomorrow' ? 'Tomorrow' : 'Today';
+function openDetail(m){
+  currentMeta=m;
+  $('dTitle').textContent=m.title;
+  $('dSub').textContent=m.section==='tomorrow'?'Tomorrow':'Today';
   $('dSteps').innerHTML='';
-  detailSteps(meta).forEach(x=>{const li=document.createElement('li');li.textContent=x;$('dSteps').appendChild(li);});
+  detailSteps(m).forEach(x=>{const li=document.createElement('li');li.textContent=x;$('dSteps').appendChild(li);});
   show('detail');
 }
 $('dCopy').onclick=()=>{ if(currentMeta) navigator.clipboard.writeText(`${currentMeta.title} — ${$('dSub').textContent}`); };
-$('dDone').onclick=()=>{
-  if(currentMeta){
-    const node=[...document.querySelectorAll('.t-title')].find(n=>n.textContent===currentMeta.title);
-    if(node){ node.style.textDecoration='line-through'; node.style.opacity='.55'; }
-  }
-  show('home');
-};
+$('dDone').onclick=()=>{ if(currentMeta){ const node=[...document.querySelectorAll('.title')].find(n=>n.textContent===currentMeta.title); if(node){node.style.textDecoration='line-through';node.style.opacity='.55';} } show('home'); };
 function detailSteps(m){
   const out=[];
-  if (m.isBug) out.push('Create a bug ticket & assign owner','Attach logs/screenshot','Notify channel if customer-facing');
-  else if (m.app==='Finance') out.push('Record in tracker','Send confirmation to stakeholder');
-  else if (m.app==='Docs') out.push('Skim redlines & mark blockers','Reply with summary');
-  else if (m.app==='Meeting') out.push('Confirm agenda','Prep 1 doc/question','Join 5 min early');
+  if(m.isBug) out.push('Create a bug ticket & assign owner','Attach logs/screenshot','Notify channel if customer-facing');
+  else if(m.app==='Finance') out.push('Record in tracker','Send confirmation to stakeholder');
+  else if(m.app==='Docs') out.push('Skim redlines & mark blockers','Reply with summary');
+  else if(m.app==='Meeting') out.push('Confirm agenda','Prep 1 doc/question','Join 5 min early');
   else out.push('Define smallest next step','Block 20–30 min focus');
   return out;
 }
