@@ -3,19 +3,21 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>ROM • Daily Summary</title>
 
 <style>
 :root{
   --bg:#F6F7F9; --surface:#FFFFFF; --surface-2:#F1F4F8; --stroke:#E8EBF0;
-  --text:#0B1220; --muted:#667085; --accent:#0A84FF;
+  --text:#0B1220; --muted:#6B7280; --accent:#0A84FF;
   --red:#FF3B30; --blue:#0A84FF; --orange:#FF9F0A; --green:#34C759; --purple:#AF52DE; --gray:#8E8E93;
   --rx:20px;
   --fs-xs:clamp(11px,2vw,12px);
   --fs-s: clamp(13px,2.4vw,14px);
   --fs-m: clamp(15px,3vw,16px);
-  --fs-l: clamp(28px,6vw,34px);
-  --wrap: min(720px, 100vw);
+  --fs-l: clamp(32px,6vw,38px); /* Apple header size */
+  --device-w:390px;
 }
 @media (prefers-color-scheme: dark){
   :root{
@@ -23,170 +25,191 @@
     --text:#E7EAF0; --muted:#AAB2C0; --accent:#74D2FF;
   }
 }
+
+/* Base */
 *{box-sizing:border-box}
-html,body{
-  margin:0; height:100%; background:var(--bg); color:var(--text);
-  font-family:-apple-system,"SF Pro Text",Inter,system-ui,sans-serif; -webkit-font-smoothing:antialiased;
-}
-.app{
-  min-height:100%;
-  display:flex; flex-direction:column; align-items:center;
-}
-.bar{
-  position:sticky; top:0; z-index:5; width:100%;
-  background:var(--surface); border-bottom:1px solid var(--stroke);
-}
-.barInner{
-  width:var(--wrap); margin:0 auto; padding:18px 16px 10px;
-  display:flex; align-items:center; gap:12px;
-}
-.bar h1{margin:0; font-size:var(--fs-l); font-weight:900; letter-spacing:-.02em; flex:1}
-.mode{font-size:var(--fs-s); color:var(--muted)}
-.back{display:none; padding:8px 12px; border-radius:12px; border:1px solid var(--stroke);
-  background:var(--surface-2); font-weight:700; cursor:pointer}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--text);
+  font-family:-apple-system,"SF Pro Text",Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased;}
+.stage{min-height:100%;display:grid;place-items:center;padding:16px;position:relative;}
+.heroGlow{position:absolute;inset:0;pointer-events:none;background:radial-gradient(700px 460px at 50% 0%, rgba(116,210,255,.12), transparent 65%);filter:blur(6px);}
 
-/* Views */
-.view{
-  width:var(--wrap); margin:0 auto; flex:1; padding:16px; display:grid; gap:16px;
-}
+/* iPhone frame */
+.device{width:min(var(--device-w),95vw);aspect-ratio:390/844;border-radius:46px;
+  background:linear-gradient(180deg,#0a0a0a,#1a1a1a);
+  box-shadow:0 28px 90px rgba(0,0,0,.55),inset 0 0 0 1px rgba(255,255,255,.06),inset 0 0 0 10px #000;
+  position:relative;display:flex;align-items:center;justify-content:center;}
+.device::before{content:"";position:absolute;top:10px;left:50%;transform:translateX(-50%);
+  width:128px;height:36px;border-radius:20px;background:rgba(0,0,0,.85);
+  box-shadow:0 10px 24px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.05);z-index:2;}
 
-/* Cards / inputs */
-.card{background:var(--surface); border:1px solid var(--stroke); border-radius:var(--rx); padding:14px}
-.card h3{margin:0 0 8px; font-size:var(--fs-m); font-weight:800}
-textarea{
-  width:100%; min-height:120px; padding:12px;
-  border:1px solid var(--stroke); border-radius:14px; background:var(--surface-2);
-  font-size:var(--fs-m); line-height:1.55; color:var(--text); resize:vertical; outline:none;
-}
-.actions{display:flex; gap:10px; margin-top:10px; flex-wrap:wrap}
-.btn{flex:1; min-width:140px; text-align:center; padding:12px; border-radius:14px;
-  border:1px solid var(--stroke); background:var(--surface-2); font-weight:800; cursor:pointer}
-.btn-primary{background:var(--accent); border-color:var(--accent); color:#fff}
-.btn-ok{background:#34C759; color:#fff; border:none}
-.hint{margin-top:6px; font-size:var(--fs-xs); color:var(--muted)}
+/* Screen */
+.screen{width:calc(100% - 22px);height:calc(100% - 22px);border-radius:36px;overflow:hidden;
+  border:1px solid var(--stroke);background:var(--surface);display:flex;flex-direction:column;}
 
-/* Sections */
-.section h4{margin:0 0 8px; font-size:var(--fs-m); font-weight:900}
-.list{background:var(--surface); border:1px solid var(--stroke); border-radius:var(--rx); overflow:hidden}
-.cell{display:grid; grid-template-columns:auto 1fr auto; gap:12px; align-items:center; padding:14px 16px; border-top:1px solid var(--stroke)}
+/* App bar (home + detail) */
+.appbar{padding:18px 16px 6px;position:sticky;top:0;z-index:5;
+  background:color-mix(in srgb, var(--surface) 88%, transparent);backdrop-filter:saturate(180%) blur(14px);
+  border-bottom:1px solid var(--stroke);display:flex;align-items:center;gap:8px;}
+.appTitle{font-size:var(--fs-l);font-weight:800;letter-spacing:-.02em;margin:0;flex:1}
+.mode{font-size:var(--fs-s);color:var(--muted)}
+.back{display:none;padding:6px 10px;border-radius:10px;border:1px solid var(--stroke);background:var(--surface-2);
+  font-weight:700;cursor:pointer}
+
+.view{height:100%;overflow:auto;-webkit-overflow-scrolling:touch;padding:12px;display:grid;gap:12px}
+
+/* Input card */
+.card{background:var(--surface);border:1px solid var(--stroke);border-radius:var(--rx);box-shadow:0 1px 0 rgba(0,0,0,.03);}
+.add{padding:12px}
+.add h3{margin:0 0 8px;font-size:var(--fs-m);font-weight:800}
+textarea{width:100%;min-height:120px;border:1px solid var(--stroke);border-radius:14px;background:var(--surface);
+  padding:10px;font-size:var(--fs-m);line-height:1.55;color:var(--text);outline:none;resize:vertical;}
+.actions{display:flex;gap:8px;padding:10px 12px 12px}
+.btn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border-radius:14px;
+  border:1px solid var(--stroke);background:var(--surface-2);font-weight:800;font-size:var(--fs-m);cursor:pointer;user-select:none;transition:transform .05s ease}
+.btn:active{transform:translateY(1px)}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-ok{background:#E9F8EF;border-color:#CDEED8;color:#0B6B38}
+.hint{font-size:var(--fs-xs);color:var(--muted);padding:0 12px 12px}
+
+/* Lists */
+.group{margin-top:2px}
+.groupHeader{font-size:var(--fs-m);font-weight:800;padding:4px 6px 6px}
+.list{background:var(--surface);border:1px solid var(--stroke);border-radius:var(--rx);overflow:hidden}
+.cell{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:14px 14px;border-top:1px solid var(--stroke)}
 .cell:first-child{border-top:0}
-.pill{width:36px; height:36px; border-radius:12px; display:grid; place-items:center; color:#fff; font-weight:800}
+.pill{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;color:#fff;font-size:16px;font-weight:800}
 .pill.red{background:var(--red)} .pill.blue{background:var(--blue)} .pill.orange{background:var(--orange)}
 .pill.green{background:var(--green)} .pill.purple{background:var(--purple)} .pill.gray{background:var(--gray)}
 .titleCol{min-width:0}
-.t1{font-weight:800; font-size:var(--fs-m); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-.t2{font-size:var(--fs-xs); color:var(--muted); margin-top:2px}
-.chev{color:#98A2B3; font-size:20px}
+.t1{font-weight:800;font-size:var(--fs-m);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.t2{font-size:var(--fs-xs);color:var(--muted);margin-top:2px}
+.chev{color:#98A2B3;font-size:20px}
 
-/* Suggestions: horizontal carousel */
-.suggRow{
-  display:flex; gap:12px; overflow-x:auto; padding:4px 2px 8px;
-  scroll-snap-type:x mandatory;
-}
-.suggRow::-webkit-scrollbar{display:none}
-.sugg{flex:0 0 auto; min-width:240px; scroll-snap-align:start;
-  background:var(--surface); border:1px solid var(--stroke); border-radius:16px; padding:14px;
-  font-size:var(--fs-m); font-weight:700; line-height:1.35}
-
-/* Detail view */
+/* Detail page */
 .detail{display:none}
-.hero{padding:8px 2px}
-.dTitle{font-size:clamp(26px,5vw,32px); font-weight:900; letter-spacing:-.02em; margin:6px 0}
-.dSub{font-size:var(--fs-s); color:var(--muted); margin:0 0 12px}
-.dCard{background:var(--surface); border:1px solid var(--stroke); border-radius:var(--rx); padding:14px}
-.dCard h5{margin:6px 0 8px; font-size:var(--fs-m)}
-.dCard ul{margin:0 0 0 18px; padding:0}
-.dCard li{padding:4px 0; font-size:var(--fs-m)}
-.dActions{display:flex; gap:10px; margin-top:10px; flex-wrap:wrap}
-.smallNote{font-size:var(--fs-xs); color:var(--muted); margin-top:8px}
+.detailHero{padding:8px 12px}
+.detailTitle{font-size:clamp(26px,5.5vw,32px);font-weight:900;letter-spacing:-.02em;margin:4px 0}
+.detailSub{font-size:var(--fs-s);color:var(--muted);margin:0 0 12px}
+.detailCard{background:var(--surface);border:1px solid var(--stroke);border-radius:var(--rx);padding:12px}
+.detailCard h4{margin:6px 0 8px;font-size:var(--fs-m)}
+.detailCard ul{margin:0 0 0 18px;padding:0}
+.detailCard li{padding:4px 0;font-size:var(--fs-m)}
+.detailActions{display:flex;gap:8px;margin-top:10px}
+.smallNote{font-size:var(--fs-xs);color:var(--muted);margin-top:8px}
 
-/* Responsive tweaks */
-@media (min-width:1024px){
-  .view{gap:18px}
-}
+/* Footer */
+.footer{position:sticky;bottom:0;left:0;right:0;padding:10px 12px;border-top:1px solid var(--stroke);
+  background:color-mix(in srgb, var(--surface) 88%, transparent);display:flex;gap:8px;align-items:center}
+.ghost{flex:1;color:var(--muted);font-size:var(--fs-s)}
+.toggle{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:var(--fs-s)}
+.toggle input{transform:scale(1.05)}
 </style>
 </head>
 <body>
-  <div class="app">
-    <!-- Top bar -->
-    <div class="bar">
-      <div class="barInner">
-        <button class="back" id="backBtn">‹ Back</button>
-        <h1 id="title">Daily Summary</h1>
-        <div class="mode">Mode: <strong id="mode">Auto</strong></div>
-      </div>
-    </div>
+  <div class="stage">
+    <div class="heroGlow"></div>
 
-    <!-- HOME -->
-    <div class="view" id="home">
-      <div class="card">
-        <h3>Enter tasks/notes</h3>
-        <textarea id="in" placeholder="Deck for investor intro
+    <div class="device">
+      <div class="screen">
+        <!-- Appbar -->
+        <div class="appbar">
+          <button class="back" id="backBtn">‹ Back</button>
+          <h1 class="appTitle" id="appTitle">Home</h1>
+          <div class="mode">Mode: <strong id="mode">Auto</strong></div>
+        </div>
+
+        <!-- HOME VIEW -->
+        <div class="view" id="homeView">
+          <!-- Input -->
+          <div class="card add">
+            <h3>Top Picks</h3>
+            <textarea id="in" placeholder="Paste 8–20 subjects/notes — one per line
+e.g.
+Deck for investor intro
 Meeting moved to 3pm with product
 Contract redlines due Friday
 Invoice paid – Stripe
 Bug: login loop on prod
+Ship 1.0.2 release notes
 Reminder: homework due tomorrow"></textarea>
-        <div class="actions">
-          <div class="btn" id="demo">Demo</div>
-          <div class="btn" id="clear">Clear</div>
-          <div class="btn btn-primary" id="go">Make my day simple</div>
-          <div class="btn btn-ok" id="done">Mark all done</div>
+            <div class="actions">
+              <div class="btn" id="demo">Demo</div>
+              <div class="btn" id="clear">Clear</div>
+              <div class="btn btn-primary" id="go">Make my day simple</div>
+            </div>
+            <div class="actions" style="padding-top:0">
+              <div class="btn btn-ok" id="done">Mark all done</div>
+            </div>
+            <div class="hint">Local-first; nothing stored. We only summarize what you paste.</div>
+          </div>
+
+          <!-- Groups -->
+          <div class="group">
+            <div class="groupHeader">📌 Today’s Highlights</div>
+            <div class="list" id="highList"></div>
+          </div>
+
+          <div class="group">
+            <div class="groupHeader">⚡ Urgent</div>
+            <div class="list" id="urgentList"></div>
+          </div>
+
+          <div class="group">
+            <div class="groupHeader">🌙 For Tomorrow</div>
+            <div class="list" id="tomorrowList"></div>
+          </div>
+
+          <div class="group">
+            <div class="groupHeader">✨ Suggestions</div>
+            <div class="list" id="suggestList"></div>
+          </div>
+
+          <div class="footer">
+            <div class="ghost">ROM • calm layer</div>
+            <label class="toggle">
+              <input id="communityToggle" type="checkbox" checked />
+              <span>Share a welcome/suggestion to Discord</span>
+            </label>
+          </div>
         </div>
-        <div class="hint">Local-first; nothing stored. We only summarize what you paste.</div>
-      </div>
 
-      <div class="section">
-        <h4>📌 Today’s Highlights</h4>
-        <div class="list" id="highList"></div>
-      </div>
+        <!-- DETAIL VIEW -->
+        <div class="view detail" id="detailView">
+          <div class="detailHero">
+            <div class="detailTitle" id="dTitle">Title</div>
+            <div class="detailSub" id="dSub">Context & timing</div>
+          </div>
 
-      <div class="section">
-        <h4>⚡ Urgent</h4>
-        <div class="list" id="urgentList"></div>
-      </div>
-
-      <div class="section">
-        <h4>🌙 For Tomorrow</h4>
-        <div class="list" id="tomorrowList"></div>
-      </div>
-
-      <div class="section">
-        <h4>✨ Suggestions</h4>
-        <div class="suggRow" id="suggestRow"></div>
-      </div>
-    </div>
-
-    <!-- DETAIL -->
-    <div class="view detail" id="detail">
-      <div class="hero">
-        <div class="dTitle" id="dTitle">Title</div>
-        <div class="dSub" id="dSub">Context & timing</div>
-      </div>
-
-      <div class="dCard">
-        <h5>What to do next</h5>
-        <ul id="dSteps"></ul>
-        <div class="dActions">
-          <div class="btn btn-ok" id="dDone">Mark done</div>
-          <div class="btn" id="dCopy">Copy</div>
+          <div class="card detailCard">
+            <h4>What to do next</h4>
+            <ul id="dSteps"></ul>
+            <div class="detailActions">
+              <div class="btn btn-ok" id="dDone">Mark done</div>
+              <div class="btn" id="dCopy">Copy</div>
+            </div>
+            <div class="smallNote">soon you’ll be able to connect advanced AI for deeper context & auto-drafts.</div>
+          </div>
         </div>
-        <div class="smallNote">soon you’ll be able to connect advanced AI for deeper context & auto-drafts.</div>
       </div>
     </div>
   </div>
 
 <script>
-/* ---------- Elements ---------- */
-const $ = id => document.getElementById(id);
-const modeEl=$('mode'), titleEl=$('title'), backBtn=$('backBtn');
-const home=$('home'), detail=$('detail');
-const input=$('in'), high=$('highList'), urg=$('urgentList'), tom=$('tomorrowList'), sugg=$('suggestRow');
-const dTitle=$('dTitle'), dSub=$('dSub'), dSteps=$('dSteps');
+/* ==== CONFIG ==== */
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxZcplRYBylrz8AQzvZhxtbpQet_EBp76qRnByAkT9WIgy7V06Meye19NipOh36mzfk/exec";
+const DISCORD_WEBHOOK_URL = ""; // keep empty if you don’t want to expose it
 
-/* ---------- Demo / clear ---------- */
-$('demo').onclick=()=>{
-  input.value=`Deck for investor intro
+/* ==== ELEMENTS ==== */
+const $ = id => document.getElementById(id);
+const appTitle = $('appTitle'), modeEl = $('mode'), backBtn = $('backBtn');
+const homeView = $('homeView'), detailView = $('detailView');
+const input = $('in');
+const highList = $('highList'), urgentList = $('urgentList'), tomorrowList = $('tomorrowList'), suggestList = $('suggestList');
+const dTitle = $('dTitle'), dSub = $('dSub'), dSteps = $('dSteps');
+
+/* ==== DEMO/CLEAR ==== */
+$('demo').onclick = ()=>{
+  input.value = `Deck for investor intro
 Meeting moved to 3pm with product
 Contract redlines due Friday
 Invoice paid – Stripe
@@ -196,162 +219,197 @@ Reminder: homework due tomorrow
 Customer asks about pricing update
 TA session moved to Thu 4pm
 Follow up with Michelle on pilot`;
-  clearLists();
+  clearAll();
 };
-$('clear').onclick=()=>{ input.value=''; clearLists(); };
-function clearLists(){ [high,urg,tom,sugg].forEach(el=>el.innerHTML=''); }
+$('clear').onclick = ()=>{ input.value=''; clearAll(); };
+function clearAll(){ [highList, urgentList, tomorrowList, suggestList].forEach(x=>x.innerHTML=''); }
 
-/* ---------- Reasoning helpers ---------- */
+/* ==== UTIL ==== */
 const esc = s => String(s).replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
-const toTxt = x => typeof x==='string'?x:(x?.text||'');
+const cap = s => s ? s.charAt(0).toUpperCase()+s.slice(1).toLowerCase() : '';
+const toText = x => typeof x==='string' ? x : (x?.text||'');
 
-function timeOf(t){ const m=t.match(/\b((?:[01]?\d|2[0-3]):[0-5]\d)\b|\b(\d{1,2})\s*(am|pm)\b/i); return m ? (m[1]||m[2]+m[3]) : ''; }
-function dayWord(t){
-  const m=t.match(/\b(today|tomorrow|mon|tue|wed|thu|fri|sat|sun|monday|tuesday|weds?|thurs?|friday|saturday|sunday|next|week)\b/i);
+function extractTime(t){ const m=t.match(/\b((?:[01]?\d|2[0-3]):[0-5]\d)\b|\b(\d{1,2})\s*(am|pm)\b/i); return m ? (m[1] || (m[2]+m[3])) : ''; }
+function extractDay(t){
+  const m=t.match(/\b(mon|tue|wed|thu|fri|sat|sun|today|tomorrow|monday|tuesday|weds?|thurs?|friday|saturday|sunday|next|week)\b/i);
   return m? m[0] : '';
 }
-function isFuture(w){ return /^(tomorrow|next|week|mon|tue|wed|thu|fri|sat|sun|monday|tuesday|weds?|thurs?|friday|saturday|sunday)$/i.test(w); }
+function isFutureWord(d){ return /^(tomorrow|mon|tue|wed|thu|fri|sat|sun|monday|tuesday|weds?|thurs?|friday|saturday|sunday|next|week)$/i.test(d); }
 
+/* classify → meta object */
 function classify(text){
-  const t=String(text||'').trim();
-  const isBug=/(bug|issue|crash|prod|outage|hotfix|error)/i.test(t);
-  const isMoney=/(invoice|paid|payment|stripe|pricing|quote|po)/i.test(t);
-  const isMeet=/(meet|call|zoom|calendar|intro|sync|moved|resched)/i.test(t);
-  const isShip=/(ship|release|launch|deploy|version|notes|build|rc)/i.test(t);
-  const isDoc=/(contract|redline|spec|doc|proposal)/i.test(t);
-  const isUrg=/(urgent|asap|blocker|critical|due|deadline|eod|eow|today)/i.test(t);
+  const t = String(text||'').trim();
+  const isBug   = /(bug|issue|crash|prod|outage|hotfix|error)/i.test(t);
+  const isMoney = /(invoice|paid|payment|stripe|pricing|quote|po)/i.test(t);
+  const isMeet  = /(meet|call|zoom|calendar|intro|sync|moved|resched)/i.test(t);
+  const isShip  = /(ship|release|launch|deploy|version|notes|build|rc)/i.test(t);
+  const isDoc   = /(contract|redline|spec|doc|proposal)/i.test(t);
+  const isUrg   = /(urgent|asap|blocker|critical|due|deadline|eod|eow|today)/i.test(t);
 
-  const time=timeOf(t), dw=dayWord(t), future=dw && isFuture(dw);
-  let section = isUrg ? 'today' : (future ? 'tomorrow' : 'today');
+  const time = extractTime(t);
+  const dayWord = extractDay(t);
+  const future = dayWord && isFutureWord(dayWord);
+
+  let section = future ? 'tomorrow' : 'today';
+  if (isUrg) section = 'today';
 
   let pill='gray', glyph='•', title=t, subtitle='';
   if (isBug){ pill='red'; glyph='⎌'; subtitle='Needs attention'; }
   else if (isMoney){ pill='green'; glyph='＄'; subtitle='Completed'; }
   else if (isShip){ pill='purple'; glyph='🚀'; subtitle='Release'; }
-  else if (isDoc){ pill='orange'; glyph='📄'; subtitle= dw ? dw : 'Docs'; }
-  else if (isMeet){ pill='blue'; glyph='🕘'; subtitle= time || (future?'Tomorrow':'Today'); if (future) title='Prep: '+title; }
-  else { subtitle = time || (future?'Tomorrow':'Today'); }
+  else if (isDoc){ pill='orange'; glyph='📄'; subtitle= dayWord ? cap(dayWord) : 'Docs'; }
+  else if (isMeet){ pill='blue'; glyph='🕘'; subtitle= time || (future? cap(dayWord) : 'Today'); if (future) title='Prep: '+title; }
+  else { subtitle = time || (future? cap(dayWord) : 'Today'); }
 
-  return {section, pill, glyph, title, subtitle, urgent:isUrg, raw:t};
+  return { section, pill, glyph, title, subtitle, urgent:isUrg, raw:t };
 }
 
-/* ---------- Renderers ---------- */
-function renderList(container, metas){
+/* render list of metas */
+function renderCells(container, metas){
   container.innerHTML='';
   if (!metas.length){
     container.innerHTML = `
       <div class="cell">
         <div class="pill gray">•</div>
-        <div class="titleCol"><div class="t1">Nothing here yet</div><div class="t2">Paste a few lines and tap “Make my day simple”.</div></div>
+        <div class="titleCol">
+          <div class="t1">Nothing here yet</div>
+          <div class="t2">Paste a few lines and tap “Make my day simple”.</div>
+        </div>
         <div class="chev">›</div>
       </div>`;
     return;
   }
-  metas.forEach(m=>{
+  metas.forEach(meta=>{
     const row=document.createElement('div');
     row.className='cell';
     row.innerHTML=`
-      <div class="pill ${m.pill}">${m.glyph}</div>
-      <div class="titleCol"><div class="t1">${esc(m.title)}</div><div class="t2">${esc(m.subtitle)}</div></div>
+      <div class="pill ${meta.pill}">${meta.glyph}</div>
+      <div class="titleCol">
+        <div class="t1">${esc(meta.title)}</div>
+        <div class="t2">${esc(meta.subtitle)}</div>
+      </div>
       <div class="chev">›</div>`;
-    row.addEventListener('click', ()=>openDetail(m));
+    row.addEventListener('click', ()=>openDetail(meta));
     container.appendChild(row);
   });
 }
 
-function buildSuggestions(metas){
-  const urg=metas.filter(m=>m.urgent);
-  const tom=metas.filter(m=>m.section==='tomorrow');
-  const out=[];
-  if (urg.length) out.push('📝 Draft replies for urgent threads');
-  if (tom.length) out.push(`🗓️ Block 30 min for: ${tom[0].title.replace(/^Prep:\s*/,'')}`);
-  if (metas.some(m=>/(bug|issue|prod|outage|error)/i.test(m.raw))) out.push('🐞 File a bug & assign owner');
-  if (metas.some(m=>/(invoice|paid|stripe|pricing)/i.test(m.raw))) out.push('💸 Update finance dashboard');
-  if (metas.some(m=>/(release|launch|deploy|version|notes|ship)/i.test(m.raw))) out.push('🚀 Post concise release note');
-  if (!tom.length) out.push('🏃 Workout 20 min');
-  out.push('☀️ Pick 3 for tomorrow & archive the rest');
+/* suggestions → metas (FIX for undefined) */
+function buildSuggestionsMetas(metas){
+  const urg = metas.filter(x=>x.urgent);
+  const tom = metas.filter(x=>x.section==='tomorrow');
+  const out = [];
+
+  if (urg.length) out.push({pill:'orange', glyph:'✨', title:`Draft replies for top ${Math.min(urg.length,3)} urgent threads`, subtitle:''});
+  if (tom.length) out.push({pill:'orange', glyph:'✨', title:`Block 30 min for: ${tom[0].title.replace(/^Prep:\s*/,'')}`, subtitle:''});
+  if (metas.some(x=>/(bug|issue|prod|outage|error)/i.test(x.raw))) out.push({pill:'orange', glyph:'✨', title:'File a bug & assign owner', subtitle:''});
+  if (metas.some(x=>/(invoice|paid|stripe|pricing)/i.test(x.raw))) out.push({pill:'orange', glyph:'✨', title:'Update finance dashboard', subtitle:''});
+  if (metas.some(x=>/(release|launch|deploy|version|notes|ship)/i.test(x.raw))) out.push({pill:'orange', glyph:'✨', title:'Post concise release note', subtitle:''});
+  if (!tom.length) out.push({pill:'orange', glyph:'✨', title:'Workout 20 min', subtitle:''});
+  out.push({pill:'orange', glyph:'✨', title:'Pick 3 for tomorrow & archive the rest', subtitle:''});
+
   return out;
 }
-function renderSuggestions(container, texts){
-  container.innerHTML='';
-  if (!texts.length){ texts=['☀️ Pick 3 for tomorrow & archive the rest']; }
-  texts.forEach(t=>{
-    const card=document.createElement('div');
-    card.className='sugg';
-    card.textContent=t;
-    container.appendChild(card);
-  });
-}
 
-/* ---------- Main action ---------- */
-$('go').onclick=()=>{
-  const lines=input.value.split('\n').map(s=>s.trim()).filter(Boolean);
-  if (!lines.length){ alert('Paste a few lines first 🙂'); return; }
-
+/* local reasoning (default to TODAY unless explicit future) */
+function reasonLocally(lines){
   const metas = lines.map(classify);
-  let today = metas.filter(m=>m.section==='today');
+  const today = metas.filter(m=>m.section==='today');
   const urgent = metas.filter(m=>m.urgent);
   let tomorrow = metas.filter(m=>m.section==='tomorrow');
 
-  if (!today.length){ today = urgent.slice(0,2); if (!today.length) today = metas.slice(0,3); }
-  if (!tomorrow.length){ tomorrow = [{section:'tomorrow', pill:'blue', glyph:'🕘', title:'Prep: quick workout', subtitle:'Tomorrow', urgent:false, raw:'Workout'}]; }
+  if (tomorrow.length===0){
+    tomorrow = [{section:'tomorrow', pill:'blue', glyph:'🕘', title:'Prep: quick workout', subtitle:'Tomorrow', urgent:false, raw:'Workout'}];
+  }
+  return { metas, today, urgent, tomorrow };
+}
 
-  renderList(high, today.slice(0,6));
-  renderList(urg, urgent.slice(0,3));
-  renderList(tom, tomorrow.slice(0,4));
-  renderSuggestions(sugg, buildSuggestions(metas));
+/* remote (optional) — used only to set Mode label */
+async function pingAppsScript(lines){
+  const params=new URLSearchParams(); lines.forEach(v=>params.append('items', v));
+  const r=await fetch(WEB_APP_URL,{method:'POST',body:params});
+  let data={}; try{ data=await r.json(); }catch{}
+  if (!r.ok || data.error || (data.status && data.status!==200)) throw new Error();
+}
 
-  modeEl.textContent = 'Local';
+/* MAIN */
+$('go').onclick = async ()=>{
+  const lines = input.value.split('\n').map(s=>s.trim()).filter(Boolean);
+  if (!lines.length){ alert('Paste a few lines first 🙂'); return; }
+  const btn=$('go'); btn.disabled=true; btn.textContent='Summarizing…';
+  try{
+    const local = reasonLocally(lines);
+    try{ await pingAppsScript(lines); modeEl.textContent='LLM'; }catch{ modeEl.textContent='Local'; }
+
+    // Today should never be empty: if empty, promote from urgent/first items
+    if (!local.today.length){
+      local.today = local.urgent.slice(0,2);
+      if (!local.today.length) local.today = local.metas.slice(0,3);
+    }
+
+    renderCells(highList, local.today.slice(0,6));
+    renderCells(urgentList, local.urgent.slice(0,3));
+    renderCells(tomorrowList, local.tomorrow.slice(0,4));
+    renderCells(suggestList, buildSuggestionsMetas(local.metas));
+  } finally{
+    btn.disabled=false; btn.textContent='Make my day simple';
+  }
 };
 
 /* Mark all done */
-$('done').onclick=()=>{
+$('done').onclick = ()=>{
   document.querySelectorAll('.t1').forEach(t1=>{ t1.style.textDecoration='line-through'; t1.style.opacity='0.55'; });
 };
 
-/* ---------- Detail page ---------- */
-let currentMeta=null;
+/* ========= Detail page (full page, Library style) ========= */
+let currentMeta = null;
 function openDetail(meta){
-  currentMeta=meta;
-  titleEl.textContent='Details';
-  backBtn.style.display='inline-block';
-  home.style.display='none';
-  detail.style.display='grid';
+  currentMeta = meta;
+  appTitle.textContent = 'Library';
+  backBtn.style.display = 'inline-block';
+  $('mode').parentElement.style.visibility = 'hidden';
+  homeView.style.display = 'none';
+  detailView.style.display = 'grid';
 
-  dTitle.textContent=meta.title;
-  dSub.textContent = (/today/i.test(meta.subtitle)||meta.section==='today') ? 'Today' :
-                     (/tomorrow/i.test(meta.subtitle)||meta.section==='tomorrow') ? 'Tomorrow' :
-                     (meta.subtitle||'Soon');
-
-  dSteps.innerHTML='';
-  detailSteps(meta).forEach(s=>{
-    const li=document.createElement('li'); li.textContent=s; dSteps.appendChild(li);
+  dTitle.textContent = meta.title;
+  dSub.textContent = detailSubtitle(meta);
+  dSteps.innerHTML = '';
+  detailSteps(meta).forEach(x=>{
+    const li=document.createElement('li'); li.textContent=x; dSteps.appendChild(li);
   });
 }
 function closeDetail(){
-  currentMeta=null;
-  titleEl.textContent='Daily Summary';
-  backBtn.style.display='none';
-  detail.style.display='none';
-  home.style.display='grid';
+  currentMeta = null;
+  appTitle.textContent = 'Home';
+  backBtn.style.display = 'none';
+  $('mode').parentElement.style.visibility = 'visible';
+  detailView.style.display = 'none';
+  homeView.style.display = 'grid';
 }
-$('backBtn').addEventListener('click', closeDetail);
-$('dCopy').addEventListener('click', ()=>{ if(currentMeta) navigator.clipboard.writeText(currentMeta.title + ' — ' + dSub.textContent); });
-$('dDone').addEventListener('click', ()=>{ 
+backBtn.addEventListener('click', closeDetail);
+$('dCopy').addEventListener('click', ()=>{ if(currentMeta) navigator.clipboard.writeText(currentMeta.title + ' — ' + detailSubtitle(currentMeta)); });
+$('dDone').addEventListener('click', ()=>{
   if (!currentMeta) return;
-  const rows=[...document.querySelectorAll('.t1')];
-  const row=rows.find(r=>r.textContent===currentMeta.title);
+  // strike in the home list
+  const rows = Array.from(document.querySelectorAll('.t1'));
+  const row = rows.find(r => r.textContent === currentMeta.title);
   if (row){ row.style.textDecoration='line-through'; row.style.opacity='0.55'; }
   closeDetail();
 });
 
+/* Detail helpers */
+function detailSubtitle(m){
+  if (/today/i.test(m.subtitle) || m.section==='today') return 'Today';
+  if (/tomorrow/i.test(m.subtitle) || m.section==='tomorrow') return 'Tomorrow';
+  return m.subtitle || 'Soon';
+}
 function detailSteps(m){
-  const t=m.raw.toLowerCase(), out=[];
+  const t = m.raw.toLowerCase(), out=[];
   if (m.pill==='red') out.push('Create a bug ticket and assign an owner','Attach logs/screenshot','Notify channel if customer-facing');
-  else if (m.pill==='green') out.push('Record payment in tracker','Notify stakeholders','Archive the thread');
-  else if (m.pill==='purple') out.push('Write a 3-line release note','Post in channel','Plan a 10-min retro');
-  else if (m.pill==='blue') out.push('Confirm agenda','Prep 1 doc or question','Join 5 min early');
-  else if (/contract|redline/.test(t)) out.push('Skim redlines & mark blockers','Send a 1-line summary');
+  else if (m.pill==='green') out.push('Record payment in tracker','Notify stakeholders','Archive email thread');
+  else if (m.pill==='purple') out.push('Write 3-line release note','Post in channel','Plan a 10-min retro');
+  else if (m.pill==='blue') out.push('Confirm agenda','Prep 1 question/doc','Join 5 minutes early');
+  else if (/contract|redline/.test(t)) out.push('Skim redlines & mark blockers','Send 1-line summary back');
   else out.push('Define the next smallest step','Block 20–30 min focus');
   return out;
 }
