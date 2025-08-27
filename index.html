@@ -1,476 +1,668 @@
-<<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-<title>ROM • Daily Summary</title>
-
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>ROM — Make My Day (AI Twin)</title>
+<meta name="description" content="ROM-style minimal planner with Privacy Center, Twin Memory, explainable AI, connectors, and timeboxing." />
 <style>
-/* ---------- iOS-light tokens (forced white) ---------- */
 :root{
-  --bg:#F6F7FB;
-  --surface:#FFFFFF;
-  --surface-2:#F2F5F8;
-  --stroke:#E8EDF4;
-  --text:#0B1220;
-  --muted:#667085;
-  --accent:#0A84FF;
-  --green:#34C759;
-  --radius:22px;
-  --max:1000px;
-
+  --bg:#F6F7FB; --surface:#FFFFFF; --surface-2:#F2F5FA;
+  --ink:#0B1220; --muted:#667085; --stroke:#E7EAF2;
+  --accent:#0A84FF; --success:#34C759; --violet:#AF52DE;
+  --danger:#EF4444; --orange:#F59E0B; --blue:#3B82F6; --green:#22C55E;
+  --radius-xl:26px; --radius:18px; --max:1060px;
   --fs-xs:clamp(11px,2.4vw,12px);
   --fs-s: clamp(13px,2.6vw,14px);
   --fs-m: clamp(15px,3.2vw,16px);
-  --fs-l: clamp(28px,6vw,34px);
+  --fs-l: clamp(22px,4.8vw,28px);
+  --fs-xl:clamp(26px,6.2vw,34px);
+  --shadow-lg: 0 28px 60px rgba(16,24,40,.10), 0 10px 20px rgba(16,24,40,.06);
 }
 *{box-sizing:border-box}
-html,body{
-  margin:0;height:100%;
-  background:var(--bg);color:var(--text);
-  font-family:-apple-system,"SF Pro Text",Inter,system-ui,sans-serif;
-  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
-}
-a{color:inherit;text-decoration:none}
-
-.wrap{min-height:100dvh;display:grid;grid-template-rows:auto 1fr auto}
-
-/* ---------- Top bar ---------- */
-.bar{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--stroke)}
-.barInner{max-width:var(--max);margin:0 auto;padding:18px 16px 12px;display:flex;gap:12px;align-items:center}
-h1{margin:0;font-size:var(--fs-l);font-weight:900;letter-spacing:-.02em;flex:1}
-.mode{font-size:var(--fs-s);color:var(--muted)}
-.back{display:none;padding:8px 12px;border-radius:12px;border:1px solid var(--stroke);background:var(--surface-2);font-weight:800;cursor:pointer}
-
-/* ---------- Views ---------- */
-.view{display:none;max-width:var(--max);margin:0 auto;padding:16px;gap:18px}
-.view.active{display:grid}
-
-/* ---------- Section titles ---------- */
-.section h4{margin:0 0 8px;font-size:var(--fs-l);font-weight:900;letter-spacing:-.02em}
-
-/* ---------- Input card ---------- */
-.card{background:var(--surface);border:1px solid var(--stroke);border-radius:var(--radius);padding:16px;box-shadow:0 10px 24px rgba(16,24,40,.06)}
-.card h3{margin:0 0 8px;font-size:var(--fs-m);font-weight:900}
-textarea{
-  width:100%;min-height:120px;border:1px solid var(--stroke);border-radius:16px;background:var(--surface-2);
-  color:var(--text);padding:12px;font-size:var(--fs-m);line-height:1.55;resize:vertical;outline:none;
-  word-break:break-word;overflow-wrap:anywhere;
-}
-.actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
-.btn{flex:1;min-width:150px;text-align:center;padding:14px;border-radius:14px;border:1px solid var(--stroke);background:var(--surface-2);font-weight:900;cursor:pointer;user-select:none}
-.btn-primary{background:var(--accent);border-color:transparent;color:#fff}
-.btn-ok{background:color-mix(in srgb, var(--green) 96%, transparent);color:#0B6B38;border:none}
-.hint{margin-top:10px;font-size:var(--fs-s);color:var(--muted)}
-
-/* ---------- Grids ---------- */
-.grid{display:grid;gap:16px}
-@media (min-width:900px){ .grid{grid-template-columns:1fr 1fr} }
-
-/* ---------- Tile card (Podcast-style) ---------- */
-.tile{
-  display:grid;grid-template-columns:88px 1fr;gap:14px;
-  background:var(--surface);border:1px solid var(--stroke);border-radius:20px;padding:14px;
-  box-shadow:0 10px 24px rgba(16,24,40,.06);
-}
-.art{
-  width:88px;height:88px;border-radius:18px;display:grid;place-items:center;position:relative;
-  color:#fff;font-size:36px;font-weight:800;user-select:none;
-  background: radial-gradient(120px 90px at 20% 10%, rgba(255,255,255,.18), transparent 60%), linear-gradient(180deg,#A7C5FF,#3D7BFF);
-  border:1px solid rgba(0,0,0,.06);
-}
-.badge{position:absolute;right:-6px;bottom:-6px;background:var(--surface);border:1px solid var(--stroke);border-radius:999px;padding:4px 8px;font-size:12px;color:var(--muted)}
-.body{min-width:0;display:flex;flex-direction:column;gap:8px}
-.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.app{font-weight:800}
-.pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:var(--surface-2);border:1px solid var(--stroke);font-size:var(--fs-xs);font-weight:800;color:var(--muted)}
-.title{font-weight:900;font-size:var(--fs-m);letter-spacing:-.01em;line-height:1.28;white-space:normal;word-break:break-word;overflow-wrap:anywhere}
-.desc{margin:0;color:var(--muted);font-size:var(--fs-s)}
-.rom{background:#E9F2FF;border:1px solid #D7E7FF;color:#0B3B8F;padding:10px;border-radius:12px;font-size:var(--fs-s)}
-.cta{margin-left:auto}
-.btn-mini{padding:8px 10px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-weight:800}
-
-/* ---------- Carousels ---------- */
-.carousel{display:flex;gap:14px;overflow-x:auto;padding:4px 2px 8px;scroll-snap-type:x mandatory}
-.carousel::-webkit-scrollbar{display:none}
-.creative{
-  flex:0 0 78%;max-width:78%;
-  scroll-snap-align:start;border-radius:22px;border:1px solid var(--stroke);
-  background:linear-gradient(145deg,#EEF3FF,#FFFFFF);
-  padding:14px;display:flex;gap:12px;align-items:center;box-shadow:0 10px 24px rgba(16,24,40,.06)
-}
-.creative .thumb{
-  width:92px;height:92px;border-radius:20px;flex:0 0 auto;
-  display:grid;place-items:center;font-size:40px;color:#fff;
-  background: radial-gradient(120px 90px at 20% 10%, rgba(255,255,255,.20), transparent 60%),
-              linear-gradient(180deg,#A7C5FF,#3D7BFF);
-  border:1px solid rgba(0,0,0,.06);
-}
-.creative .meta{display:flex;flex-direction:column;gap:6px;min-width:0}
-.creative .meta .t{font-weight:900;font-size:clamp(16px,4.6vw,20px);white-space:normal;word-break:break-word;overflow-wrap:anywhere}
-.creative .meta .s{font-size:var(--fs-s);color:var(--muted)}
-.chip{padding:10px 12px;border-radius:12px;border:1px solid var(--stroke);background:var(--surface-2);font-weight:800}
-
-/* ---------- Suggestions chips ---------- */
-.suggRow{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 8px;scroll-snap-type:x mandatory}
-.suggRow::-webkit-scrollbar{display:none}
-.sugg{flex:0 0 auto;scroll-snap-align:start;display:inline-flex;align-items:center;gap:10px;
-  padding:10px 12px;border:1px solid var(--stroke);border-radius:999px;background:var(--surface);box-shadow:0 6px 16px rgba(16,24,40,.04)}
-.sIcon{font-size:18px}
-.sText{font-weight:800;font-size:var(--fs-s)}
-
-/* ---------- Bottom tabs (iOS) ---------- */
-.tabs{position:sticky;bottom:0;background:var(--surface);border-top:1px solid var(--stroke)}
-.tabsInner{max-width:var(--max);margin:0 auto;display:flex;justify-content:space-around;gap:6px;padding:8px 8px}
-.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px;border-radius:12px;color:var(--muted);font-size:12px;cursor:pointer}
-.tab.active{color:var(--text);background:var(--surface-2);border:1px solid var(--stroke)}
-.ico{font-size:18px}
-
-/* ---------- Detail ---------- */
-.detail{display:none}
-.detail.active{display:grid}
-.d-hero{padding:4px 2px}
-.d-title{font-size:clamp(26px,5vw,32px);font-weight:900;letter-spacing:-.02em;margin:6px 0}
-.d-sub{font-size:var(--fs-s);color:var(--muted);margin:0 0 12px}
-.d-card{background:var(--surface);border:1px solid var(--stroke);border-radius:16px;padding:14px;box-shadow:0 10px 24px rgba(16,24,40,.06)}
-.d-card h5{margin:6px 0 8px;font-size:var(--fs-m)}
-.d-card ul{margin:0 0 0 18px;padding:0}
-.d-card li{padding:4px 0;font-size:var(--fs-m)}
-.d-actions{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
-.small{font-size:var(--fs-xs);color:var(--muted);margin-top:8px}
-
-/* ---------- Mobile wrapping enforcement ---------- */
-@media (max-width:999px){
-  .barInner,.view{max-width:720px;padding-left:16px;padding-right:16px}
-  .grid{grid-template-columns:1fr}
-}
+html,body{height:100%}
+html{background:var(--bg); color:var(--ink); -webkit-text-size-adjust:100%}
+body{margin:0; font:450 16px/1.5 ui-rounded, system-ui, -apple-system, "SF Pro Rounded","SF Pro Text","Segoe UI",Roboto,Helvetica,Arial}
+.app{min-height:100%; display:flex; flex-direction:column; align-items:center; gap:16px; padding:18px 0 calc(112px + env(safe-area-inset-bottom));}
+.content{width:100%; max-width:var(--max); padding:0 20px 10px;}
+.section{margin-top:6px}
+.h1{font-weight:800; letter-spacing:-.01em; font-size:var(--fs-xl); margin:0 0 14px}
+.card{background:var(--surface); border-radius:var(--radius-xl); box-shadow:var(--shadow-lg); padding:18px}
+.top-actions{display:flex; gap:10px; justify-content:flex-end; align-items:center; margin-top:4px}
+.icon-btn{appearance:none; border:1px solid var(--stroke); background:#fff; border-radius:12px; padding:8px 10px; cursor:pointer}
+.icon-btn span{font-size:12px; color:#374151; margin-left:8px}
+.badge-mode{font-size:11px; padding:2px 8px; border-radius:999px; background:#ecfeff; border:1px solid #bae6fd; color:#075985}
+small,.small{font-size:var(--fs-s); color:#8A90A2}
+textarea{width:100%; min-height:128px; resize:vertical; border:1px solid var(--stroke); border-radius:18px; background:linear-gradient(180deg,#fff,#fbfcff); padding:14px; font-size:var(--fs-m); color:#111827}
+.recall{display:flex; flex-wrap:wrap; gap:8px; margin-top:8px}
+.chip{display:inline-flex; align-items:center; gap:6px; border:1px solid var(--stroke); background:#fff; border-radius:999px; padding:6px 10px; font-size:12px}
+.chip .btn-mini{margin-left:4px; border:1px solid #d1fae5; background:#ecfdf5; color:#166534; border-radius:999px; padding:2px 6px; font-weight:700; cursor:pointer}
+.btns{display:flex; flex-wrap:wrap; gap:10px; margin-top:12px}
+.btn{appearance:none; cursor:pointer; padding:10px 16px; border-radius:14px; border:1px solid var(--stroke); background:#fff; color:#1F2937; font-weight:650; font-size:var(--fs-s); box-shadow:0 1px 0 rgba(255,255,255,.7) inset, 0 1px 0 rgba(0,0,0,.03); transition:transform .05s ease, filter .15s ease}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:linear-gradient(180deg,#46D86F,#2FBE58); color:#fff; border-color:#2FBE58}
+.btn.tint-blue{background:linear-gradient(180deg,#EAF2FF,#E6F0FF); border-color:#D6E6FF; color:#0B4A9A}
+.btn.tint-purple{background:linear-gradient(180deg,#F2E9FB,#F6EEFE); border-color:#E6D9FA; color:#6D28D9}
+.btn.danger{background:linear-gradient(180deg,#FFF1F2,#FFE7EA); border-color:#FFD3D7; color:#B91C1C}
+.btn.ghost{background:#fff}
+.assist{display:grid; gap:12px}
+.suggestion{display:grid; grid-template-columns:auto 1fr auto; gap:10px; align-items:center; border:1px solid var(--stroke); background:#fff; border-radius:14px; padding:10px 12px}
+.tag{font-size:11px; font-weight:750; padding:4px 8px; border-radius:999px; color:#0b1220; background:#eef2ff; border:1px solid #dbe3ff}
+.tag.orange{background:#fff7ed; border-color:#ffe4d5}
+.tag.green{background:#ecfdf5; border-color:#d1fae5}
+.source{font-size:11px; padding:2px 8px; border-radius:999px; border:1px solid #e5e7eb; color:#374151; background:#fff}
+.actions{display:flex; gap:6px}
+.btn-xxs{font-size:11px; padding:6px 8px; border-radius:10px; border:1px solid var(--stroke); background:#fff; cursor:pointer}
+.explain{grid-column:1 / -1; font-size:12px; color:#6b7280; display:none; padding-left:6px}
+.outcome{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:6px}
+.out-pill{display:inline-flex; gap:6px; align-items:center; padding:8px 12px; border-radius:999px; border:1px solid var(--stroke); background:#fff; font-size:12px}
+.score{font-weight:800}
+.deck{display:grid; gap:18px; grid-template-columns:1fr}
+@media(min-width:720px){ .deck{grid-template-columns:repeat(3,1fr)} }
+.card-focus{border-radius:22px; overflow:hidden; background:#fff; min-height:206px; box-shadow:var(--shadow-lg); display:flex; flex-direction:column}
+.focus-head{display:flex; align-items:center; justify-content:space-between; padding:14px 18px 10px; background:linear-gradient(180deg,#FFF7D6 0,#FFFBEA 100%); border-bottom:1px solid #F3E7B2}
+.focus-title{margin:0; font-size:18px; font-weight:780; letter-spacing:-.01em}
+.badge{font-size:12px; color:#fff; padding:4px 8px; border-radius:999px}
+.badge.green{background:#22c55e}.badge.orange{background:#f59e0b}.badge.blue{background:#3b82f6}
+.focus-body{padding:12px 18px 8px 16px; flex:1}
+.tasks{list-style:none; margin:0; padding:0}
+.taskli{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:6px 6px 6px 8px; border-radius:10px; cursor:pointer}
+.taskli:hover{background:#f7f8fb}
+.taskli .txt{flex:1}
+.taskli.done .txt{opacity:.55; text-decoration:line-through}
+.mini-done{min-width:30px; height:28px; border-radius:10px; border:1px solid #CDEBD7; background:#F1F8F4; color:#166534; font-weight:700; cursor:pointer}
+.focus-foot{display:flex; align-items:center; justify-content:flex-end; gap:8px; padding:10px 12px; border-top:1px solid var(--stroke); background:#FCFDFE}
+.tick{display:inline-flex; align-items:center; gap:8px; background:#F1F8F4; border:1px solid #CDEBD7; color:#166534; padding:8px 12px; border-radius:12px; font-size:var(--fs-s); font-weight:650; cursor:pointer}
+.card-focus button.plain{border:none; background:transparent; color:#374151; font-weight:600; cursor:pointer}
+.footer{position:fixed; left:0; right:0; bottom:0; z-index:10; background:rgba(255,255,255,.92); backdrop-filter:saturate(180%) blur(16px); border-top:1px solid var(--stroke); padding:12px 12px calc(10px + env(safe-area-inset-bottom)); display:flex; justify-content:center; gap:10px;}
+.soon-btn{appearance:none; border:1px solid #D1D5DB; background:linear-gradient(180deg,#F8FAFC,#EEF2F7); color:#111827; padding:12px 18px; border-radius:14px; font-weight:750; letter-spacing:.2px; cursor:pointer}
+.modal{position:fixed; inset:0; display:none; align-items:center; justify-content:center; padding:18px; background:rgba(2,6,23,.46); backdrop-filter:blur(8px); z-index:20}
+.modal.open{display:flex}
+.modal-card{max-width:820px}
+.form-row{display:grid; grid-template-columns:140px 1fr; gap:10px; align-items:center; margin:8px 0}
+input[type="text"], input[type="datetime-local"], textarea.modal-input{width:100%; border:1px solid var(--stroke); border-radius:12px; padding:10px; font-size:var(--fs-m); background:#fff}
+.label{color:#4b5563; font-size:var(--fs-s)}
+.snack{position:fixed; left:50%; transform:translateX(-50%); bottom:86px; background:#111827; color:#fff; padding:10px 14px; border-radius:12px; display:none; gap:12px; align-items:center; z-index:30}
+.snack.show{display:flex}
+.snack button{border:1px solid #374151; background:#1f2937; color:#fff; border-radius:10px; padding:6px 10px; cursor:pointer; font-size:12px}
 </style>
 </head>
-
 <body>
-<div class="wrap">
-  <!-- Top bar -->
-  <div class="bar">
-    <div class="barInner">
-      <button class="back" id="backBtn">‹ Back</button>
-      <h1 id="topTitle">Home</h1>
-      <div class="mode">Mode: <strong id="mode">Local</strong></div>
+<div class="app">
+  <main class="content" role="main">
+
+    <div class="top-actions">
+      <span class="badge-mode" id="modeBadge">Local-only</span>
+      <button class="icon-btn" id="memoryBtn" title="Memory Inspector">🧠<span>Memory</span></button>
+      <button class="icon-btn" id="privacyBtn" title="Privacy Center">🛡️<span>Privacy</span></button>
     </div>
+
+    <!-- Day in a Life -->
+    <section class="section">
+      <h1 class="h1">Day in a Life</h1>
+      <div class="card">
+        <p class="small">Brain-dump your tasks, plans, and wishes — one per line or separated by commas.</p>
+        <textarea id="dayInput" placeholder="e.g. Finish deck; email Michelle about advisor call; gym; plan Europe trip; buy groceries"></textarea>
+        <div id="recallChips" class="recall" aria-live="polite"></div>
+        <div class="btns">
+          <button class="btn ghost"  id="demoBtn">Demo</button>
+          <button class="btn danger" id="clearBtn">Clear</button>
+          <button class="btn primary" id="makeBtn">Make My Day Simple</button>
+          <button class="btn tint-blue" id="timeboxBtn" title="Draft a simple schedule">Timebox My Day</button>
+          <button class="btn" id="pasteEmailBtn" title="Analyze a pasted email">Analyze Email</button>
+        </div>
+        <div class="btns" style="margin-top:8px">
+          <button class="btn tint-blue"   id="waterBtn">Drink Water</button>
+          <button class="btn tint-purple" id="focusBtn">Focus 25m</button>
+          <span class="small" id="focusStatus"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- AI Assist -->
+    <section class="section">
+      <h2 class="h1" style="font-size:var(--fs-l)">AI Assist</h2>
+      <div class="card">
+        <div class="assist" id="assistList"></div>
+        <div class="btns">
+          <button class="btn ghost" id="refreshAssist">Refresh Suggestions</button>
+          <button class="btn primary" id="addSelected">Add Selected</button>
+          <button class="btn" id="historyBtn">History & Recall</button>
+          <button class="btn" id="notifyBtn">Enable Notifications</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Today’s Focus -->
+    <section class="section">
+      <div class="outcome" id="outcomeBar"></div>
+      <h2 class="h1" style="font-size:var(--fs-l)">Today’s Focus</h2>
+      <div class="deck" id="focusGrid"></div>
+    </section>
+
+  </main>
+
+  <div class="footer">
+    <button class="soon-btn" id="devsBtn">ROM for Devs</button>
+    <button class="soon-btn" id="soonBtn">Soon</button>
   </div>
-
-  <!-- ===== VIEWS ===== -->
-  <main class="view active" id="view-home">
-    <div class="card">
-      <h3>Top Picks</h3>
-      <textarea id="in" placeholder="Paste your agenda…"></textarea>
-      <div class="actions">
-        <div class="btn" id="demo">Demo</div>
-        <div class="btn" id="clear">Clear</div>
-        <div class="btn btn-primary" id="go">Make my day simple</div>
-      </div>
-      <div class="actions" id="postActions" style="display:none;margin-top:8px">
-        <div class="btn btn-ok" id="done">Mark all done</div>
-      </div>
-      <div class="hint">Local-first; nothing stored. We only summarize what you paste.</div>
-    </div>
-
-    <!-- Carousels + Sections (hidden until summarize) -->
-    <section id="topPicks" style="display:none">
-      <div class="section"><h4>Browse</h4></div>
-      <div class="carousel" id="creativeRow"></div>
-    </section>
-
-    <section id="sections" style="display:none">
-      <div class="section">
-        <h4>📌 Today’s Highlights</h4>
-        <div class="grid" id="highGrid"></div>
-      </div>
-
-      <div class="section">
-        <h4>⚡ Urgent</h4>
-        <div class="grid" id="urgentGrid"></div>
-      </div>
-
-      <div class="section">
-        <h4>🌙 For Tomorrow</h4>
-        <div class="grid" id="tomorrowGrid"></div>
-      </div>
-
-      <div class="section">
-        <h4>✨ Suggestions</h4>
-        <div class="suggRow" id="suggRow"></div>
-      </div>
-    </section>
-  </main>
-
-  <!-- Agenda tab (mirrors input) -->
-  <main class="view" id="view-agenda">
-    <div class="card">
-      <h3>Your Agenda</h3>
-      <textarea id="in2" placeholder="Paste your agenda…"></textarea>
-      <div class="actions">
-        <div class="btn" id="demo2">Demo</div>
-        <div class="btn" id="clear2">Clear</div>
-        <div class="btn btn-primary" id="go2">Summarize</div>
-      </div>
-    </div>
-  </main>
-
-  <!-- Suggestions tab -->
-  <main class="view" id="view-suggest">
-    <div class="section"><h4>Smart Suggestions</h4></div>
-    <div class="suggRow" id="suggOnly"></div>
-    <div class="hint">Tips update after you summarize on Home or Agenda.</div>
-  </main>
-
-  <!-- Settings placeholder -->
-  <main class="view" id="view-settings">
-    <div class="section"><h4>Settings</h4></div>
-    <div class="card"><div class="hint">More options coming soon.</div></div>
-  </main>
-
-  <!-- Detail view -->
-  <main class="view detail" id="view-detail">
-    <div class="d-hero">
-      <div class="d-title" id="dTitle">Title</div>
-      <div class="d-sub" id="dSub">Context & timing</div>
-    </div>
-    <div class="d-card">
-      <h5>What to do next</h5>
-      <ul id="dSteps"></ul>
-      <div class="d-actions">
-        <div class="btn btn-ok" id="dDone">Mark done</div>
-        <div class="btn" id="dCopy">Copy</div>
-      </div>
-      <div class="small">soon you’ll be able to connect advanced AI for deeper context & auto-drafts.</div>
-    </div>
-  </main>
-
-  <!-- Bottom tabs -->
-  <nav class="tabs">
-    <div class="tabsInner">
-      <div class="tab active" data-view="home"><div class="ico">🏠</div>Home</div>
-      <div class="tab" data-view="agenda"><div class="ico">🗒️</div>Agenda</div>
-      <div class="tab" data-view="suggest"><div class="ico">✨</div>Suggestions</div>
-      <div class="tab" data-view="settings"><div class="ico">⚙️</div>Settings</div>
-    </div>
-  </nav>
 </div>
 
-<script>
-/* ---------- helpers ---------- */
-const $=id=>document.getElementById(id);
-const esc=s=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-const views={home:$('view-home'),agenda:$('view-agenda'),suggest:$('view-suggest'),settings:$('view-settings'),detail:$('view-detail')};
-const tabs=[...document.querySelectorAll('.tab')];
-$('backBtn').addEventListener('click',()=>show('home'));
-tabs.forEach(t=>t.addEventListener('click',()=>show(t.dataset.view)));
-function show(name){
-  Object.values(views).forEach(v=>v.classList.remove('active'));
-  views[name].classList.add('active');
-  tabs.forEach(t=>t.classList.toggle('active',t.dataset.view===name));
-  $('topTitle').textContent = name==='home'?'Home':name[0].toUpperCase()+name.slice(1);
-  $('backBtn').style.display = (name==='detail')?'inline-block':'none';
-  window.scrollTo({top:0,behavior:'instant'});
-}
-
-/* ---------- inputs ---------- */
-const input=$('in'), in2=$('in2');
-$('demo').onclick=()=>{ input.value=demoText(); };
-$('demo2').onclick=()=>{ in2.value=demoText(); };
-$('clear').onclick=()=>{ input.value=''; clearUI(); };
-$('clear2').onclick=()=>{ in2.value=''; };
-
-$('go').onclick=summarize;
-$('go2').onclick=()=>{ input.value=in2.value; summarize(); show('home'); };
-$('done').onclick=()=>{ document.querySelectorAll('.title').forEach(t=>{t.style.textDecoration='line-through';t.style.opacity='.55';}); };
-
-function demoText(){return `Deck for investor intro
-Meeting moved to 3pm with product
-Contract redlines due Friday
-Invoice paid – Stripe
-Bug: login loop on prod
-Ship 1.0.2 release notes
-Reminder: homework due tomorrow
-Follow up with Michelle on pilot
-Asana: draft status for GTM
-Gmail: reply to onboarding`;}
-
-/* ---------- parsing ---------- */
-function timeOf(t){const m=t.match(/\b((?:[01]?\d|2[0-3]):[0-5]\d)\b|\b(\d{1,2})\s*(am|pm)\b/i);return m?(m[1]||m[2]+m[3]):'';}
-function dayWord(t){const m=t.match(/\b(today|tomorrow|mon|tue|wed|thu|fri|sat|sun|monday|tuesday|weds?|thurs?|friday|saturday|sunday|next|week)\b/i);return m?m[0]:'';}
-function isFuture(w){return /^(tomorrow|next|week|mon|tue|wed|thu|fri|sat|sun|monday|tuesday|weds?|thurs?|friday|saturday|sunday)$/i.test(w);}
-
-function detectApp(t){
-  const s=t.toLowerCase();
-  if (s.includes('asana'))   return {app:'Asana',   grad:'linear-gradient(180deg,#FFB6C8,#FF3D6E)', emoji:'🗂️'};
-  if (s.includes('trello'))  return {app:'Trello',  grad:'linear-gradient(180deg,#A7C5FF,#3D7BFF)', emoji:'🧩'};
-  if (s.includes('gmail')||s.includes('email')||s.includes('inbox')) return {app:'Gmail', grad:'linear-gradient(180deg,#FFC9C9,#FF4D4D)', emoji:'✉️'};
-  if (s.includes('slack'))   return {app:'Slack',   grad:'linear-gradient(180deg,#E9D5FF,#A855F7)', emoji:'💬'};
-  if (s.includes('zoom')||s.includes('meet')) return {app:'Meeting', grad:'linear-gradient(180deg,#BEE3FF,#3D7BFF)', emoji:'📅'};
-  if (s.includes('doc')||s.includes('contract')||s.includes('redline')) return {app:'Docs', grad:'linear-gradient(180deg,#FFE3AD,#FF9F0A)', emoji:'📄'};
-  if (s.includes('stripe')||s.includes('invoice')||s.includes('paid')) return {app:'Finance', grad:'linear-gradient(180deg,#C6F7D0,#34C759)', emoji:'💵'};
-  if (s.includes('github')||s.includes('pr ')||s.includes('pull request')) return {app:'GitHub', grad:'linear-gradient(180deg,#E5E7EB,#9CA3AF)', emoji:'🐙'};
-  return {app:'Task', grad:'linear-gradient(180deg,#A7C5FF,#3D7BFF)', emoji:'✅'};
-}
-function classify(text){
-  const t=String(text||'').trim();
-  const {app,grad,emoji}=detectApp(t);
-  const isBug=/(bug|issue|crash|prod|outage|hotfix|error)/i.test(t);
-  const isUrg=/(urgent|asap|blocker|critical|due|deadline|eod|eow|today)/i.test(t);
-  const isMeet=/(meet|call|zoom|calendar|intro|sync|moved|resched)/i.test(t);
-  const time=timeOf(t), dw=dayWord(t), future=dw && isFuture(dw);
-  const section=isUrg?'today':(future?'tomorrow':'today');
-  const title=(isMeet && future)?'Prep: '+t:t;
-  const sub=time || (future?'Tomorrow':'Today');
-  let action='Open';
-  if (app==='Meeting') action='Join / Prep';
-  else if (isBug) action='Fix / Assign';
-  else if (app==='Finance') action='Record';
-  else if (app==='Docs') action='View Doc';
-  else if (isUrg) action='Handle Now';
-  return {section,app,grad,emoji,title,sub,urgent:isUrg,raw:t,action,isBug};
-}
-
-/* ---------- suggestions ---------- */
-function buildSuggestions(metas){
-  const urg=metas.filter(x=>x.urgent);
-  const tom=metas.filter(x=>x.section==='tomorrow');
-  const out=[];
-  if (urg.length) out.push({icon:'📝',text:`Draft replies for ${Math.min(urg.length,3)} urgent threads`});
-  if (tom.length) out.push({icon:'🗓️',text:`Block 30 min for: ${tom[0].title.replace(/^Prep:\s*/,'')}`});
-  if (metas.some(x=>x.isBug)) out.push({icon:'🐞',text:'File a bug & assign owner'});
-  if (metas.some(x=>/(invoice|paid|stripe|pricing)/i.test(x.raw))) out.push({icon:'💸',text:'Update finance dashboard'});
-  if (!tom.length) out.push({icon:'🏃',text:'Quick workout (20 min)'});
-  return out.slice(0,3);
-}
-
-/* ---------- renderers ---------- */
-function contextLine(m){
-  if (m.app==='Meeting') return 'Agenda ready • 1-pager prep helps';
-  if (m.isBug) return 'Add logs/screenshot • notify owner';
-  if (m.app==='Finance') return 'Log payment in tracker';
-  if (m.app==='Docs') return 'Skim redlines • mark blockers';
-  return 'Smallest next step wins';
-}
-function creativeSub(m){
-  if (m.app==='Meeting') return 'Join / prep questions';
-  if (m.isBug) return 'Draft ticket • assign';
-  if (m.app==='Finance') return 'Record & confirm';
-  if (m.app==='Docs') return 'Summarize deltas';
-  return 'Tap for next step';
-}
-
-function renderTile(m){
-  const el=document.createElement('div');
-  el.className='tile';
-  el.innerHTML=`
-    <div class="art" style="background:
-      radial-gradient(120px 90px at 20% 10%, rgba(255,255,255,.18), transparent 60%),
-      ${m.grad};">${m.emoji}<span class="badge">${esc(m.app)}</span></div>
-    <div class="body">
-      <div class="row"><span class="app">${esc(m.app)}</span><span class="pill">${esc(m.sub)}</span>${m.urgent?'<span class="pill">Urgent</span>':''}</div>
-      <div class="title">${esc(m.title)}</div>
-      <p class="desc">${esc(contextLine(m))}</p>
-      <div class="rom"><b>ROM:</b> ${esc(
-        m.app==='Meeting'?'Want a prep outline or 3 questions?':
-        m.isBug?'Draft a bug ticket with steps + assignee?':
-        m.app==='Finance'?'Draft receipt/status message?':
-        m.app==='Docs'?'Summarize deltas & reply with blockers?':'Turn this into a 1-sentence task?'
-      )}</div>
-      <div class="row"><button class="btn-mini">${esc(m.action)}</button></div>
-    </div>`;
-  el.addEventListener('click',e=>{ if(e.target.tagName!=='BUTTON') openDetail(m); });
-  return el;
-}
-
-function renderCreative(m){
-  const el=document.createElement('div');
-  el.className='creative';
-  el.innerHTML=`
-    <div class="thumb" style="background:
-      radial-gradient(120px 90px at 20% 10%, rgba(255,255,255,.20), transparent 60%),
-      ${m.grad};">${m.emoji}</div>
-    <div class="meta">
-      <div class="t">${esc(m.title)}</div>
-      <div class="s">${esc(creativeSub(m))}</div>
+<!-- Modal -->
+<div class="modal" id="modal">
+  <div class="card modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <h3 id="modalTitle" style="margin:0 0 8px">Modal</h3>
+    <div id="modalBody" class="small">Loading…</div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px">
+      <button class="btn danger" id="deleteTask" style="display:none">Delete</button>
+      <button class="btn ghost" id="closeModal">Close</button>
+      <button class="btn primary" id="saveTask" style="display:none">Save</button>
     </div>
-    <div class="cta"><span class="chip">${esc(m.action)}</span></div>`;
-  el.addEventListener('click',()=>openDetail(m));
-  return el;
+  </div>
+</div>
+
+<!-- Undo snack -->
+<div class="snack" id="snack"><span id="snackText">Action done.</span><button id="snackUndo">Undo</button></div>
+
+<script>
+(() => {
+// ======= Polyfills =======
+if (!('randomUUID' in crypto)) { crypto.randomUUID = () => 'rom-' + Math.random().toString(36).slice(2) + Date.now() }
+
+// ======= State =======
+const store={get(k,fb){try{return JSON.parse(localStorage.getItem(k))??fb}catch{return fb}},set(k,v){localStorage.setItem(k,JSON.stringify(v))}}
+const todayKey=()=> new Date().toISOString().slice(0,10)
+const DEFAULT_FOCUS={highlight:[],urgent:[],prepare:[]}
+let focus=store.get('focus',DEFAULT_FOCUS)
+let history=store.get('history',[])
+let memory=store.get('memory',{people:{}, preferences:{}, patterns:{}, keywords:{}})
+let settings=store.get('settings',{mode:'local', kill:false, notifications:false, apiKey:'', scopes:{calendar:'subjects', gmail:'subjects'}, connectors:{calendar:false, gmail:false}})
+let metrics=store.get('metrics',{activation:{linked:false, firstSuggestionAccepted:false}, weekly:{followups:0,timeboxes:0,highlightDone:0}, streaks:{suggestAccept:0}, recalledRefs:0})
+let activity=store.get('activity',[])
+const lastSaved=store.get('lastDate',null)
+if(lastSaved!==todayKey() && lastSaved!==null){
+  history.unshift({date:lastSaved, focus})
+  history=history.slice(0,30)
+  focus={...DEFAULT_FOCUS}
+  logAct('day-rollover', {from:lastSaved,to:todayKey()})
+  saveAll()
 }
-function renderChips(row,list){
-  row.innerHTML='';
-  (list.length?list:[{icon:'☀️',text:'Pick 3 for tomorrow & archive the rest'}]).forEach(s=>{
-    const c=document.createElement('div');
-    c.className='sugg';
-    c.innerHTML=`<div class="sIcon">${s.icon}</div><div class="sText">${esc(s.text)}</div>`;
-    row.appendChild(c);
-  });
+store.set('lastDate',todayKey())
+
+// ======= Utilities =======
+const qs=(s)=>document.querySelector(s)
+const qsa=(s)=>[...document.querySelectorAll(s)]
+const val=(s)=>qs(s).value
+function escapeHtml(str){return String(str).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function escapeAttr(str){return String(str).replace(/"/g,'&quot;')}
+function saveAll(){ store.set('focus',focus); store.set('history',history); store.set('memory',memory); store.set('settings',settings); store.set('metrics',metrics); store.set('activity',activity) }
+function logAct(type, detail){ activity.unshift({at:new Date().toISOString(), type, detail}); activity=activity.slice(0,200); saveAll() }
+const undoStack=[]
+function pushUndo(label, fn){ undoStack.push(fn); showSnack(label) }
+function showSnack(label){ qs('#snackText').textContent=label; qs('#snack').classList.add('show'); setTimeout(()=>qs('#snack').classList.remove('show'), 6000) }
+
+// ======= Memory & Recall =======
+function extractPeopleAndKeywords(texts){
+  const people=new Set(), keywords=new Set()
+  const nameLike=/\b([A-Z][a-z]{2,})(?:\s+[A-Z][a-z]{2,})?\b/g
+  const strongKeywords=/(invoice|advisor|deck|fundraising|tax|meeting|budget|proposal|design|launch|flight|hotel|dentist|doctor|groceries|workout|call|email|follow\s*up)/gi
+  texts.forEach(t=>{
+    let m; while((m=nameLike.exec(t))){ const n=m[1]; if(!['I','We','You','The','And','Buy','Plan','Finish','Email'].includes(n)) people.add(n) }
+    const hits=t.match(strongKeywords); if(hits) hits.forEach(h=>keywords.add(h.toLowerCase()))
+  })
+  return {people:[...people], keywords:[...keywords]}
+}
+function updateMemoryFromFocus(){
+  const lines=[]; ['highlight','urgent','prepare'].forEach(k=> (focus[k]||[]).forEach(it=>lines.push(it.text)))
+  const {people, keywords}=extractPeopleAndKeywords(lines)
+  const today=todayKey()
+  people.forEach(n=>{
+    const lastLine = lines.slice().reverse().find(l=> l.includes(n)) || n
+    memory.people[n]={lastText:lastLine, lastDate:today}
+  })
+  keywords.forEach(k=> memory.keywords[k]=(memory.keywords[k]||0)+1)
+  saveAll()
+}
+function renderRecallChips(){
+  const wrap=qs('#recallChips'); if(!wrap) return; wrap.innerHTML=''
+  const text=qs('#dayInput').value
+  const names=(text.match(/\b([A-Z][a-z]{2,})(?:\s+[A-Z][a-z]{2,})?\b/g)||[]).filter(n=>memory.people[n])
+  const seen=new Set()
+  names.forEach(n=>{
+    if(seen.has(n)) return; seen.add(n)
+    const info=memory.people[n]
+    const el=document.createElement('div'); el.className='chip'
+    el.innerHTML=`<strong>${n}</strong><span class="small">Last: ${escapeHtml(info.lastText)}</span><button class="btn-mini" data-n="${n}">Add follow-up</button>`
+    el.querySelector('.btn-mini').addEventListener('click', ()=>{ (focus.urgent ||= []).push({text:`Follow up with ${n} — ${info.lastText}`, notes:'recall', done:false}); saveAll(); renderAll(); logAct('recall-follow', {name:n}) })
+    wrap.appendChild(el)
+  })
 }
 
-/* ---------- summarize flow ---------- */
-function clearUI(){
-  ['highGrid','urgentGrid','tomorrowGrid','suggRow','creativeRow','suggOnly'].forEach(id=>$(id).innerHTML='');
-  $('sections').style.display='none';
-  $('topPicks').style.display='none';
-  $('postActions').style.display='none';
+// ======= Suggestions =======
+const SUG_TYPES={CARRY:'Carry-over', FOLLOW:'Follow-up', PREP:'Prep Idea', QUICK:'Quick Win', TIMEBOX:'Timebox', CHECKLIST:'Checklist'}
+function stubCalendar(){ const d=new Date(); const time=('0'+(d.getHours()<14?14:d.getHours()+1)).slice(-2)+':00'; return [{title:'Advisor check-in', person:'Michelle', time}] }
+function stubGmail(){ return [{from:'Michelle', subject:'Advisor call next steps'}] }
+function buildSuggestions(){
+  if(settings.kill) return []
+  const sugg=[]
+  history.slice(0,3).forEach(h=>{
+    ['highlight','urgent','prepare'].forEach(k=>{
+      (h.focus[k]||[]).forEach(it=>{
+        if(!it.done) sugg.push({type:SUG_TYPES.CARRY, text:it.text, from:h.date, source:'Local', explain:`Undone ${k} from ${h.date}`})
+      })
+    })
+  })
+  Object.entries(memory.people||{}).forEach(([name, last])=>{
+    const hinted=/email|call|follow\s*up|meeting|advisor|proposal|deck|invoice/i.test(last.lastText)
+    if(hinted) sugg.push({type:SUG_TYPES.FOLLOW, text:`Follow up with ${name} — ${last.lastText}`, source:'Local', explain:`Mentioned with action-y context on ${last.lastDate}`})
+  })
+  if(settings.connectors.calendar) { stubCalendar().forEach(ev=>{ if(ev.person) sugg.push({type:SUG_TYPES.FOLLOW, text:`Prep for ${ev.title} with ${ev.person} at ${ev.time}`, source:'Calendar', explain:`Upcoming event today at ${ev.time}`}) }) }
+  if(settings.connectors.gmail)    { stubGmail().forEach(mail=> sugg.push({type:SUG_TYPES.FOLLOW, text:`Reply: ${mail.subject}`, source:'Email', explain:`Recent email from ${mail.from}`}) ) }
+  if(memory.keywords.flight||memory.keywords.hotel) sugg.push({type:SUG_TYPES.CHECKLIST, text:'Travel checklist (docs, tickets, chargers, meds)', source:'Local', explain:'You mentioned flights/hotel before'})
+  if(memory.keywords.demo||memory.keywords.launch||memory.keywords.deck) sugg.push({type:SUG_TYPES.CHECKLIST, text:'Demo prep checklist (script, env, backup video)', source:'Local', explain:'You mentioned demo/launch/deck previously'})
+  const total=['highlight','urgent','prepare'].reduce((a,k)=>a+(focus[k]||[]).length,0)
+  if(total>=6) sugg.push({type:SUG_TYPES.QUICK, text:'Two-minute rule sweep (reply/triage 10m)', source:'Local', explain:'List is heavy; reduce friction with quick wins'})
+  sugg.push({type:SUG_TYPES.TIMEBOX, text:'Auto timebox: AM highlight, midday urgents, PM prep', source:(settings.mode==='cloud'?'Cloud':'Local'), explain:'Simple schedule heuristic'})
+  const uniq={}; return sugg.filter(s=> (uniq[s.text]? false : (uniq[s.text]=true)))
 }
-function summarize(){
-  const src=views.agenda.classList.contains('active')?in2:input;
-  if (src && src!==input) input.value=src.value;
-
-  const lines=input.value.split('\n').map(s=>s.trim()).filter(Boolean);
-  if(!lines.length){ alert('Paste your agenda first 🙂'); return; }
-
-  const metas=lines.map(classify);
-  let today=metas.filter(m=>m.section==='today');
-  const urgent=metas.filter(m=>m.urgent);
-  let tomorrow=metas.filter(m=>m.section==='tomorrow');
-
-  if(!today.length){ today=urgent.slice(0,2); if(!today.length) today=metas.slice(0,3); }
-  if(!tomorrow.length){ tomorrow=[{section:'tomorrow',app:'Meeting',grad:'linear-gradient(180deg,#BEE3FF,#3D7BFF)',emoji:'📅',title:'Prep: quick workout',sub:'Tomorrow',urgent:false,raw:'Workout',action:'Plan'}]; }
-
-  // fill UI
-  clearUI();
-  metas.slice(0,4).forEach(m=>$('creativeRow').appendChild(renderCreative(m)));
-  $('topPicks').style.display='block';
-
-  today.slice(0,6).forEach(m=>$('highGrid').appendChild(renderTile(m)));
-  urgent.slice(0,4).forEach(m=>$('urgentGrid').appendChild(renderTile(m)));
-  tomorrow.slice(0,6).forEach(m=>$('tomorrowGrid').appendChild(renderTile(m)));
-
-  const sugg=buildSuggestions(metas);
-  renderChips($('suggRow'),sugg);
-  renderChips($('suggOnly'),sugg);
-
-  $('sections').style.display='grid';
-  $('postActions').style.display='flex';
-  $('mode').textContent='Local';
-  show('home');
+function renderAssist(){
+  updateMemoryFromFocus()
+  const wrap=qs('#assistList'); if(!wrap) return; wrap.innerHTML=''
+  const suggs=buildSuggestions(); wrap.dataset.payload=JSON.stringify(suggs)
+  if(!suggs.length){ wrap.innerHTML='<div class="small">No suggestions yet. Add some tasks or tap Demo.</div>'; return }
+  suggs.forEach((s,i)=>{
+    const row=document.createElement('div'); row.className='suggestion'; row.dataset.index=i
+    row.innerHTML=`
+      <span class="tag ${s.type===SUG_TYPES.CARRY?'orange':s.type===SUG_TYPES.FOLLOW?'green':''}">${s.type}</span>
+      <div>
+        <div><strong>${escapeHtml(s.text)}</strong></div>
+        <div style="margin-top:4px;display:flex;gap:6px;align-items:center">
+          <span class="source">${s.source}</span>
+          <button class="btn-xxs explain-btn">Explain</button>
+          <button class="btn-xxs snooze-btn">Snooze</button>
+        </div>
+        <div class="explain">${escapeHtml(s.explain||'')}</div>
+      </div>
+      <div class="actions">
+        ${s.type===SUG_TYPES.FOLLOW?'<button class="btn-xxs compose-btn">Compose</button>':''}
+        <label class="btn-xxs"><input type="checkbox" class="addChk" /> Add</label>
+      </div>`
+    wrap.appendChild(row)
+  })
 }
 
-/* ---------- detail view ---------- */
-let currentMeta=null;
-function openDetail(m){
-  currentMeta=m;
-  $('dTitle').textContent=m.title;
-  $('dSub').textContent=m.section==='tomorrow'?'Tomorrow':'Today';
-  $('dSteps').innerHTML='';
-  detailSteps(m).forEach(x=>{const li=document.createElement('li');li.textContent=x;$('dSteps').appendChild(li);});
-  show('detail');
+// ======= Focus & Outcome =======
+const DECK_META=[{key:'highlight',label:"Today’s Highlight",color:'green'},{key:'urgent',label:'Urgent',color:'orange'},{key:'prepare',label:'Prepare',color:'blue'}]
+function renderDeck(){
+  const grid=qs('#focusGrid'); if(!grid) return; grid.innerHTML=''
+  DECK_META.forEach(def=>{
+    const items=focus[def.key]||[]; const count=items.filter(i=>!i.done).length
+    const el=document.createElement('article'); el.className='card-focus'; el.dataset.key=def.key
+    el.innerHTML=`
+      <div class="focus-head">
+        <h3 class="focus-title">${def.label}</h3>
+        <span class="badge ${def.color}">${count} ${count===1?'item':'items'}</span>
+      </div>
+      <div class="focus-body">
+        <ul class="tasks">
+          ${items.length?items.slice(0,48).map((i,idx)=>`
+            <li class="taskli ${i.done?'done':''}" data-idx="${idx}">
+              <span class="txt">${escapeHtml(i.text)}</span>
+              <button class="mini-done" title="${i.done?'Mark not done':'Mark done'}">${i.done?'↺':'✓'}</button>
+            </li>`).join(''):'<li class="small">No items yet.</li>'}
+        </ul>
+      </div>
+      <div class="focus-foot">
+        <button class="tick">✔ Mark all done</button>
+        <button class="plain">Edit…</button>
+      </div>`
+    // event wiring per card
+    el.querySelector('.tick').addEventListener('click', ()=>{
+      const prev=JSON.stringify(focus[def.key]); focus[def.key]=(focus[def.key]||[]).map(i=>({...i,done:true}));
+      pushUndo('Marked all done.', ()=>{ focus[def.key]=JSON.parse(prev); saveAll(); renderAll() }); saveAll(); renderAll(); if(def.key==='highlight') metrics.weekly.highlightDone += 1; saveAll(); logAct('mark-all', {list:def.key})
+    })
+    el.querySelector('.plain').addEventListener('click', ()=>openListEditor(def.key))
+    el.querySelectorAll('.taskli').forEach(li=>{
+      const idx=+li.dataset.idx
+      li.querySelector('.mini-done').addEventListener('click', (ev)=>{ ev.stopPropagation(); const prev=focus[def.key][idx].done; focus[def.key][idx].done=!prev; pushUndo(prev?'Marked not done.':'Marked done.', ()=>{ focus[def.key][idx].done=prev; saveAll(); renderAll() }); saveAll(); renderAll() })
+      li.addEventListener('click', ()=>openItemEditor(def.key, idx))
+    })
+    grid.appendChild(el)
+  })
 }
-$('dCopy').onclick=()=>{ if(currentMeta) navigator.clipboard.writeText(`${currentMeta.title} — ${$('dSub').textContent}`); };
-$('dDone').onclick=()=>{ if(currentMeta){ const node=[...document.querySelectorAll('.title')].find(n=>n.textContent===currentMeta.title); if(node){node.style.textDecoration='line-through';node.style.opacity='.55';} } show('home'); };
-function detailSteps(m){
-  const out=[];
-  if(m.isBug) out.push('Create a bug ticket & assign owner','Attach logs/screenshot','Notify channel if customer-facing');
-  else if(m.app==='Finance') out.push('Record in tracker','Send confirmation to stakeholder');
-  else if(m.app==='Docs') out.push('Skim redlines & mark blockers','Reply with summary');
-  else if(m.app==='Meeting') out.push('Confirm agenda','Prep 1 doc/question','Join 5 min early');
-  else out.push('Define smallest next step','Block 20–30 min focus');
-  return out;
+function renderOutcome(){
+  const el=qs('#outcomeBar'); if(!el) return
+  const doneCounts=DECK_META.map(d=>(focus[d.key]||[]).filter(i=>i.done).length)
+  const totalCounts=DECK_META.map(d=>(focus[d.key]||[]).length)
+  const impact = Math.round( ( (doneCounts[0]*3 + doneCounts[1]*2 + doneCounts[2]*1) / Math.max(1,(totalCounts[0]*3+totalCounts[1]*2+totalCounts[2]*1)) ) * 100 )
+  el.innerHTML=`
+    <span class="out-pill">Highlight: ${doneCounts[0]}/${totalCounts[0]}</span>
+    <span class="out-pill">Urgent: ${doneCounts[1]}/${totalCounts[1]}</span>
+    <span class="out-pill">Prepare: ${doneCounts[2]}/${totalCounts[2]}</span>
+    <span class="out-pill">Impact <span class="score">${isNaN(impact)?0:impact}%</span></span>`
 }
+
+// ======= Editors & Modal =======
+const modal=qs('#modal'), modalTitle=qs('#modalTitle'), modalBody=qs('#modalBody'), closeModalBtn=qs('#closeModal'), saveBtn=qs('#saveTask'), deleteBtn=qs('#deleteTask')
+function openModal(){ modal.classList.add('open') }
+function closeModal(){ modal.classList.remove('open'); saveBtn.onclick=null; deleteBtn.onclick=null }
+closeModalBtn.addEventListener('click', closeModal)
+modal.addEventListener('click',e=>{ if(e.target===modal) closeModal() })
+
+function openListEditor(key){
+  modalTitle.textContent={highlight:"Today’s Highlight", urgent:"Urgent", prepare:"Prepare"}[key]
+  saveBtn.style.display='inline-flex'; deleteBtn.style.display='none'
+  modalBody.innerHTML=`
+    <div class="small">Bulk edit — one per line. Use <strong>[x]</strong> for done. Add notes after “ — ”.</div>
+    <textarea class="modal-input" id="taskEdit">${(focus[key]||[]).map(i=>(i.done?'[x] ':'')+i.text+(i.notes?` — ${i.notes}`:'')).join('\n')}</textarea>`
+  const prev=JSON.stringify(focus[key]||[])
+  saveBtn.onclick=()=>{
+    const lines=qs('#taskEdit').value.split(/\n+/).map(s=>s.trim()).filter(Boolean)
+    focus[key]=lines.map(l=>{
+      const done=/^\[x\]\s*/i.test(l); const clean=l.replace(/^\[x\]\s*/i,''); const parts=clean.split(' — ')
+      return {text:parts[0], notes:parts.slice(1).join(' — '), done}
+    })
+    pushUndo('Edited list.', ()=>{ focus[key]=JSON.parse(prev); saveAll(); renderAll() })
+    saveAll(); renderAll(); closeModal()
+  }
+  openModal()
+}
+function openItemEditor(key, idx){
+  const item=focus[key][idx] || {text:'',notes:'',done:false,when:''}
+  modalTitle.textContent='Edit Task'
+  saveBtn.style.display='inline-flex'; deleteBtn.style.display='inline-flex'
+  const prev=JSON.stringify(item)
+  modalBody.innerHTML=`
+    <div class="form-row"><div class="label">List</div><div>${{highlight:"Today’s Highlight",urgent:"Urgent",prepare:"Prepare"}[key]}</div></div>
+    <div class="form-row"><label class="label" for="itext">Text</label><input id="itext" type="text" value="${escapeAttr(item.text)}"/></div>
+    <div class="form-row"><label class="label" for="inotes">Notes</label><input id="inotes" type="text" placeholder="optional" value="${escapeAttr(item.notes||'')}"/></div>
+    <div class="form-row"><label class="label" for="iwhen">When</label><input id="iwhen" type="datetime-local" value="${item.when||''}"/></div>
+    <div class="form-row"><div class="label">Status</div><label><input id="idone" type="checkbox" ${item.done?'checked':''}/> Done</label></div>`
+  saveBtn.onclick=()=>{ focus[key][idx]={text:val('#itext'), notes:val('#inotes'), when:val('#iwhen'), done:qs('#idone').checked}; pushUndo('Edited task.', ()=>{ focus[key][idx]=JSON.parse(prev); saveAll(); renderAll() }); saveAll(); renderAll(); closeModal() }
+  deleteBtn.onclick=()=>{ const del=focus[key].splice(idx,1)[0]; pushUndo('Deleted task.', ()=>{ focus[key].splice(idx,0,del); saveAll(); renderAll() }); saveAll(); renderAll(); closeModal() }
+  openModal()
+}
+
+// ======= Day in a Life buttons =======
+const demoText=['Finish fundraising deck v3','Email Michelle about advisor call','Gym + stretch 45m','Schedule dentist appointment','Buy groceries for dinner','Sketch ROM “memory constellations”','Plan EU trip budget'].join('\n')
+qs('#demoBtn').addEventListener('click', ()=>{qs('#dayInput').value=demoText; renderRecallChips()})
+qs('#clearBtn').addEventListener('click', ()=>{ const prev=JSON.stringify(focus); qs('#dayInput').value=''; focus={...DEFAULT_FOCUS}; pushUndo('Cleared.', ()=>{ focus=JSON.parse(prev); saveAll(); renderAll() }); saveAll(); renderAll() })
+qs('#makeBtn').addEventListener('click', ()=>{
+  const raw=qs('#dayInput').value.trim(); const parts=raw.split(/[\n,;]+/).map(s=>s.trim()).filter(Boolean)
+  if(!parts.length){ alert('Add a few items first (or tap Demo).'); return }
+  const urgentWords=/(urgent|asap|due|invoice|tax|email|call|reply|submit|meeting|today|flight|check-in)/i
+  const prepareWords=/(book|schedule|plan|prep|prepare|buy|order|research|pack|budget|draft|outline)/i
+  const prev=JSON.stringify(focus)
+  let highlight=[], urgent=[], prepare=[]
+  parts.forEach(p=>{
+    if(urgentWords.test(p))       urgent.push({text:p,done:false,notes:''})
+    else if(prepareWords.test(p)) prepare.push({text:p,done:false,notes:''})
+    else if(highlight.length<3)   highlight.push({text:p,done:false,notes:''})
+    else                          prepare.push({text:p,done:false,notes:''})
+  })
+  if(highlight.length>0) highlight=[highlight[0], ...highlight.slice(1,3)]
+  focus={highlight,urgent,prepare}
+  pushUndo('Planned your day.', ()=>{ focus=JSON.parse(prev); saveAll(); renderAll() })
+  saveAll(); renderAll(); qs('#focusGrid').scrollIntoView({behavior:'smooth', block:'start'})
+})
+
+// Focus timer & water
+let focusTimer=null, endAt=0
+const fmt=ms=>`${String(Math.floor(ms/60000)).padStart(2,'0')}:${String(Math.floor((ms%60000)/1000)).padStart(2,'0')}`
+qs('#focusBtn').addEventListener('click', ()=>{
+  const label=qs('#focusStatus')
+  if(focusTimer){ clearInterval(focusTimer); focusTimer=null; label.textContent='Focus stopped.'; return }
+  endAt=Date.now()+25*60*1000; label.textContent='25:00'
+  focusTimer=setInterval(()=>{ const left=endAt-Date.now(); if(left<=0){ clearInterval(focusTimer); focusTimer=null; label.textContent='Time! Great job.'; alert('Focus block done!') } else label.textContent=fmt(left) }, 250)
+})
+qs('#waterBtn').addEventListener('click', ()=>alert('Sip water 💧'))
+
+// ======= AI Assist controls (delegated) =======
+qs('#assistList').addEventListener('click', (e)=>{
+  const row=e.target.closest('.suggestion'); if(!row) return
+  const i=+row.dataset.index
+  if(e.target.classList.contains('explain-btn')){ const exp=row.querySelector('.explain'); exp.style.display=exp.style.display==='block'?'none':'block'; return }
+  if(e.target.classList.contains('snooze-btn')){ showSnack('Snoozed for later.'); logAct('snooze', {index:i}); return }
+  if(e.target.classList.contains('compose-btn')){ const s=JSON.parse(qs('#assistList').dataset.payload||'[]')[i]; openCompose(s); return }
+})
+qs('#refreshAssist').addEventListener('click', ()=>renderAssist())
+qs('#addSelected').addEventListener('click', ()=>{
+  const data=JSON.parse(qs('#assistList').dataset.payload||'[]')
+  const checks=[...qsa('#assistList .addChk')].map((c,idx)=>c.checked?idx:null).filter(v=>v!==null)
+  if(!checks.length){ alert('Select at least one suggestion.'); return }
+  const prev=JSON.stringify(focus)
+  checks.forEach(i=>{
+    const s=data[i]; if(!s) return
+    if(s.type===SUG_TYPES.FOLLOW) (focus.urgent ||= []).push({text:s.text, done:false, notes:'AI follow-up'})
+    else if(s.type===SUG_TYPES.CARRY){ if((focus.highlight||[]).length===0) (focus.highlight ||= []).push({text:s.text, done:false, notes:'carry-over'}); else (focus.urgent ||= []).push({text:s.text, done:false, notes:'carry-over'}) }
+    else if(s.type===SUG_TYPES.PREP) (focus.prepare ||= []).push({text:s.text, done:false, notes:'prep idea'})
+    else if(s.type===SUG_TYPES.QUICK) (focus.urgent ||= []).push({text:s.text, done:false, notes:'quick win'})
+    else if(s.type===SUG_TYPES.CHECKLIST) (focus.prepare ||= []).push({text:s.text, done:false, notes:'checklist'})
+    else if(s.type===SUG_TYPES.TIMEBOX) timeboxDay(true)
+  })
+  pushUndo('Added suggestions.', ()=>{ focus=JSON.parse(prev); saveAll(); renderAll() })
+  metrics.activation.firstSuggestionAccepted = metrics.activation.firstSuggestionAccepted || checks.length>0
+  metrics.streaks.suggestAccept += 1
+  saveAll(); renderAll(); logAct('suggest-add', {count:checks.length})
+})
+qs('#historyBtn').addEventListener('click', ()=>{
+  modalTitle.textContent='History & Recall'; saveBtn.style.display='none'; deleteBtn.style.display='none'
+  if(!history.length){ modalBody.innerHTML='<div class="small">No previous agendas yet.</div>'; openModal(); return }
+  let html='<div class="assist">'
+  history.slice(0,10).forEach((h,i)=>{
+    const c= ['highlight','urgent','prepare'].map(k=>(h.focus[k]||[]).filter(x=>!x.done).length).reduce((a,b)=>a+b,0)
+    html+=`<div class="suggestion"><span class="tag">${h.date}</span><span>Undone items: ${c}</span><button class="btn-xxs" data-imp="${i}" style="margin-left:auto">Import undone</button></div>`
+  }); html+='</div>'
+  modalBody.innerHTML=html
+  modalBody.querySelectorAll('[data-imp]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const i=+btn.dataset.imp; const h=history[i]; const prev=JSON.stringify(focus);
+      ['highlight','urgent','prepare'].forEach(k=> (h.focus[k]||[]).filter(x=>!x.done).forEach(x=> { if(!(focus[k]||[]).some(y=>y.text.toLowerCase()===x.text.toLowerCase())) (focus[k] ||= []).push({...x, done:false, notes:(x.notes||'')+' (from '+h.date+')'}) }))
+      pushUndo('Imported from history.', ()=>{ focus=JSON.parse(prev); saveAll(); renderAll() }); saveAll(); renderAll(); logAct('history-import',{date:h.date}); closeModal()
+    })
+  })
+  openModal()
+})
+qs('#notifyBtn').addEventListener('click', async()=>{
+  if(!('Notification' in window)){ alert('Notifications are not supported in this browser.'); return }
+  if(Notification.permission==='granted'){ settings.notifications=true; saveAll(); alert('Notifications enabled.'); return }
+  const p=await Notification.requestPermission(); settings.notifications=(p==='granted'); saveAll(); alert(settings.notifications? 'Notifications enabled.' : 'Permission denied.')
+})
+
+// ======= Timebox & ICS =======
+qs('#timeboxBtn').addEventListener('click', ()=>timeboxDay())
+function timeboxDay(silent){
+  const now=new Date(); const base=new Date(now); base.setHours(9,0,0,0)
+  const blocks=[]
+  if((focus.highlight||[])[0]) blocks.push({t:'Focus: '+focus.highlight[0].text, at:addMins(base,0)})
+  ;(focus.urgent||[]).slice(0,2).forEach((u,i)=> blocks.push({t:'Urgent: '+u.text, at:addMins(base,(i===0?120:270))}))
+  ;(focus.prepare||[]).slice(0,1).forEach(p=> blocks.push({t:'Prep: '+p.text, at:addMins(base,420)}))
+  openTimeboxModal(blocks, silent===true)
+  metrics.weekly.timeboxes += 1; saveAll()
+}
+function addMins(base, m){ return new Date(base.getTime()+m*60000) }
+function fmtHHMM(d){ return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0') }
+function openTimeboxModal(blocks, silent){
+  modalTitle.textContent='Timeboxed Plan'
+  saveBtn.style.display='inline-flex'; deleteBtn.style.display='none'
+  let html='<div class="small">A lightweight schedule for today. Toggle reminders after enabling notifications.</div>'
+  html+='<div class="assist" style="margin-top:8px">'
+  blocks.forEach((b,i)=>{ html+=`<div class="suggestion"><span class="tag">${fmtHHMM(b.at)}</span><span>${escapeHtml(b.t)}</span>
+    <label style="margin-left:auto" class="small"><input type="checkbox" data-ridx="${i}" class="remChk" /> remind me</label></div>` })
+  html+='</div><div class="btns" style="margin-top:10px"><button class="btn" id="icsBtn">Export .ics</button></div>'
+  modalBody.innerHTML=html
+  qs('#icsBtn').addEventListener('click', ()=> exportICS(blocks))
+  saveBtn.onclick=()=>{
+    if(settings.notifications && 'Notification' in window){
+      qsa('.remChk:checked').forEach((c)=>{
+        const idx=+c.dataset.ridx; scheduleReminder(blocks[idx].at, blocks[idx].t)
+      })
+      alert('Reminders set for today.')
+    }else alert('Enable notifications first in AI Assist.')
+    closeModal()
+  }
+  if(!silent) openModal()
+}
+function exportICS(blocks){
+  const lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//ROM//Twin//EN']
+  blocks.forEach(b=>{
+    const dt=toICSDateTime(b.at); const dtEnd=toICSDateTime(new Date(b.at.getTime()+30*60000))
+    lines.push('BEGIN:VEVENT','UID:'+crypto.randomUUID(),'DTSTAMP:'+toICSDateTime(new Date()),'DTSTART:'+dt,'DTEND:'+dtEnd,'SUMMARY:'+b.t,'END:VEVENT')
+  })
+  lines.push('END:VCALENDAR')
+  const blob=new Blob([lines.join('\r\n')], {type:'text/calendar'})
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='rom-timebox.ics'; a.click()
+}
+function toICSDateTime(d){ return d.getUTCFullYear()+String(d.getUTCMonth()+1).padStart(2,'0')+String(d.getUTCDate()).padStart(2,'0')+'T'+String(d.getUTCHours()).padStart(2,'0')+String(d.getUTCMinutes()).padStart(2,'0')+'00Z' }
+function scheduleReminder(when, text){ const ms=when - new Date(); if(ms>0) setTimeout(()=>{ new Notification('ROM Reminder',{body:text}) }, ms) }
+
+// ======= Compose & Email Analyze =======
+function openCompose(sugg){
+  modalTitle.textContent='Follow-up Composer'
+  saveBtn.style.display='none'; deleteBtn.style.display='none'
+  const who=(sugg.text.match(/with\s+([A-Z][a-z]+)/)||[])[1]||''
+  const subj=`Re: ${sugg.text.replace(/^Follow up with\s*/,'')}`
+  const body=`Hi ${who||''},\n\nFollowing up on ${sugg.text.replace(/^Follow up with\s*/,'').toLowerCase()}.\n\n- ${todayKey()} — quick update:\n\nBest,\n`
+  modalBody.innerHTML=`<div class="form-row"><div class="label">Subject</div><input type="text" id="subj" value="${escapeAttr(subj)}"/></div>
+  <div class="form-row"><div class="label">Body</div><textarea class="modal-input" id="body" rows="6">${escapeHtml(body)}</textarea></div>
+  <div class="btns"><a class="btn" id="mailto">Open Mail</a><button class="btn" id="copyMail">Copy</button></div>`
+  qs('#mailto').addEventListener('click', ()=>{ const u='mailto:?subject='+encodeURIComponent(val('#subj'))+'&body='+encodeURIComponent(val('#body')); location.href=u })
+  qs('#copyMail').addEventListener('click', ()=>{ navigator.clipboard.writeText('Subject: '+val('#subj')+'\n\n'+val('#body')); showSnack('Copied draft.') })
+  openModal()
+}
+qs('#pasteEmailBtn').addEventListener('click', ()=>{
+  modalTitle.textContent='Analyze Email (Local)'; saveBtn.style.display='inline-flex'; deleteBtn.style.display='none'
+  modalBody.innerHTML=`<div class="small">Paste an email; we’ll extract follow-ups locally (no upload).</div>
+  <textarea class="modal-input" id="emailPaste" rows="10" placeholder="Paste email text here..."></textarea>`
+  saveBtn.onclick=()=>{
+    const t=val('#emailPaste'); if(!t.trim()) return closeModal()
+    const who=(t.match(/From:\s*([^\n<]+)/i)||[])[1] || (t.match(/\b([A-Z][a-z]+)\b/)||[])[1] || 'Contact'
+    const subj=(t.match(/Subject:\s*([^\n]+)/i)||[])[1] || 'your last email'
+    ;(focus.urgent ||= []).push({text:`Follow up with ${who} — ${subj}`, notes:'email paste', done:false})
+    saveAll(); renderAll(); logAct('email-analyze',{who,subj}); closeModal()
+  }
+  openModal()
+})
+
+// ======= Privacy Center & Memory Inspector & Footer =======
+qs('#privacyBtn').addEventListener('click', ()=>{
+  modalTitle.textContent='Privacy Center'; saveBtn.style.display='inline-flex'; deleteBtn.style.display='inline-flex'
+  modalBody.innerHTML=renderPrivacyHTML()
+  saveBtn.onclick=()=>{
+    settings.mode = qs('#modeSel').value
+    settings.apiKey = val('#apiKey')
+    settings.scopes.calendar = qs('#scopeCal').value
+    settings.scopes.gmail    = qs('#scopeMail').value
+    settings.connectors.calendar = qs('#connCal').checked
+    settings.connectors.gmail    = qs('#connMail').checked
+    metrics.activation.linked = metrics.activation.linked || settings.connectors.calendar || settings.connectors.gmail
+    saveAll(); renderAssist(); updateModeBadge(); closeModal()
+  }
+  deleteBtn.onclick=()=>{ if(confirm('Kill Switch will pause AI features until re-enabled. Continue?')){ settings.kill=!settings.kill; saveAll(); renderAll(); updateModeBadge(); modalBody.innerHTML=renderPrivacyHTML() } }
+  openModal()
+})
+qs('#memoryBtn').addEventListener('click', ()=>{
+  modalTitle.textContent='Twin Memory'
+  saveBtn.style.display='inline-flex'; deleteBtn.style.display='inline-flex'
+  modalBody.innerHTML=renderMemoryHTML()
+  saveBtn.onclick=()=>{ memory.preferences.freeText=(qs('#prefInput').value||'').trim(); saveAll(); renderAssist(); closeModal() }
+  deleteBtn.onclick=()=>{ if(confirm('Clear all memory?')){ memory={people:{},preferences:{},patterns:{},keywords:{}}; saveAll(); renderAssist(); closeModal() } }
+  openModal()
+})
+qs('#devsBtn').addEventListener('click', ()=>{
+  modalTitle.textContent='ROM for Devs'
+  saveBtn.style.display='none'; deleteBtn.style.display='none'
+  modalBody.innerHTML=`<div class="small">Local API (experimental):</div>
+<pre style="white-space:pre-wrap;background:#f8fafc;border:1px solid #e5e7eb;padding:10px;border-radius:12px;font-size:12px">
+await window.ROMAPI.getSuggestions()
+await window.ROMAPI.getMemory()
+await window.ROMAPI.setMemory('people.Michelle', {lastText:'advisor call next steps', lastDate:'${todayKey()}'})
+</pre>`
+  openModal()
+})
+qs('#soonBtn').addEventListener('click', ()=>{ modalTitle.textContent='Coming Soon'; modalBody.textContent='This is a glimpse — much more coming soon.'; saveBtn.style.display='none'; deleteBtn.style.display='none'; openModal() })
+
+function renderPrivacyHTML(){
+  return `
+  <div class="assist">
+    <div class="suggestion"><span class="tag">Mode</span>
+      <div>
+        <div>Processing: <select id="modeSel"><option value="local" ${settings.mode==='local'?'selected':''}>Local-only</option><option value="cloud" ${settings.mode==='cloud'?'selected':''}>Cloud (BYOK)</option></select></div>
+        <div style="margin-top:6px"><input id="apiKey" type="text" placeholder="API key (kept locally)" value="${escapeAttr(settings.apiKey||'')}" /></div>
+        <div class="small">Features show a badge for Local / Cloud. BYOK is optional.</div>
+      </div>
+      <span class="source">${settings.kill?'KILL ON':'KILL OFF'}</span>
+    </div>
+    <div class="small"><strong>Data sources & scopes</strong></div>
+    <div class="suggestion">
+      <span class="tag">Calendar</span>
+      <div>
+        <label><input type="checkbox" id="connCal" ${settings.connectors.calendar?'checked':''}/> Enable (demo)</label>
+        <div class="small">Scope: <select id="scopeCal"><option value="subjects" ${settings.scopes.calendar==='subjects'?'selected':''}>subjects only</option><option value="headers" ${settings.scopes.calendar==='headers'?'selected':''}>headers only</option></select></div>
+      </div>
+    </div>
+    <div class="suggestion">
+      <span class="tag">Gmail</span>
+      <div>
+        <label><input type="checkbox" id="connMail" ${settings.connectors.gmail?'checked':''}/> Enable (demo)</label>
+        <div class="small">Scope: <select id="scopeMail"><option value="subjects" ${settings.scopes.gmail==='subjects'?'selected':''}>subjects only</option><option value="headers" ${settings.scopes.gmail==='headers'?'selected':''}>headers only</option></select></div>
+      </div>
+    </div>
+    <div class="small"><strong>Vault</strong></div>
+    <div class="suggestion">
+      <span class="tag">Export</span>
+      <div><button class="btn-xxs" onclick="(${exportVault.toString()})()">Download JSON</button></div>
+      <div><input type="file" id="vaultFile" accept="application/json" /><button class="btn-xxs" onclick="(${importVault.toString()})()">Import</button></div>
+    </div>
+    <div class="small"><strong>Activity Log</strong></div>
+    <div class="assist" style="max-height:220px; overflow:auto; border:1px solid var(--stroke); border-radius:12px; padding:8px">
+      ${activity.slice(0,40).map(a=>`<div class="small">[${a.at}] ${a.type} — ${escapeHtml(JSON.stringify(a.detail||{}))}</div>`).join('') || '<div class="small">No activity yet.</div>'}
+    </div>
+  </div>`
+}
+function renderMemoryHTML(){
+  const peopleHTML=Object.entries(memory.people||{}).map(([n,v])=>`
+    <div class="suggestion"><span class="tag">${n}</span><span>${escapeHtml(v.lastText)} <span class="small">(${v.lastDate})</span></span>
+      <button class="btn-xxs" onclick="(function(){delete window.__mem.people['${n}']; (${saveAll.toString()})(); (${renderAssist.toString()})(); document.getElementById('modalBody').innerHTML=(${renderMemoryHTML.toString()})(); })()">Remove</button>
+    </div>`).join('') || '<div class="small">No people yet.</div>'
+  const pref=memory.preferences?.freeText||''
+  const pat=Object.entries(memory.patterns||{}).map(([k,v])=>`<div class="suggestion"><span class="tag">${k}</span><span>${escapeHtml(v)}</span></div>`).join('') || '<div class="small">No patterns yet.</div>'
+  window.__mem=memory
+  return `
+    <div class="assist">
+      <div class="small"><strong>People</strong></div>${peopleHTML}
+      <div class="small" style="margin-top:8px"><strong>Preferences</strong></div>
+      <textarea class="modal-input" id="prefInput" rows="3" placeholder="food, travel, work hours…">${escapeHtml(pref)}</textarea>
+      <div class="small" style="margin-top:8px"><strong>Patterns</strong></div>${pat}
+    </div>`
+}
+function exportVault(){
+  const blob=new Blob([JSON.stringify({focus,history,memory,settings,metrics,activity},null,2)],{type:'application/json'})
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='rom-vault.json'; a.click()
+}
+function importVault(){
+  const f=qs('#vaultFile')?.files?.[0]; if(!f) return
+  const r=new FileReader(); r.onload=()=>{ try{
+    const d=JSON.parse(r.result); focus=d.focus||focus; history=d.history||history; memory=d.memory||memory; settings=d.settings||settings; metrics=d.metrics||metrics; activity=d.activity||activity; saveAll(); renderAll(); alert('Imported.') }catch(e){ alert('Invalid file.') } }
+  r.readAsText(f)
+}
+function updateModeBadge(){ qs('#modeBadge').textContent=settings.kill?'Paused (Kill)':(settings.mode==='cloud'?'Cloud (BYOK)':'Local-only') }
+
+// ======= Dev API (window.ROMAPI) =======
+window.ROMAPI={
+  getSuggestions: async ()=> buildSuggestions(),
+  getMemory: async ()=> memory,
+  setMemory: async (path,value)=>{ const parts=path.split('.'); let obj=memory; for(let i=0;i<parts.length-1;i++){ obj=obj[parts[i]] ||= {} } obj[parts.at(-1)]=value; saveAll(); return {ok:true} }
+}
+
+// ======= Render-all =======
+function renderAll(){ renderDeck(); renderAssist(); renderOutcome(); renderRecallChips(); updateModeBadge() }
+qs('#dayInput').addEventListener('input', renderRecallChips)
+
+// ======= Boot =======
+renderAll()
+
+})(); // IIFE
 </script>
 </body>
 </html>
