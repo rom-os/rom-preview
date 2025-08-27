@@ -1,15 +1,15 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- keep viewport first so iOS computes the right layout -->
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
   <title>ROM • Daily Summary</title>
 
   <style>
+  /* ---------- tokens ---------- */
   :root{
     --bg:#0F1116; --surface:#171B24; --surface-2:#121621; --stroke:#222838;
-    --text:#E7EAF0; --muted:#AAB2C0; --accent:#74D2FF; --green:#34C759;
+    --text:#E7EAF0; --muted:#AAB2C0; --accent:#0A84FF; --green:#34C759;
     --rx:18px; --max:980px;
     --fs-xs:clamp(11px,2vw,12px);
     --fs-s: clamp(13px,2.2vw,14px);
@@ -26,24 +26,29 @@
   html,body{
     margin:0;height:100%;background:var(--bg);color:var(--text);
     font-family:-apple-system,"SF Pro Text",Inter,system-ui,sans-serif;
-    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
   }
   a{color:inherit;text-decoration:none}
+  .wrap{min-height:100dvh;display:grid;grid-template-rows:auto 1fr auto}
 
-  /* Top bar */
-  .bar{position:sticky;top:0;z-index:10;background:
-      radial-gradient(900px 420px at 50% -100px, rgba(116,210,255,.12), transparent),
-      var(--surface);
-      border-bottom:1px solid var(--stroke)}
+  /* ---------- top bar ---------- */
+  .bar{position:sticky;top:0;z-index:10;
+    background:radial-gradient(900px 420px at 50% -100px, rgba(116,210,255,.12), transparent),var(--surface);
+    border-bottom:1px solid var(--stroke)}
   .barInner{max-width:var(--max);margin:0 auto;padding:18px 16px 10px;display:flex;gap:12px;align-items:center}
   h1{margin:0;font-size:var(--fs-l);font-weight:900;letter-spacing:-.02em;flex:1}
   .mode{font-size:var(--fs-s);color:var(--muted)}
-  .back{display:none;padding:8px 12px;border-radius:12px;border:1px solid var(--stroke);background:var(--surface-2);font-weight:800;cursor:pointer}
+  .back{display:none;padding:8px 12px;border-radius:12px;border:1px solid var(--stroke);
+    background:var(--surface-2);font-weight:800;cursor:pointer}
 
-  /* View container */
-  .view{max-width:var(--max);margin:0 auto;padding:16px;display:grid;gap:18px}
+  /* ---------- views ---------- */
+  .view{display:none;max-width:var(--max);margin:0 auto;padding:16px;gap:18px}
+  .view.active{display:grid}
 
-  /* Input/Landing */
+  /* podcasts-style section headings */
+  .section h4{margin:0 0 8px;font-size:var(--fs-l);font-weight:900;letter-spacing:-.02em}
+
+  /* ---------- input card ---------- */
   .card{background:var(--surface);border:1px solid var(--stroke);border-radius:var(--rx);padding:16px}
   .card h3{margin:0 0 8px;font-size:var(--fs-m);font-weight:900}
   textarea{
@@ -58,15 +63,9 @@
   .btn-ok{background:color-mix(in srgb, var(--green) 94%, transparent);color:#0B6B38;border:none}
   .hint{margin-top:10px;font-size:var(--fs-s);color:var(--muted)}
 
-  /* Sections (hidden until summarize) */
-  #sections{display:none}
-
-  /* Headings + grids */
-  .section h4{margin:0 0 8px;font-size:var(--fs-m);font-weight:900}
+  /* ---------- vertical task cards ---------- */
   .grid{display:grid;gap:14px}
   @media (min-width:760px){ .grid{grid-template-columns:1fr 1fr} }
-
-  /* Task card (vertical feed) */
   .task{
     background:var(--surface);border:1px solid var(--stroke);border-radius:16px;padding:14px;
     display:flex;flex-direction:column;gap:12px;box-shadow:0 2px 10px rgba(0,0,0,.25);
@@ -79,7 +78,7 @@
   .t-meta .t-app{font-weight:800}
   .t-meta .t-sub{font-size:var(--fs-xs);color:var(--muted)}
   .t-title{font-weight:900;font-size:var(--fs-m);letter-spacing:-.01em;
-    white-space:normal; word-break:break-word; overflow-wrap:anywhere;}
+    white-space:normal;word-break:break-word;overflow-wrap:anywhere}
   .t-desc{margin:0;color:var(--muted);font-size:var(--fs-s)}
   .t-rom{background:color-mix(in srgb, var(--accent) 12%, transparent);border:1px solid color-mix(in srgb, var(--accent) 35%, transparent);
     border-radius:12px;padding:10px;font-size:var(--fs-s);line-height:1.45}
@@ -89,18 +88,15 @@
   .pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:var(--surface-2);border:1px solid var(--stroke);font-size:var(--fs-xs);font-weight:800}
   .t-cap{font-size:var(--fs-xs);color:var(--muted)}
 
-  /* ---------- Carousels: creative cards (Apple Podcasts style) ---------- */
+  /* ---------- carousels (Top Picks, Suggestions) ---------- */
   .carousel{display:flex;gap:14px;overflow-x:auto;padding:4px 2px 8px;scroll-snap-type:x mandatory}
   .carousel::-webkit-scrollbar{display:none}
+
   .creative{
-    flex:0 0 78%;
-    max-width:78%;
-    scroll-snap-align:start;
-    border-radius:22px;
+    flex:0 0 78%;max-width:78%;
+    scroll-snap-align:start;border-radius:22px;border:1px solid var(--stroke);
     background:linear-gradient(160deg,#283142, #131923);
-    border:1px solid var(--stroke);
-    padding:14px;
-    display:flex;gap:12px;align-items:center;
+    padding:14px;display:flex;gap:12px;align-items:center;
   }
   .creative .thumb{
     width:92px;height:92px;border-radius:20px;flex:0 0 auto;
@@ -110,12 +106,11 @@
     border:1px solid rgba(255,255,255,.12);
   }
   .creative .meta{display:flex;flex-direction:column;gap:6px;min-width:0}
-  .creative .meta .t{font-weight:900; font-size:clamp(16px,4.6vw,20px); white-space:normal; word-break:break-word; overflow-wrap:anywhere;}
-  .creative .meta .s{font-size:var(--fs-s); color:var(--muted); white-space:normal}
+  .creative .meta .t{font-weight:900;font-size:clamp(16px,4.6vw,20px);white-space:normal;word-break:break-word;overflow-wrap:anywhere}
+  .creative .meta .s{font-size:var(--fs-s);color:var(--muted);white-space:normal}
   .creative .cta{margin-left:auto}
   .chip{padding:10px 12px;border-radius:12px;border:1px solid var(--stroke);background:var(--surface-2);font-weight:800}
 
-  /* Suggestions chips row (max 3) */
   .suggRow{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 8px;scroll-snap-type:x mandatory}
   .suggRow::-webkit-scrollbar{display:none}
   .sugg{flex:0 0 auto;scroll-snap-align:start;display:inline-flex;align-items:center;gap:10px;
@@ -123,8 +118,16 @@
   .sIcon{font-size:18px}
   .sText{font-weight:800;font-size:var(--fs-s)}
 
-  /* Detail page */
+  /* ---------- bottom tab bar ---------- */
+  .tabs{position:sticky;bottom:0;background:var(--surface);border-top:1px solid var(--stroke)}
+  .tabsInner{max-width:var(--max);margin:0 auto;display:flex;justify-content:space-around;gap:6px;padding:6px 8px}
+  .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px;border-radius:12px;color:var(--muted);font-size:12px;cursor:pointer}
+  .tab.active{color:var(--text);background:var(--surface-2);border:1px solid var(--stroke)}
+  .ico{font-size:18px}
+
+  /* ---------- detail ---------- */
   .detail{display:none}
+  .detail.active{display:grid}
   .d-hero{padding:4px 2px}
   .d-title{font-size:clamp(26px,5vw,32px);font-weight:900;letter-spacing:-.02em;margin:6px 0}
   .d-sub{font-size:var(--fs-s);color:var(--muted);margin:0 0 12px}
@@ -135,7 +138,7 @@
   .d-actions{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
   .small{font-size:var(--fs-xs);color:var(--muted);margin-top:8px}
 
-  /* FINAL mobile wrap enforcement (wins on iOS) */
+  /* ---------- mobile wrap enforcement ---------- */
   @media (max-width: 999px){
     .barInner,.view{max-width:720px;padding-left:16px;padding-right:16px}
     .grid{grid-template-columns:1fr;gap:16px}
@@ -148,6 +151,8 @@
 </head>
 
 <body>
+<div class="wrap">
+  <!-- top bar -->
   <div class="bar">
     <div class="barInner">
       <button class="back" id="backBtn">‹ Back</button>
@@ -156,33 +161,29 @@
     </div>
   </div>
 
-  <!-- HOME -->
-  <div class="view" id="home">
-
-    <!-- Landing (only this is visible at first) -->
+  <!-- ===== VIEWS ===== -->
+  <!-- Home (landing + results) -->
+  <main class="view active" id="view-home">
     <div class="card">
-      <h3>Top Picks</h3>
+      <h3>Enter tasks/notes</h3>
       <textarea id="in" placeholder="Paste your agenda…"></textarea>
       <div class="actions">
         <div class="btn" id="demo">Demo</div>
         <div class="btn" id="clear">Clear</div>
         <div class="btn btn-primary" id="go">Make my day simple</div>
       </div>
-      <!-- Hidden until summarized -->
       <div class="actions" id="postActions" style="display:none;margin-top:8px">
         <div class="btn btn-ok" id="done">Mark all done</div>
       </div>
       <div class="hint">Local-first; nothing stored. We only summarize what you paste.</div>
     </div>
 
-    <!-- Creatives carousel (hidden until summarize) -->
-    <div id="creativesSection" style="display:none">
+    <section id="topPicks" style="display:none">
       <div class="section"><h4>Top Picks</h4></div>
       <div class="carousel" id="creativeRow"></div>
-    </div>
+    </section>
 
-    <!-- Sections (hidden until summarize) -->
-    <div id="sections">
+    <section id="sections" style="display:none">
       <div class="section">
         <h4>📌 Today’s Highlights</h4>
         <div class="grid" id="highGrid"></div>
@@ -202,11 +203,38 @@
         <h4>✨ Suggestions</h4>
         <div class="suggRow" id="suggRow"></div>
       </div>
-    </div>
-  </div>
+    </section>
+  </main>
 
-  <!-- DETAIL -->
-  <div class="view detail" id="detail">
+  <!-- Agenda (just the input, for users who jump here first) -->
+  <main class="view" id="view-agenda">
+    <div class="card">
+      <h3>Your Agenda</h3>
+      <textarea id="in2" placeholder="Paste your agenda…"></textarea>
+      <div class="actions">
+        <div class="btn" id="demo2">Demo</div>
+        <div class="btn" id="clear2">Clear</div>
+        <div class="btn btn-primary" id="go2">Summarize</div>
+      </div>
+      <div class="hint">We only summarize what’s on this page.</div>
+    </div>
+  </main>
+
+  <!-- Suggestions (chips only) -->
+  <main class="view" id="view-suggest">
+    <div class="section"><h4>Smart Suggestions</h4></div>
+    <div class="suggRow" id="suggOnly"></div>
+    <div class="hint">Tips update after you summarize on Home or Agenda.</div>
+  </main>
+
+  <!-- Settings placeholder -->
+  <main class="view" id="view-settings">
+    <div class="section"><h4>Settings</h4></div>
+    <div class="card"><div class="hint">More options coming soon.</div></div>
+  </main>
+
+  <!-- Detail view (overlay-style page) -->
+  <main class="view detail" id="view-detail">
     <div class="d-hero">
       <div class="d-title" id="dTitle">Title</div>
       <div class="d-sub" id="dSub">Context & timing</div>
@@ -220,24 +248,58 @@
       </div>
       <div class="small">soon you’ll be able to connect advanced AI for deeper context & auto-drafts.</div>
     </div>
-  </div>
+  </main>
+
+  <!-- bottom tabs -->
+  <nav class="tabs">
+    <div class="tabsInner">
+      <div class="tab active" data-view="home"><div class="ico">🏠</div>Home</div>
+      <div class="tab" data-view="agenda"><div class="ico">🗒️</div>Agenda</div>
+      <div class="tab" data-view="suggest"><div class="ico">✨</div>Suggestions</div>
+      <div class="tab" data-view="settings"><div class="ico">⚙️</div>Settings</div>
+    </div>
+  </nav>
+</div>
 
 <script>
-/* ===== Helpers ===== */
+/* ===== DOM helpers ===== */
 const $ = id => document.getElementById(id);
-const topTitle=$('topTitle'), backBtn=$('backBtn'), modeEl=$('mode');
-const home=$('home'), detail=$('detail'),
-      sections=$('sections'), creativesSection=$('creativesSection');
-const input=$('in'),
-      highGrid=$('highGrid'), urgentGrid=$('urgentGrid'),
-      tomorrowGrid=$('tomorrowGrid'), suggRow=$('suggRow'), creativeRow=$('creativeRow');
-const dTitle=$('dTitle'), dSub=$('dSub'), dSteps=$('dSteps');
-const postActions=$('postActions');
-
 const esc = s => String(s).replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
-const cap = s => s ? s.charAt(0).toUpperCase()+s.slice(1).toLowerCase() : '';
 
-/* Demo + Clear */
+const views = {
+  home: $('view-home'), agenda: $('view-agenda'),
+  suggest: $('view-suggest'), settings: $('view-settings'),
+  detail: $('view-detail')
+};
+const tabs = [...document.querySelectorAll('.tab')];
+const backBtn = $('backBtn'), topTitle = $('topTitle'), modeEl = $('mode');
+
+function show(name){
+  Object.values(views).forEach(v=>v.classList.remove('active'));
+  views[name].classList.add('active');
+  tabs.forEach(t=>t.classList.toggle('active', t.dataset.view===name));
+  topTitle.textContent = name==='home' ? 'Home' :
+                         name==='agenda' ? 'Agenda' :
+                         name==='suggest' ? 'Suggestions' :
+                         name==='settings' ? 'Settings' : 'Details';
+  backBtn.style.display = name==='detail' ? 'inline-block' : 'none';
+  window.scrollTo({top:0, behavior:'instant'});
+}
+tabs.forEach(t=>t.addEventListener('click', ()=>show(t.dataset.view)));
+backBtn.addEventListener('click', ()=>show('home'));
+
+/* ===== Elements Home ===== */
+const input=$('in'), highGrid=$('highGrid'), urgentGrid=$('urgentGrid'),
+      tomorrowGrid=$('tomorrowGrid'), suggRow=$('suggRow'),
+      creativeRow=$('creativeRow'), sections=$('sections'),
+      topPicks=$('topPicks'), postActions=$('postActions'), suggOnly=$('suggOnly');
+
+/* ===== Agenda view mirrors input ===== */
+const in2=$('in2'); $('demo2').onclick=()=>{$('demo').click(); in2.value=input.value};
+$('clear2').onclick=()=>{ in2.value=''; };
+$('go2').onclick=()=>{ input.value=in2.value; summarize(); show('home'); };
+
+/* Demo / Clear for Home */
 $('demo').onclick=()=>{
   input.value=`Deck for investor intro
 Meeting moved to 3pm with product
@@ -250,22 +312,18 @@ Follow up with Michelle on pilot
 Asana: draft status for GTM
 Gmail: reply to onboarding`;
 };
-$('clear').onclick=()=>{ input.value=''; hideSections(); clearGrids(); postActions.style.display='none'; creativesSection.style.display='none'; };
+$('clear').onclick=()=>{ input.value=''; clearUI(); };
+
+/* Done marks current titles */
 $('done').onclick=()=>{ document.querySelectorAll('.t-title').forEach(t=>{ t.style.textDecoration='line-through'; t.style.opacity='.55'; }); };
 
-function clearGrids(){ [highGrid,urgentGrid,tomorrowGrid,suggRow,creativeRow].forEach(el=>el.innerHTML=''); }
-function showSections(){ sections.style.display='grid'; }
-function hideSections(){ sections.style.display='none'; }
-
-/* Time & intent helpers */
+/* ===== classification logic ===== */
 function timeOf(t){ const m=t.match(/\b((?:[01]?\d|2[0-3]):[0-5]\d)\b|\b(\d{1,2})\s*(am|pm)\b/i); return m ? (m[1]||m[2]+m[3]) : ''; }
 function dayWord(t){
   const m=t.match(/\b(today|tomorrow|mon|tue|wed|thu|fri|sat|sun|monday|tuesday|weds?|thurs?|friday|saturday|sunday|next|week)\b/i);
   return m? m[0] : '';
 }
 function isFuture(w){ return /^(tomorrow|next|week|mon|tue|wed|thu|fri|sat|sun|monday|tuesday|weds?|thurs?|friday|saturday|sunday)$/i.test(w); }
-
-/* App detection → badges + gradient hints */
 function detectApp(t){
   const s=t.toLowerCase();
   if (s.includes('asana'))   return {app:'Asana',   color:'linear-gradient(180deg,#FFAEBC,#FF3D6E)', badge:'🅰️', emoji:'🗂️'};
@@ -274,13 +332,11 @@ function detectApp(t){
   if (s.includes('slack'))   return {app:'Slack',   color:'linear-gradient(180deg,#E9D5FF,#A855F7)', badge:'💬', emoji:'💬'};
   if (s.includes('zoom')||s.includes('meet')) return {app:'Meeting', color:'linear-gradient(180deg,#BEE3FF,#3D7BFF)', badge:'📹', emoji:'📅'};
   if (s.includes('doc')||s.includes('contract')||s.includes('redline')) return {app:'Docs', color:'linear-gradient(180deg,#FFE3AD,#FF9F0A)', badge:'📄', emoji:'📄'};
-  if (s.includes('notion'))  return {app:'Notion',  color:'linear-gradient(180deg,#E5E7EB,#9CA3AF)', badge:'N', emoji:'🗒️'};
   if (s.includes('stripe')||s.includes('invoice')||s.includes('paid')) return {app:'Finance', color:'linear-gradient(180deg,#B6F5C7,#34C759)', badge:'💵', emoji:'💵'};
+  if (s.includes('notion'))  return {app:'Notion',  color:'linear-gradient(180deg,#E5E7EB,#9CA3AF)', badge:'N', emoji:'🗒️'};
   if (s.includes('github')||s.includes('pr ')||s.includes('pull request')) return {app:'GitHub', color:'linear-gradient(180deg,#E5E7EB,#9CA3AF)', badge:'🐙', emoji:'🐙'};
   return {app:'Task', color:'linear-gradient(180deg,#9BC0FF,#3D7BFF)', badge:'✓', emoji:'✅'};
 }
-
-/* classify a line → meta */
 function classify(text){
   const t=String(text||'').trim();
   const {app,color,badge,emoji}=detectApp(t);
@@ -302,7 +358,7 @@ function classify(text){
   return {section, app, color, badge, emoji, title, sub, urgent:isUrg, raw:t, action, isBug};
 }
 
-/* Suggestions (max 3) */
+/* suggestions (max 3) */
 function buildSuggestions(metas){
   const urg=metas.filter(x=>x.urgent);
   const tom=metas.filter(x=>x.section==='tomorrow');
@@ -315,7 +371,35 @@ function buildSuggestions(metas){
   return all.slice(0,3);
 }
 
-/* Renderers */
+/* renderers */
+function contextLine(m){
+  if (m.app==='Meeting') return 'Agenda ready • 1-pager prep helps';
+  if (m.isBug) return 'Add logs/screenshot • notify owner';
+  if (m.app==='Finance') return 'Log payment in tracker';
+  if (m.app==='Docs') return 'Skim redlines • mark blockers';
+  return 'Smallest next step wins';
+}
+function creativeSub(m){
+  if (m.app==='Meeting') return 'Join / prep questions';
+  if (m.isBug) return 'Draft ticket • assign';
+  if (m.app==='Finance') return 'Record & confirm';
+  if (m.app==='Docs') return 'Summarize deltas';
+  return 'Tap for next step';
+}
+function assistLine(m){
+  if (m.app==='Meeting') return 'Want a prep outline or 3 questions?';
+  if (m.isBug) return 'Draft a bug ticket with steps + assignee?';
+  if (m.app==='Finance') return 'Draft receipt/status message?';
+  if (m.app==='Docs') return 'Summarize deltas & reply with blockers?';
+  return 'Turn this into a 1-sentence task?';
+}
+function captionLine(m){
+  if (m.app==='Meeting') return 'ROM composes a quick prep checklist';
+  if (m.isBug) return 'ROM drafts ticket from your note';
+  if (m.app==='Finance') return 'ROM formats a status snippet';
+  if (m.app==='Docs') return 'ROM trims legalese to action';
+  return 'ROM keeps it short & actionable';
+}
 function renderCard(meta){
   const div=document.createElement('div');
   div.className='task';
@@ -345,7 +429,7 @@ function renderCard(meta){
 function renderCreative(meta){
   const el=document.createElement('div');
   el.className='creative';
-  el.innerHTML = `
+  el.innerHTML=`
     <div class="thumb" style="background:
       radial-gradient(120px 90px at 20% 10%, rgba(255,255,255,.18), transparent 60%),
       ${meta.color};">${meta.emoji}</div>
@@ -353,40 +437,9 @@ function renderCreative(meta){
       <div class="t">${esc(meta.title)}</div>
       <div class="s">${esc(creativeSub(meta))}</div>
     </div>
-    <div class="cta"><span class="chip">${esc(meta.action)}</span></div>
-  `;
+    <div class="cta"><span class="chip">${esc(meta.action)}</span></div>`;
   el.addEventListener('click', ()=>openDetail(meta));
   return el;
-}
-
-/* Copy lines */
-function contextLine(m){
-  if (m.app==='Meeting') return 'Agenda ready • 1-pager prep helps';
-  if (m.isBug) return 'Add logs/screenshot • notify owner';
-  if (m.app==='Finance') return 'Log payment in tracker';
-  if (m.app==='Docs') return 'Skim redlines • mark blockers';
-  return 'Smallest next step wins';
-}
-function creativeSub(m){
-  if (m.app==='Meeting') return 'Join / prep questions';
-  if (m.isBug) return 'Draft ticket • assign';
-  if (m.app==='Finance') return 'Record & confirm';
-  if (m.app==='Docs') return 'Summarize deltas';
-  return 'Tap for next step';
-}
-function assistLine(m){
-  if (m.app==='Meeting') return 'Want a prep outline or 3 questions?';
-  if (m.isBug) return 'Draft a bug ticket with steps + assignee?';
-  if (m.app==='Finance') return 'Draft receipt/status message?';
-  if (m.app==='Docs') return 'Summarize deltas & reply with blockers?';
-  return 'Turn this into a 1-sentence task?';
-}
-function captionLine(m){
-  if (m.app==='Meeting') return 'ROM composes a quick prep checklist';
-  if (m.isBug) return 'ROM drafts ticket from your note';
-  if (m.app==='Finance') return 'ROM formats a status snippet';
-  if (m.app==='Docs') return 'ROM trims legalese to action';
-  return 'ROM keeps it short & actionable';
 }
 function renderSuggestions(row, list){
   row.innerHTML='';
@@ -398,9 +451,21 @@ function renderSuggestions(row, list){
   });
 }
 
-/* Summarize click */
-$('go').onclick=()=>{
-  const lines=input.value.split('\n').map(s=>s.trim()).filter(Boolean);
+/* clear ui */
+function clearUI(){
+  ['highGrid','urgentGrid','tomorrowGrid','suggRow','creativeRow','suggOnly'].forEach(id=>$(id).innerHTML='');
+  $('sections').style.display='none';
+  $('topPicks').style.display='none';
+  $('postActions').style.display='none';
+}
+
+/* summarize flow */
+$('go').onclick = summarize;
+function summarize(){
+  const src = views.agenda.classList.contains('active') ? in2 : input;
+  if (src && src !== input) input.value = src.value;
+
+  const lines = input.value.split('\n').map(s=>s.trim()).filter(Boolean);
   if (!lines.length){ alert('Paste your agenda first 🙂'); return; }
 
   const metas = lines.map(classify);
@@ -411,55 +476,45 @@ $('go').onclick=()=>{
   if (!today.length){ today = urgent.slice(0,2); if (!today.length) today = metas.slice(0,3); }
   if (!tomorrow.length){ tomorrow = [{section:'tomorrow', app:'Meeting', color:'linear-gradient(180deg,#BEE3FF,#3D7BFF)', badge:'📹', emoji:'📅', title:'Prep: quick workout', sub:'Tomorrow', urgent:false, raw:'Workout', action:'Plan'}]; }
 
-  clearGrids();
+  // fill UI
+  clearUI();
+  metas.slice(0,4).forEach(m=>$('creativeRow').appendChild(renderCreative(m)));
+  $('topPicks').style.display='block';
 
-  // Creatives carousel: top 4 items across all metas
-  const showcase = metas.slice(0,4);
-  showcase.forEach(m=>creativeRow.appendChild(renderCreative(m)));
-  creativesSection.style.display = showcase.length ? 'block' : 'none';
+  today.slice(0,6).forEach(m=>$('highGrid').appendChild(renderCard(m)));
+  urgent.slice(0,4).forEach(m=>$('urgentGrid').appendChild(renderCard(m)));
+  tomorrow.slice(0,6).forEach(m=>$('tomorrowGrid').appendChild(renderCard(m)));
 
-  // Stacked feeds
-  today.slice(0,6).forEach(m=>highGrid.appendChild(renderCard(m)));
-  urgent.slice(0,4).forEach(m=>urgentGrid.appendChild(renderCard(m)));
-  tomorrow.slice(0,6).forEach(m=>tomorrowGrid.appendChild(renderCard(m)));
-  renderSuggestions(suggRow, buildSuggestions(metas));
+  const sugg = buildSuggestions(metas);
+  renderSuggestions($('suggRow'), sugg);
+  renderSuggestions($('suggOnly'), sugg);
 
-  showSections();
-  postActions.style.display='flex';         // show “Mark all done” AFTER summarize
-  topTitle.textContent='Home';
+  $('sections').style.display='grid';
+  $('postActions').style.display='flex';
   modeEl.textContent='Local';
-};
+  show('home');
+}
 
-/* ===== Detail page ===== */
+/* detail view */
 let currentMeta=null;
 function openDetail(meta){
-  currentMeta = meta;
-  topTitle.textContent='Details';
-  backBtn.style.display='inline-block';
-  home.style.display='none';
-  detail.style.display='grid';
-  dTitle.textContent = meta.title;
-  dSub.textContent = meta.section==='tomorrow' ? 'Tomorrow' : 'Today';
-  dSteps.innerHTML='';
-  detailSteps(meta).forEach(x=>{ const li=document.createElement('li'); li.textContent=x; dSteps.appendChild(li); });
+  currentMeta=meta;
+  $('dTitle').textContent=meta.title;
+  $('dSub').textContent=meta.section==='tomorrow' ? 'Tomorrow' : 'Today';
+  $('dSteps').innerHTML='';
+  detailSteps(meta).forEach(x=>{const li=document.createElement('li');li.textContent=x;$('dSteps').appendChild(li);});
+  show('detail');
 }
-function closeDetail(){
-  currentMeta=null;
-  topTitle.textContent='Home';
-  backBtn.style.display='none';
-  detail.style.display='none';
-  home.style.display='grid';
-}
-backBtn.addEventListener('click', closeDetail);
-$('dCopy').addEventListener('click', ()=>{ if(currentMeta) navigator.clipboard.writeText(`${currentMeta.title} — ${dSub.textContent}`); });
-$('dDone').addEventListener('click', ()=>{
-  if (!currentMeta) return;
-  const el=[...document.querySelectorAll('.t-title')].find(n=>n.textContent===currentMeta.title);
-  if (el){ el.style.textDecoration='line-through'; el.style.opacity='.55'; }
-  closeDetail();
-});
+$('dCopy').onclick=()=>{ if(currentMeta) navigator.clipboard.writeText(`${currentMeta.title} — ${$('dSub').textContent}`); };
+$('dDone').onclick=()=>{
+  if(currentMeta){
+    const node=[...document.querySelectorAll('.t-title')].find(n=>n.textContent===currentMeta.title);
+    if(node){ node.style.textDecoration='line-through'; node.style.opacity='.55'; }
+  }
+  show('home');
+};
 function detailSteps(m){
-  const t=m.raw?.toLowerCase()||'', out=[];
+  const out=[];
   if (m.isBug) out.push('Create a bug ticket & assign owner','Attach logs/screenshot','Notify channel if customer-facing');
   else if (m.app==='Finance') out.push('Record in tracker','Send confirmation to stakeholder');
   else if (m.app==='Docs') out.push('Skim redlines & mark blockers','Reply with summary');
