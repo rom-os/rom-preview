@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0F1116">
+  <title>ROM • Daily Summary</title>
+  <style>
+    :root{
+      --bg1:#0F1116; --bg2:#1A1D29;
+      --surface:rgba(26,30,41,.55);
+      --stroke:rgba(255,255,255,.22);
+      --text:#E7EAF0; --muted:#AAB2C0;
+      --accent:#74D2FF; --ok:#52FFAB;
+      --tap:rgba(255,255,255,.06);
+      --device-w: 390px; --device-h: 844px;
+      --fs-xs: clamp(10px, 2.0vw, 11px);
+      --fs-s:  clamp(12px, 2.4vw, 13px);
+      --fs-m:  clamp(14px, 3.0vw, 15px);
+      --fs-l:  clamp(16px, 3.6vw, 18px);
+    }
+    *{box-sizing:border-box}
+    html,body{
+      height:100%; margin:0;
+      background:radial-gradient(900px 600px at 20% -10%, rgba(31,36,48,.35), transparent 55%),
+                  linear-gradient(160deg, var(--bg1), var(--bg2));
+      font-family:-apple-system, "SF Pro Text", Inter, system-ui, sans-serif;
+      color:var(--text);
+      -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    }
+    .stage{min-height:100%; display:grid; place-items:center; padding:20px; position:relative;}
+    .heroGlow{position:absolute; inset:0; pointer-events:none; background: radial-gradient(600px 400px at 50% 10%, rgba(116,210,255,.14), transparent 60%); filter: blur(6px);}
+
+    /* iPhone-like frame */
+    .device{position:relative; width:min(var(--device-w), 94vw); aspect-ratio: 390 / 844; border-radius:44px;
+      background:linear-gradient(180deg, #0a0a0a, #1a1a1a);
+      box-shadow: 0 30px 90px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.04), inset 0 0 0 10px #000;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .device::after{content:""; position:absolute; right:-3px; top:24%; width:3px; height:70px; border-radius:2px; background:#151515; box-shadow: 0 0 0 1px rgba(255,255,255,.06); opacity:.8;}
+    .device::before{content:""; position:absolute; top:10px; left:50%; transform:translateX(-50%); width:128px; height:36px; border-radius:20px; background:rgba(0,0,0,.85); box-shadow: 0 10px 24px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.05); z-index:5;}
+
+    /* Screen */
+    .screen{
+      position:relative; width: calc(100% - 22px); height: calc(100% - 22px); border-radius:36px; overflow:hidden;
+      background: radial-gradient(1200px 800px at 20% -10%, #1f2430 0%, transparent 55%), var(--surface);
+      border:1px solid var(--stroke); box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+      display:flex; flex-direction:column;
+    }
+    .content{padding:10px 10px 12px; display:grid; gap:8px; height:100%; overflow:auto; -webkit-overflow-scrolling:touch;}
+
+    .activity{display:flex; justify-content:space-between; align-items:center; margin-top:6px; z-index:6; padding:0 2px;}
+    .badge{display:inline-flex; align-items:center; gap:8px; font-size:var(--fs-xs); padding:6px 10px; background:rgba(0,0,0,.55); border:1px solid rgba(255,255,255,.10); border-radius:999px; box-shadow: 0 8px 24px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.05);}
+    .dot{width:8px; height:8px; border-radius:999px; background:var(--accent); box-shadow:0 0 14px var(--accent);}
+    .toggle{display:flex; align-items:center; gap:6px; font-size:var(--fs-xs); color:var(--muted);}
+    .toggle input{transform:scale(1.05)}
+
+    .title{display:flex; align-items:baseline; justify-content:space-between; padding:0 2px}
+    .title h1{font-size:var(--fs-l); margin:0; font-weight:680; letter-spacing:.2px}
+    .title .muted{font-size:var(--fs-s); color:var(--muted)}
+
+    .card, .inputCard{background: rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.10); border-radius:16px; padding:10px; box-shadow: inset 0 1px 0 rgba(255,255,255,.05);}
+    label{font-size:var(--fs-xs); color:var(--muted); display:block; margin:2px 0 6px 2px}
+    textarea{width:100%; min-height:110px; resize:vertical; border:0; outline:none; color:var(--text); background:rgba(255,255,255,.02); border-radius:12px; padding:10px; line-height:1.55; border:1px solid rgba(255,255,255,.10); font-size:var(--fs-m);}
+    .row{display:flex; gap:8px; flex-wrap:wrap}
+    .row > *{flex:1}
+    .seg{display:flex; gap:8px; margin-top:8px;}
+    .chip{flex:1; display:flex; align-items:center; justify-content:center; gap:8px; padding:10px; border-radius:12px; border:1px solid rgba(255,255,255,.14); background:rgba(255,255,255,.04); font-weight:600; font-size:var(--fs-m); text-align:center; cursor:pointer; user-select:none; transition: background .2s ease, transform .04s ease, border-color .2s ease;}
+    .chip.primary{background:linear-gradient(180deg, rgba(116,210,255,.25), rgba(116,210,255,.10)); border-color:rgba(116,210,255,.45);}
+    .chip.ok{background:linear-gradient(180deg, rgba(82,255,171,.22), rgba(82,255,171,.08)); border-color:rgba(82,255,171,.45);}
+    .chip:active{transform:translateY(1px)}
+    .hint{font-size:var(--fs-xs); color:var(--muted); padding:0 2px}
+
+    details{border:1px solid rgba(255,255,255,.10); border-radius:14px; background:rgba(255,255,255,.03);}
+    summary{list-style:none; padding:10px 12px; cursor:pointer; user-select:none; display:flex; align-items:center; justify-content:space-between; font-size:var(--fs-m); font-weight:600;}
+    summary::-webkit-details-marker{display:none}
+    .caret{transition: transform .2s ease;}
+    details[open] .caret{transform:rotate(90deg)}
+    .blk{padding:6px 12px 10px; border-top:1px solid rgba(255,255,255,.08)}
+    ul{margin:8px 0 0 18px}
+    li{padding:4px 0; font-size:var(--fs-m); line-height:1.5}
+    .tap:active{background:var(--tap)}
+    .mini{font-size:var(--fs-xs); color:var(--muted)}
+
+    .bottom{margin-top:auto; padding:8px; display:flex; gap:8px; align-items:center; background:linear-gradient(180deg, transparent, rgba(0,0,0,.35)); border-top:1px solid rgba(255,255,255,.06); position:sticky; bottom:0; left:0; right:0; padding-bottom: calc(8px + env(safe-area-inset-bottom));}
+    .ghost{flex:1}
+  </style>
+  <link rel="apple-touch-icon" id="appleIcon" href="">
+</head>
+<body>
+  <div class="stage">
+    <div class="heroGlow"></div>
+    <div class="device" aria-label="iPhone mock">
+      <div class="screen">
+        <div class="content">
+          <div class="activity">
+            <span class="badge"><span class="dot" aria-hidden="true"></span> ROM twin active</span>
+            <label class="toggle"><input id="compactToggle" type="checkbox" checked /> Compact</label>
+          </div>
+
+          <div class="title">
+            <h1>Daily Summary</h1>
+            <span class="muted">Mode: <strong id="mode">Auto</strong></span>
+          </div>
+
+          <div class="inputCard">
+            <label for="in">Paste 10–20 email subjects or notes (one per line)</label>
+            <textarea id="in" placeholder="Re: Deck for investor intro
+Meeting moved to 3pm with product
+Fwd: Contract redlines due Friday
+Invoice paid – Stripe
+Reminder: CS homework due tomorrow"></textarea>
+
+            <div class="row" style="align-items:center;">
+              <label class="toggle"><input id="communityToggle" type="checkbox" checked /> Post a fun welcome/suggestion to Discord</label>
+            </div>
+
+            <div class="seg">
+              <div class="chip tap" id="demo">Demo</div>
+              <div class="chip tap" id="clear">Clear</div>
+              <div class="chip primary tap" id="go">Make my day simple</div>
+            </div>
+            <div class="hint">Local-first vibe: nothing stored — just summarized.</div>
+          </div>
+
+          <div class="card" id="result" style="display:none;">
+            <details open>
+              <summary class="tap"><span>📌 Today’s Highlights</span><span class="caret">›</span></summary>
+              <div class="blk"><ul id="highList"></ul></div>
+            </details>
+            <details open>
+              <summary class="tap"><span>⚡ Urgent</span><span class="caret">›</span></summary>
+              <div class="blk"><ul id="urgentList"></ul></div>
+            </details>
+            <details>
+              <summary class="tap"><span>🌙 For Tomorrow</span><span class="caret">›</span></summary>
+              <div class="blk"><ul id="tomorrowList"></ul></div>
+            </details>
+            <details id="suggestBox">
+              <summary class="tap"><span>✨ Smart Suggestions</span><span class="caret">›</span></summary>
+              <div class="blk"><ul id="suggestList"></ul></div>
+            </details>
+          </div>
+
+          <div class="bottom">
+            <div class="chip ghost mini">ROM • calm layer</div>
+            <div class="chip tap" id="remind">Send reminder</div>
+            <div class="chip ok tap" id="done">Mark all done</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* === CONFIG === */
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxZcplRYBylrz8AQzvZhxtbpQet_EBp76qRnByAkT9WIgy7V06Meye19NipOh36mzfk/exec";
+const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1410110258512134184/b8xweOg3-_K8ZZyG8Wo0uCPbUsyUEO7HGUaVzxUc0saDf-NOhosBjexHg8pXL7ekd98x";
+
+/* === ELEMENTS === */
+const el = (id)=>document.getElementById(id);
+const input = el('in'), res = el('result');
+const high = el('highList'), urg = el('urgentList'), tom = el('tomorrowList');
+const mode = el('mode'), suggestList = el('suggestList');
+const communityToggle = el('communityToggle');
+const compactToggle = el('compactToggle');
+
+/* compact spacing toggle */
+compactToggle?.addEventListener('change', ()=> {
+  document.querySelector('.device').classList.toggle('compact', compactToggle.checked);
+});
+document.querySelector('.device').classList.add('compact');
+
+/* DEMO & CLEAR */
+el('demo').onclick = ()=>{
+  input.value = `Re: Deck for investor intro
+Meeting moved to 3pm with product
+Fwd: Contract redlines due Friday
+Invoice paid – Stripe
+Reminder: CS homework due tomorrow
+Customer asks about pricing update
+Bug report: login loop from iOS
+TA session moved to Thu 4pm
+Ship 1.0.2 release notes
+Follow up with Michelle on pilot`;
+  res.style.display='none';
+};
+el('clear').onclick = ()=>{ input.value=''; res.style.display='none'; };
+
+/* RENDER HELPERS */
+function renderList(listEl, items){
+  listEl.innerHTML = '';
+  items.forEach((t)=>{
+    const text = typeof t === 'string' ? t : (t.text || '');
+    const li = document.createElement('li');
+    li.textContent = text;
+    li.className = 'tap';
+    li.onclick = ()=>{ li.style.textDecoration = (li.style.textDecoration ? '' : 'line-through'); };
+    listEl.appendChild(li);
+  });
+}
+function contains(arr, re){ return arr.some(x => (typeof x === 'string' ? x : x.text).match(re)); }
+function firstN(arr, n){ return arr.slice(0,n).map(x => (typeof x === 'string' ? x : x.text)).join(' • '); }
+function buildSuggestions({highlights=[], urgent=[], tomorrow=[]}){
+  const suggestions = [];
+  if (urgent.length) suggestions.push(`📝 Draft replies for top ${Math.min(urgent.length,3)} urgent threads`);
+  if (tomorrow.length) suggestions.push(`🗓️ Block 30 min tomorrow for: ${firstN(tomorrow,2)}`);
+  if (contains(urgent, /(bug|issue|login|prod)/i)) suggestions.push("🐞 Open a quick bug ticket & assign owner");
+  if (contains(highlights, /(invoice|paid|pricing|quote|stripe)/i)) suggestions.push("💸 Log payments & update metrics");
+  if (contains(highlights, /(release|launch|deploy|notes|version|ship)/i)) suggestions.push("🚀 Post concise release notes to your channel");
+  suggestions.push("☀️ Pick 3 for tomorrow & archive the rest");
+  return suggestions.slice(0,5).map(s=>({text:s}));
+}
+
+/* LOCAL FALLBACK */
+async function summarizeLocally(lines){
+  const tasks = lines.map(s=>s.trim()).filter(Boolean);
+  const highlights = [], urgent = [], tomorrow = [];
+  const kwUrg = /(due|asap|urgent|redline|deadline|tomorrow|today|EOD|EOW|bug|prod|issue)/i;
+  const kwMoney = /(invoice|paid|payment|stripe|pricing|quote|po)/i;
+  const kwMeet  = /(meet|call|zoom|moved|resched|calendar|intro|sync)/i;
+  const kwShip  = /(ship|release|launch|deploy|version|notes|build)/i;
+  tasks.forEach(t=>{
+    if (kwUrg.test(t)) urgent.push({text: t});
+    else if (kwShip.test(t) || kwMoney.test(t)) highlights.push({text: t});
+    else if (kwMeet.test(t)) tomorrow.push({text: "Prep: " + t});
+    else highlights.push({text: t});
+  });
+  return { mode:'Local', highlights: highlights.slice(0,4), urgent: urgent.slice(0,3), tomorrow: tomorrow.length? tomorrow.slice(0,3) : [{text:"Pick top 3 for tomorrow"}] };
+}
+
+/* REMOTE SUMMARY — CORS-safe (form-encoded, no custom headers) */
+async function summarizeRemotely(lines){
+  const params = new URLSearchParams();
+  lines.forEach(v => params.append('items', v)); // items=a&items=b&...
+  const r = await fetch(WEB_APP_URL, { method:'POST', body: params });
+  return r.json();
+}
+
+/* MAIN ACTION */
+el('go').onclick = async ()=>{
+  const lines = input.value.split('\n').map(s=>s.trim()).filter(Boolean);
+  if (!lines.length){ alert('Paste a few lines first 🙂'); return; }
+  const btn = el('go'); btn.disabled = true; btn.textContent='Summarizing…';
+  try{
+    let data;
+    try { data = await summarizeRemotely(lines); } catch (_){ data = await summarizeLocally(lines); }
+    mode.textContent = data.mode || 'Auto';
+    renderList(high, data.highlights || []);
+    renderList(urg, data.urgent || []);
+    renderList(tom, data.tomorrow || []);
+    renderList(suggestList, buildSuggestions(data));
+    res.style.display='block';
+
+    if (communityToggle.checked) {
+      postCommunityDiscordMessage({ highlights:data.highlights||[], urgent:data.urgent||[], tomorrow:data.tomorrow||[] });
+    }
+  } catch (e){
+    alert('Something went wrong. Check your Web App URL or try again.');
+  } finally{
+    btn.disabled = false; btn.textContent='Make my day simple';
+  }
+};
+
+/* REMINDER ACTIONS */
+el('done').onclick = ()=>{
+  document.querySelectorAll('#highList li, #urgentList li, #tomorrowList li').forEach(li=>{ li.style.textDecoration = 'line-through'; });
+};
+
+el('remind').onclick = async ()=>{
+  const urgent = Array.from(document.querySelectorAll('#urgentList li')).slice(0,3).map(li=>li.textContent);
+  const tomorrow = Array.from(document.querySelectorAll('#tomorrowList li')).slice(0,3).map(li=>li.textContent);
+  const lines = [];
+  if (urgent.length){ lines.push("Urgent:"); urgent.forEach(x=>lines.push("• " + x)); }
+  if (tomorrow.length){ lines.push("For Tomorrow:"); tomorrow.forEach(x=>lines.push("• " + x)); }
+  const summaryText = lines.join("\n") || "No items captured yet.";
+
+  // Discord only
+  if (DISCORD_WEBHOOK_URL) {
+    const content = `⏰ **ROM Reminder**\n${summaryText}`;
+    try{ await fetch(DISCORD_WEBHOOK_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ content }) }); }catch(_){}
+  }
+  alert("✅ Reminder sent!");
+};
+
+/* Community post */
+function postCommunityDiscordMessage(d){
+  if (!DISCORD_WEBHOOK_URL) return;
+  const modes = [
+    (x)=>`👋 **Welcome to ROM Daily Summary!** Vibe check: ${pickOneText(x.highlights) || "paste a few lines to start"} — you’ve got this.`,
+    (x)=>`😂 **AI, be useful pls:** Today → ${pickOneText(x.urgent) || "no fires"} • Tomorrow → ${pickOneText(x.tomorrow) || "1 tiny goal"}.`,
+    (x)=>`💡 **Suggestion:** Block 30 min for: ${pickOneText(x.tomorrow) || "top 1 task"} and archive 3 distractions.`,
+  ];
+  const content = pickOne(modes)(d);
+  fetch(DISCORD_WEBHOOK_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ content }) }).catch(()=>{});
+}
+function pickOne(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function pickOneText(arr){ if(!arr || !arr.length) return ""; const x = arr[Math.floor(Math.random()*arr.length)]; return (typeof x==='string'?x:x.text); }
+
+/* PWA bits (icon + manifest + offline SW) */
+(function setupPWA(){
+  const svg = encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='512' height='512'>
+    <defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop stop-color='#0F1116'/><stop offset='1' stop-color='#1A1D29'/></linearGradient></defs>
+    <rect width='100%' height='100%' rx='96' fill='url(#g)'/>
+    <g transform='translate(128,120)'>
+      <rect x='0' y='0' width='64' height='272' rx='20' fill='#E7EAF0' opacity='0.92'/>
+      <path d='M64,0 h92 a84,84 0 1 1 0,168 h-92 z' fill='#E7EAF0' opacity='0.92'/>
+      <rect x='130' y='148' width='88' height='60' rx='30' fill='#0F1116' opacity='0.96'/>
+    </g>
+  </svg>`);
+  const iconData = `data:image/svg+xml;charset=utf-8,${svg}`;
+  document.getElementById('appleIcon').setAttribute('href', iconData);
+
+  const manifest = { name:"ROM • Daily Summary", short_name:"ROM Summary", display:"standalone", start_url:".", background_color:"#0F1116", theme_color:"#0F1116", icons:[{ src:iconData, sizes:"512x512", type:"image/svg+xml", purpose:"any maskable"}]};
+  const manifestBlob = new Blob([JSON.stringify(manifest)], {type:'application/manifest+json'});
+  const manifestURL = URL.createObjectURL(manifestBlob);
+  const link = document.createElement('link'); link.rel='manifest'; link.href=manifestURL; document.head.appendChild(link);
+
+  if ('serviceWorker' in navigator) {
+    const swCode = `
+      const CACHE='rom-summary-v3';
+      self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['./']))); self.skipWaiting();});
+      self.addEventListener('activate',e=>self.clients.claim());
+      self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(resp=>{const cp=resp.clone(); caches.open(CACHE).then(c=>c.put(e.request,cp)); return resp;})).catch(()=>r))});
+    `;
+    const swBlob = new Blob([swCode], {type:'text/javascript'});
+    const swURL = URL.createObjectURL(swBlob);
+    navigator.serviceWorker.register(swURL).catch(()=>{});
+  }
+})();
+</script>
+</body>
+</html>
