@@ -4,16 +4,18 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>ROM • Daily Summary</title>
+
 <style>
 :root{
   --bg:#F6F7F9; --surface:#FFFFFF; --surface-2:#F1F4F8; --stroke:#E8EBF0;
-  --text:#0B1220; --muted:#6B7280; --accent:#0A84FF;
+  --text:#0B1220; --muted:#667085; --accent:#0A84FF;
   --red:#FF3B30; --blue:#0A84FF; --orange:#FF9F0A; --green:#34C759; --purple:#AF52DE; --gray:#8E8E93;
   --rx:20px;
   --fs-xs:clamp(11px,2vw,12px);
   --fs-s: clamp(13px,2.4vw,14px);
   --fs-m: clamp(15px,3vw,16px);
-  --fs-l: clamp(32px,6vw,38px); 
+  --fs-l: clamp(28px,6vw,34px);
+  --wrap: min(720px, 100vw);
 }
 @media (prefers-color-scheme: dark){
   :root{
@@ -23,142 +25,336 @@
 }
 *{box-sizing:border-box}
 html,body{
-  margin:0; height:100%;
-  background:var(--bg); color:var(--text);
-  font-family:-apple-system,"SF Pro Text",Inter,sans-serif;
-  -webkit-font-smoothing:antialiased;
+  margin:0; height:100%; background:var(--bg); color:var(--text);
+  font-family:-apple-system,"SF Pro Text",Inter,system-ui,sans-serif; -webkit-font-smoothing:antialiased;
 }
-.app{max-width:500px;margin:0 auto;height:100%;display:flex;flex-direction:column;}
-.appbar{padding:18px 16px 6px;border-bottom:1px solid var(--stroke);background:var(--surface);position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between}
-.appTitle{font-size:var(--fs-l);font-weight:800;margin:0}
-.mode{font-size:var(--fs-s);color:var(--muted)}
-.view{flex:1;overflow:auto;padding:16px;display:grid;gap:16px}
-.card{background:var(--surface);border:1px solid var(--stroke);border-radius:var(--rx);padding:12px}
-.card h3{margin:0 0 8px;font-size:var(--fs-m);font-weight:700}
-textarea{width:100%;min-height:100px;border:1px solid var(--stroke);border-radius:14px;padding:10px;font-size:var(--fs-m);background:var(--surface-2);color:var(--text)}
-.actions{display:flex;gap:8px;margin-top:8px}
-.btn{flex:1;text-align:center;padding:12px;border-radius:14px;border:1px solid var(--stroke);background:var(--surface-2);font-weight:700;cursor:pointer}
-.btn-primary{background:var(--accent);color:#fff;border:none}
-.btn-ok{background:#34C759;color:#fff;border:none}
-.groupHeader{font-size:var(--fs-m);font-weight:700;margin-bottom:6px}
-.list{background:var(--surface);border:1px solid var(--stroke);border-radius:var(--rx);overflow:hidden}
-.cell{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:12px 14px;border-top:1px solid var(--stroke)}
+.app{
+  min-height:100%;
+  display:flex; flex-direction:column; align-items:center;
+}
+.bar{
+  position:sticky; top:0; z-index:5; width:100%;
+  background:var(--surface); border-bottom:1px solid var(--stroke);
+}
+.barInner{
+  width:var(--wrap); margin:0 auto; padding:18px 16px 10px;
+  display:flex; align-items:center; gap:12px;
+}
+.bar h1{margin:0; font-size:var(--fs-l); font-weight:900; letter-spacing:-.02em; flex:1}
+.mode{font-size:var(--fs-s); color:var(--muted)}
+.back{display:none; padding:8px 12px; border-radius:12px; border:1px solid var(--stroke);
+  background:var(--surface-2); font-weight:700; cursor:pointer}
+
+/* Views */
+.view{
+  width:var(--wrap); margin:0 auto; flex:1; padding:16px; display:grid; gap:16px;
+}
+
+/* Cards / inputs */
+.card{background:var(--surface); border:1px solid var(--stroke); border-radius:var(--rx); padding:14px}
+.card h3{margin:0 0 8px; font-size:var(--fs-m); font-weight:800}
+textarea{
+  width:100%; min-height:120px; padding:12px;
+  border:1px solid var(--stroke); border-radius:14px; background:var(--surface-2);
+  font-size:var(--fs-m); line-height:1.55; color:var(--text); resize:vertical; outline:none;
+}
+.actions{display:flex; gap:10px; margin-top:10px; flex-wrap:wrap}
+.btn{flex:1; min-width:140px; text-align:center; padding:12px; border-radius:14px;
+  border:1px solid var(--stroke); background:var(--surface-2); font-weight:800; cursor:pointer}
+.btn-primary{background:var(--accent); border-color:var(--accent); color:#fff}
+.btn-ok{background:#34C759; color:#fff; border:none}
+.hint{margin-top:6px; font-size:var(--fs-xs); color:var(--muted)}
+
+/* Sections */
+.section h4{margin:0 0 8px; font-size:var(--fs-m); font-weight:900}
+.list{background:var(--surface); border:1px solid var(--stroke); border-radius:var(--rx); overflow:hidden}
+.cell{display:grid; grid-template-columns:auto 1fr auto; gap:12px; align-items:center; padding:14px 16px; border-top:1px solid var(--stroke)}
 .cell:first-child{border-top:0}
-.pill{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;color:#fff;font-size:16px;font-weight:800}
+.pill{width:36px; height:36px; border-radius:12px; display:grid; place-items:center; color:#fff; font-weight:800}
 .pill.red{background:var(--red)} .pill.blue{background:var(--blue)} .pill.orange{background:var(--orange)}
 .pill.green{background:var(--green)} .pill.purple{background:var(--purple)} .pill.gray{background:var(--gray)}
 .titleCol{min-width:0}
-.t1{font-weight:700;font-size:var(--fs-m);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.t2{font-size:var(--fs-xs);color:var(--muted);margin-top:2px}
-.chev{color:#98A2B3;font-size:20px}
+.t1{font-weight:800; font-size:var(--fs-m); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.t2{font-size:var(--fs-xs); color:var(--muted); margin-top:2px}
+.chev{color:#98A2B3; font-size:20px}
 
-/* Horizontal suggestions */
-.suggestions{display:flex;overflow-x:auto;gap:12px;padding-bottom:6px}
-.suggestions::-webkit-scrollbar{display:none}
-.suggCard{flex:0 0 auto;min-width:220px;background:var(--surface);border:1px solid var(--stroke);border-radius:var(--rx);padding:14px;font-size:var(--fs-m);font-weight:600;line-height:1.4}
+/* Suggestions: horizontal carousel */
+.suggRow{
+  display:flex; gap:12px; overflow-x:auto; padding:4px 2px 8px;
+  scroll-snap-type:x mandatory;
+}
+.suggRow::-webkit-scrollbar{display:none}
+.sugg{flex:0 0 auto; min-width:240px; scroll-snap-align:start;
+  background:var(--surface); border:1px solid var(--stroke); border-radius:16px; padding:14px;
+  font-size:var(--fs-m); font-weight:700; line-height:1.35}
+
+/* Detail view */
+.detail{display:none}
+.hero{padding:8px 2px}
+.dTitle{font-size:clamp(26px,5vw,32px); font-weight:900; letter-spacing:-.02em; margin:6px 0}
+.dSub{font-size:var(--fs-s); color:var(--muted); margin:0 0 12px}
+.dCard{background:var(--surface); border:1px solid var(--stroke); border-radius:var(--rx); padding:14px}
+.dCard h5{margin:6px 0 8px; font-size:var(--fs-m)}
+.dCard ul{margin:0 0 0 18px; padding:0}
+.dCard li{padding:4px 0; font-size:var(--fs-m)}
+.dActions{display:flex; gap:10px; margin-top:10px; flex-wrap:wrap}
+.smallNote{font-size:var(--fs-xs); color:var(--muted); margin-top:8px}
+
+/* Responsive tweaks */
+@media (min-width:1024px){
+  .view{gap:18px}
+}
 </style>
 </head>
 <body>
   <div class="app">
-    <div class="appbar">
-      <h1 class="appTitle">Daily Summary</h1>
-      <div class="mode">Mode: <strong id="mode">Auto</strong></div>
+    <!-- Top bar -->
+    <div class="bar">
+      <div class="barInner">
+        <button class="back" id="backBtn">‹ Back</button>
+        <h1 id="title">Daily Summary</h1>
+        <div class="mode">Mode: <strong id="mode">Auto</strong></div>
+      </div>
     </div>
 
-    <div class="view">
+    <!-- HOME -->
+    <div class="view" id="home">
       <div class="card">
         <h3>Enter tasks/notes</h3>
         <textarea id="in" placeholder="Deck for investor intro
 Meeting moved to 3pm with product
 Contract redlines due Friday
-Invoice paid – Stripe"></textarea>
+Invoice paid – Stripe
+Bug: login loop on prod
+Reminder: homework due tomorrow"></textarea>
         <div class="actions">
           <div class="btn" id="demo">Demo</div>
           <div class="btn" id="clear">Clear</div>
           <div class="btn btn-primary" id="go">Make my day simple</div>
+          <div class="btn btn-ok" id="done">Mark all done</div>
         </div>
+        <div class="hint">Local-first; nothing stored. We only summarize what you paste.</div>
       </div>
 
-      <div>
-        <div class="groupHeader">📌 Today’s Highlights</div>
+      <div class="section">
+        <h4>📌 Today’s Highlights</h4>
         <div class="list" id="highList"></div>
       </div>
 
-      <div>
-        <div class="groupHeader">⚡ Urgent</div>
+      <div class="section">
+        <h4>⚡ Urgent</h4>
         <div class="list" id="urgentList"></div>
       </div>
 
-      <div>
-        <div class="groupHeader">🌙 For Tomorrow</div>
+      <div class="section">
+        <h4>🌙 For Tomorrow</h4>
         <div class="list" id="tomorrowList"></div>
       </div>
 
-      <div>
-        <div class="groupHeader">✨ Suggestions</div>
-        <div class="suggestions" id="suggestList"></div>
+      <div class="section">
+        <h4>✨ Suggestions</h4>
+        <div class="suggRow" id="suggestRow"></div>
+      </div>
+    </div>
+
+    <!-- DETAIL -->
+    <div class="view detail" id="detail">
+      <div class="hero">
+        <div class="dTitle" id="dTitle">Title</div>
+        <div class="dSub" id="dSub">Context & timing</div>
+      </div>
+
+      <div class="dCard">
+        <h5>What to do next</h5>
+        <ul id="dSteps"></ul>
+        <div class="dActions">
+          <div class="btn btn-ok" id="dDone">Mark done</div>
+          <div class="btn" id="dCopy">Copy</div>
+        </div>
+        <div class="smallNote">soon you’ll be able to connect advanced AI for deeper context & auto-drafts.</div>
       </div>
     </div>
   </div>
 
 <script>
-const $=id=>document.getElementById(id);
-const input=$('in'), high=$('highList'), urg=$('urgentList'), tom=$('tomorrowList'), sugg=$('suggestList');
+/* ---------- Elements ---------- */
+const $ = id => document.getElementById(id);
+const modeEl=$('mode'), titleEl=$('title'), backBtn=$('backBtn');
+const home=$('home'), detail=$('detail');
+const input=$('in'), high=$('highList'), urg=$('urgentList'), tom=$('tomorrowList'), sugg=$('suggestRow');
+const dTitle=$('dTitle'), dSub=$('dSub'), dSteps=$('dSteps');
 
+/* ---------- Demo / clear ---------- */
 $('demo').onclick=()=>{
   input.value=`Deck for investor intro
 Meeting moved to 3pm with product
 Contract redlines due Friday
 Invoice paid – Stripe
 Bug: login loop on prod
-Reminder: homework due tomorrow`;
-  [high,urg,tom,sugg].forEach(x=>x.innerHTML='');
+Ship 1.0.2 release notes
+Reminder: homework due tomorrow
+Customer asks about pricing update
+TA session moved to Thu 4pm
+Follow up with Michelle on pilot`;
+  clearLists();
 };
-$('clear').onclick=()=>{input.value='';[high,urg,tom,sugg].forEach(x=>x.innerHTML='');};
+$('clear').onclick=()=>{ input.value=''; clearLists(); };
+function clearLists(){ [high,urg,tom,sugg].forEach(el=>el.innerHTML=''); }
 
-function classify(t){
-  const isUrg=/(urgent|asap|due|today|deadline)/i.test(t);
-  const isTomorrow=/tomorrow|thu|fri|sat|sun|next/i.test(t);
-  let section=isUrg?'urgent':isTomorrow?'tomorrow':'today';
-  return {section,title:t};
+/* ---------- Reasoning helpers ---------- */
+const esc = s => String(s).replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
+const toTxt = x => typeof x==='string'?x:(x?.text||'');
+
+function timeOf(t){ const m=t.match(/\b((?:[01]?\d|2[0-3]):[0-5]\d)\b|\b(\d{1,2})\s*(am|pm)\b/i); return m ? (m[1]||m[2]+m[3]) : ''; }
+function dayWord(t){
+  const m=t.match(/\b(today|tomorrow|mon|tue|wed|thu|fri|sat|sun|monday|tuesday|weds?|thurs?|friday|saturday|sunday|next|week)\b/i);
+  return m? m[0] : '';
 }
-function renderList(el,items){
-  el.innerHTML='';
-  if(!items.length){el.innerHTML='<div class="cell"><div class="pill gray">•</div><div class="titleCol"><div class="t1">Nothing here yet</div></div><div class="chev">›</div></div>';return;}
-  items.forEach(t=>{
+function isFuture(w){ return /^(tomorrow|next|week|mon|tue|wed|thu|fri|sat|sun|monday|tuesday|weds?|thurs?|friday|saturday|sunday)$/i.test(w); }
+
+function classify(text){
+  const t=String(text||'').trim();
+  const isBug=/(bug|issue|crash|prod|outage|hotfix|error)/i.test(t);
+  const isMoney=/(invoice|paid|payment|stripe|pricing|quote|po)/i.test(t);
+  const isMeet=/(meet|call|zoom|calendar|intro|sync|moved|resched)/i.test(t);
+  const isShip=/(ship|release|launch|deploy|version|notes|build|rc)/i.test(t);
+  const isDoc=/(contract|redline|spec|doc|proposal)/i.test(t);
+  const isUrg=/(urgent|asap|blocker|critical|due|deadline|eod|eow|today)/i.test(t);
+
+  const time=timeOf(t), dw=dayWord(t), future=dw && isFuture(dw);
+  let section = isUrg ? 'today' : (future ? 'tomorrow' : 'today');
+
+  let pill='gray', glyph='•', title=t, subtitle='';
+  if (isBug){ pill='red'; glyph='⎌'; subtitle='Needs attention'; }
+  else if (isMoney){ pill='green'; glyph='＄'; subtitle='Completed'; }
+  else if (isShip){ pill='purple'; glyph='🚀'; subtitle='Release'; }
+  else if (isDoc){ pill='orange'; glyph='📄'; subtitle= dw ? dw : 'Docs'; }
+  else if (isMeet){ pill='blue'; glyph='🕘'; subtitle= time || (future?'Tomorrow':'Today'); if (future) title='Prep: '+title; }
+  else { subtitle = time || (future?'Tomorrow':'Today'); }
+
+  return {section, pill, glyph, title, subtitle, urgent:isUrg, raw:t};
+}
+
+/* ---------- Renderers ---------- */
+function renderList(container, metas){
+  container.innerHTML='';
+  if (!metas.length){
+    container.innerHTML = `
+      <div class="cell">
+        <div class="pill gray">•</div>
+        <div class="titleCol"><div class="t1">Nothing here yet</div><div class="t2">Paste a few lines and tap “Make my day simple”.</div></div>
+        <div class="chev">›</div>
+      </div>`;
+    return;
+  }
+  metas.forEach(m=>{
     const row=document.createElement('div');
     row.className='cell';
-    row.innerHTML=`<div class="pill blue">🗒</div><div class="titleCol"><div class="t1">${t.title}</div></div><div class="chev">›</div>`;
-    el.appendChild(row);
-  });
-}
-function renderSuggestions(items){
-  sugg.innerHTML='';
-  if(!items.length){sugg.innerHTML='<div class="suggCard">☀️ Pick 3 for tomorrow & archive the rest</div>';return;}
-  items.forEach(txt=>{
-    const card=document.createElement('div');
-    card.className='suggCard';
-    card.textContent=txt;
-    sugg.appendChild(card);
+    row.innerHTML=`
+      <div class="pill ${m.pill}">${m.glyph}</div>
+      <div class="titleCol"><div class="t1">${esc(m.title)}</div><div class="t2">${esc(m.subtitle)}</div></div>
+      <div class="chev">›</div>`;
+    row.addEventListener('click', ()=>openDetail(m));
+    container.appendChild(row);
   });
 }
 
+function buildSuggestions(metas){
+  const urg=metas.filter(m=>m.urgent);
+  const tom=metas.filter(m=>m.section==='tomorrow');
+  const out=[];
+  if (urg.length) out.push('📝 Draft replies for urgent threads');
+  if (tom.length) out.push(`🗓️ Block 30 min for: ${tom[0].title.replace(/^Prep:\s*/,'')}`);
+  if (metas.some(m=>/(bug|issue|prod|outage|error)/i.test(m.raw))) out.push('🐞 File a bug & assign owner');
+  if (metas.some(m=>/(invoice|paid|stripe|pricing)/i.test(m.raw))) out.push('💸 Update finance dashboard');
+  if (metas.some(m=>/(release|launch|deploy|version|notes|ship)/i.test(m.raw))) out.push('🚀 Post concise release note');
+  if (!tom.length) out.push('🏃 Workout 20 min');
+  out.push('☀️ Pick 3 for tomorrow & archive the rest');
+  return out;
+}
+function renderSuggestions(container, texts){
+  container.innerHTML='';
+  if (!texts.length){ texts=['☀️ Pick 3 for tomorrow & archive the rest']; }
+  texts.forEach(t=>{
+    const card=document.createElement('div');
+    card.className='sugg';
+    card.textContent=t;
+    container.appendChild(card);
+  });
+}
+
+/* ---------- Main action ---------- */
 $('go').onclick=()=>{
   const lines=input.value.split('\n').map(s=>s.trim()).filter(Boolean);
-  const metas=lines.map(classify);
-  const today=metas.filter(m=>m.section==='today');
-  const urgent=metas.filter(m=>m.section==='urgent');
-  const tomorrow=metas.filter(m=>m.section==='tomorrow');
-  renderList(high,today);
-  renderList(urg,urgent);
-  renderList(tom,tomorrow);
-  renderSuggestions([
-    "📝 Draft replies for urgent threads",
-    "🗓️ Block 30 min for tomorrow’s prep",
-    "💡 File bugs immediately if found",
-    "🚀 Share concise release notes"
-  ]);
+  if (!lines.length){ alert('Paste a few lines first 🙂'); return; }
+
+  const metas = lines.map(classify);
+  let today = metas.filter(m=>m.section==='today');
+  const urgent = metas.filter(m=>m.urgent);
+  let tomorrow = metas.filter(m=>m.section==='tomorrow');
+
+  if (!today.length){ today = urgent.slice(0,2); if (!today.length) today = metas.slice(0,3); }
+  if (!tomorrow.length){ tomorrow = [{section:'tomorrow', pill:'blue', glyph:'🕘', title:'Prep: quick workout', subtitle:'Tomorrow', urgent:false, raw:'Workout'}]; }
+
+  renderList(high, today.slice(0,6));
+  renderList(urg, urgent.slice(0,3));
+  renderList(tom, tomorrow.slice(0,4));
+  renderSuggestions(sugg, buildSuggestions(metas));
+
+  modeEl.textContent = 'Local';
 };
+
+/* Mark all done */
+$('done').onclick=()=>{
+  document.querySelectorAll('.t1').forEach(t1=>{ t1.style.textDecoration='line-through'; t1.style.opacity='0.55'; });
+};
+
+/* ---------- Detail page ---------- */
+let currentMeta=null;
+function openDetail(meta){
+  currentMeta=meta;
+  titleEl.textContent='Details';
+  backBtn.style.display='inline-block';
+  home.style.display='none';
+  detail.style.display='grid';
+
+  dTitle.textContent=meta.title;
+  dSub.textContent = (/today/i.test(meta.subtitle)||meta.section==='today') ? 'Today' :
+                     (/tomorrow/i.test(meta.subtitle)||meta.section==='tomorrow') ? 'Tomorrow' :
+                     (meta.subtitle||'Soon');
+
+  dSteps.innerHTML='';
+  detailSteps(meta).forEach(s=>{
+    const li=document.createElement('li'); li.textContent=s; dSteps.appendChild(li);
+  });
+}
+function closeDetail(){
+  currentMeta=null;
+  titleEl.textContent='Daily Summary';
+  backBtn.style.display='none';
+  detail.style.display='none';
+  home.style.display='grid';
+}
+$('backBtn').addEventListener('click', closeDetail);
+$('dCopy').addEventListener('click', ()=>{ if(currentMeta) navigator.clipboard.writeText(currentMeta.title + ' — ' + dSub.textContent); });
+$('dDone').addEventListener('click', ()=>{ 
+  if (!currentMeta) return;
+  const rows=[...document.querySelectorAll('.t1')];
+  const row=rows.find(r=>r.textContent===currentMeta.title);
+  if (row){ row.style.textDecoration='line-through'; row.style.opacity='0.55'; }
+  closeDetail();
+});
+
+function detailSteps(m){
+  const t=m.raw.toLowerCase(), out=[];
+  if (m.pill==='red') out.push('Create a bug ticket and assign an owner','Attach logs/screenshot','Notify channel if customer-facing');
+  else if (m.pill==='green') out.push('Record payment in tracker','Notify stakeholders','Archive the thread');
+  else if (m.pill==='purple') out.push('Write a 3-line release note','Post in channel','Plan a 10-min retro');
+  else if (m.pill==='blue') out.push('Confirm agenda','Prep 1 doc or question','Join 5 min early');
+  else if (/contract|redline/.test(t)) out.push('Skim redlines & mark blockers','Send a 1-line summary');
+  else out.push('Define the next smallest step','Block 20–30 min focus');
+  return out;
+}
 </script>
 </body>
 </html>
