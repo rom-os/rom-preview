@@ -1,153 +1,193 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#0F1116">
-  <title>ROM • Daily Summary</title>
-  <style>
-    :root{
-      --bg1:#0F1116; --bg2:#1A1D29;
-      --surface:rgba(26,30,41,.55);
-      --stroke:rgba(255,255,255,.22);
-      --text:#E7EAF0; --muted:#AAB2C0;
-      --accent:#74D2FF; --ok:#52FFAB;
-      --tap:rgba(255,255,255,.06);
-      --device-w: 390px; --device-h: 844px;
-      --fs-xs: clamp(10px, 2.0vw, 11px);
-      --fs-s:  clamp(12px, 2.4vw, 13px);
-      --fs-m:  clamp(14px, 3.0vw, 15px);
-      --fs-l:  clamp(16px, 3.6vw, 18px);
-    }
-    *{box-sizing:border-box}
-    html,body{
-      height:100%; margin:0;
-      background:radial-gradient(900px 600px at 20% -10%, rgba(31,36,48,.35), transparent 55%),
-                  linear-gradient(160deg, var(--bg1), var(--bg2));
-      font-family:-apple-system, "SF Pro Text", Inter, system-ui, sans-serif;
-      color:var(--text);
-      -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
-    }
-    .stage{min-height:100%; display:grid; place-items:center; padding:20px; position:relative;}
-    .heroGlow{position:absolute; inset:0; pointer-events:none; background: radial-gradient(600px 400px at 50% 10%, rgba(116,210,255,.14), transparent 60%); filter: blur(6px);}
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>ROM • Daily Summary</title>
 
-    /* iPhone-like frame */
-    .device{position:relative; width:min(var(--device-w), 94vw); aspect-ratio: 390 / 844; border-radius:44px;
-      background:linear-gradient(180deg, #0a0a0a, #1a1a1a);
-      box-shadow: 0 30px 90px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.04), inset 0 0 0 10px #000;
-      display:flex; align-items:center; justify-content:center;
-    }
-    .device::after{content:""; position:absolute; right:-3px; top:24%; width:3px; height:70px; border-radius:2px; background:#151515; box-shadow: 0 0 0 1px rgba(255,255,255,.06); opacity:.8;}
-    .device::before{content:""; position:absolute; top:10px; left:50%; transform:translateX(-50%); width:128px; height:36px; border-radius:20px; background:rgba(0,0,0,.85); box-shadow: 0 10px 24px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.05); z-index:5;}
+<style>
+:root{
+  --bg:#F6F7F9; --surface:#FFFFFF; --surface-2:#F1F4F8; --stroke:#E8EBF0;
+  --text:#0B1220; --muted:#6B7280; --accent:#0A84FF;
+  --red:#FF3B30; --blue:#0A84FF; --orange:#FF9F0A; --green:#34C759; --purple:#AF52DE; --gray:#8E8E93;
+  --rx:20px;
+  --fs-xs:clamp(11px,2vw,12px);
+  --fs-s: clamp(13px,2.4vw,14px);
+  --fs-m: clamp(15px,3vw,16px);
+  --fs-l: clamp(32px,6vw,38px); /* Apple header size */
+  --device-w:390px;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0F1116; --surface:rgba(26,30,41,.55); --surface-2:rgba(255,255,255,.06); --stroke:rgba(255,255,255,.16);
+    --text:#E7EAF0; --muted:#AAB2C0; --accent:#74D2FF;
+  }
+}
 
-    /* Screen */
-    .screen{
-      position:relative; width: calc(100% - 22px); height: calc(100% - 22px); border-radius:36px; overflow:hidden;
-      background: radial-gradient(1200px 800px at 20% -10%, #1f2430 0%, transparent 55%), var(--surface);
-      border:1px solid var(--stroke); box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
-      display:flex; flex-direction:column;
-    }
-    .content{padding:10px 10px 12px; display:grid; gap:8px; height:100%; overflow:auto; -webkit-overflow-scrolling:touch;}
+/* Base */
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--text);
+  font-family:-apple-system,"SF Pro Text",Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased;}
+.stage{min-height:100%;display:grid;place-items:center;padding:16px;position:relative;}
+.heroGlow{position:absolute;inset:0;pointer-events:none;background:radial-gradient(700px 460px at 50% 0%, rgba(116,210,255,.12), transparent 65%);filter:blur(6px);}
 
-    .activity{display:flex; justify-content:space-between; align-items:center; margin-top:6px; z-index:6; padding:0 2px;}
-    .badge{display:inline-flex; align-items:center; gap:8px; font-size:var(--fs-xs); padding:6px 10px; background:rgba(0,0,0,.55); border:1px solid rgba(255,255,255,.10); border-radius:999px; box-shadow: 0 8px 24px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.05);}
-    .dot{width:8px; height:8px; border-radius:999px; background:var(--accent); box-shadow:0 0 14px var(--accent);}
-    .toggle{display:flex; align-items:center; gap:6px; font-size:var(--fs-xs); color:var(--muted);}
-    .toggle input{transform:scale(1.05)}
+/* iPhone frame */
+.device{width:min(var(--device-w),95vw);aspect-ratio:390/844;border-radius:46px;
+  background:linear-gradient(180deg,#0a0a0a,#1a1a1a);
+  box-shadow:0 28px 90px rgba(0,0,0,.55),inset 0 0 0 1px rgba(255,255,255,.06),inset 0 0 0 10px #000;
+  position:relative;display:flex;align-items:center;justify-content:center;}
+.device::before{content:"";position:absolute;top:10px;left:50%;transform:translateX(-50%);
+  width:128px;height:36px;border-radius:20px;background:rgba(0,0,0,.85);
+  box-shadow:0 10px 24px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.05);z-index:2;}
 
-    .title{display:flex; align-items:baseline; justify-content:space-between; padding:0 2px}
-    .title h1{font-size:var(--fs-l); margin:0; font-weight:680; letter-spacing:.2px}
-    .title .muted{font-size:var(--fs-s); color:var(--muted)}
+/* Screen */
+.screen{width:calc(100% - 22px);height:calc(100% - 22px);border-radius:36px;overflow:hidden;
+  border:1px solid var(--stroke);background:var(--surface);display:flex;flex-direction:column;}
 
-    .card, .inputCard{background: rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.10); border-radius:16px; padding:10px; box-shadow: inset 0 1px 0 rgba(255,255,255,.05);}
-    label{font-size:var(--fs-xs); color:var(--muted); display:block; margin:2px 0 6px 2px}
-    textarea{width:100%; min-height:110px; resize:vertical; border:0; outline:none; color:var(--text); background:rgba(255,255,255,.02); border-radius:12px; padding:10px; line-height:1.55; border:1px solid rgba(255,255,255,.10); font-size:var(--fs-m);}
-    .row{display:flex; gap:8px; flex-wrap:wrap}
-    .row > *{flex:1}
-    .seg{display:flex; gap:8px; margin-top:8px;}
-    .chip{flex:1; display:flex; align-items:center; justify-content:center; gap:8px; padding:10px; border-radius:12px; border:1px solid rgba(255,255,255,.14); background:rgba(255,255,255,.04); font-weight:600; font-size:var(--fs-m); text-align:center; cursor:pointer; user-select:none; transition: background .2s ease, transform .04s ease, border-color .2s ease;}
-    .chip.primary{background:linear-gradient(180deg, rgba(116,210,255,.25), rgba(116,210,255,.10)); border-color:rgba(116,210,255,.45);}
-    .chip.ok{background:linear-gradient(180deg, rgba(82,255,171,.22), rgba(82,255,171,.08)); border-color:rgba(82,255,171,.45);}
-    .chip:active{transform:translateY(1px)}
-    .hint{font-size:var(--fs-xs); color:var(--muted); padding:0 2px}
+/* App bar (home + detail) */
+.appbar{padding:18px 16px 6px;position:sticky;top:0;z-index:5;
+  background:color-mix(in srgb, var(--surface) 88%, transparent);backdrop-filter:saturate(180%) blur(14px);
+  border-bottom:1px solid var(--stroke);display:flex;align-items:center;gap:8px;}
+.appTitle{font-size:var(--fs-l);font-weight:800;letter-spacing:-.02em;margin:0;flex:1}
+.mode{font-size:var(--fs-s);color:var(--muted)}
+.back{display:none;padding:6px 10px;border-radius:10px;border:1px solid var(--stroke);background:var(--surface-2);
+  font-weight:700;cursor:pointer}
 
-    details{border:1px solid rgba(255,255,255,.10); border-radius:14px; background:rgba(255,255,255,.03);}
-    summary{list-style:none; padding:10px 12px; cursor:pointer; user-select:none; display:flex; align-items:center; justify-content:space-between; font-size:var(--fs-m); font-weight:600;}
-    summary::-webkit-details-marker{display:none}
-    .caret{transition: transform .2s ease;}
-    details[open] .caret{transform:rotate(90deg)}
-    .blk{padding:6px 12px 10px; border-top:1px solid rgba(255,255,255,.08)}
-    ul{margin:8px 0 0 18px}
-    li{padding:4px 0; font-size:var(--fs-m); line-height:1.5}
-    .tap:active{background:var(--tap)}
-    .mini{font-size:var(--fs-xs); color:var(--muted)}
+.view{height:100%;overflow:auto;-webkit-overflow-scrolling:touch;padding:12px;display:grid;gap:12px}
 
-    .bottom{margin-top:auto; padding:8px; display:flex; gap:8px; align-items:center; background:linear-gradient(180deg, transparent, rgba(0,0,0,.35)); border-top:1px solid rgba(255,255,255,.06); position:sticky; bottom:0; left:0; right:0; padding-bottom: calc(8px + env(safe-area-inset-bottom));}
-    .ghost{flex:1}
-  </style>
-  <link rel="apple-touch-icon" id="appleIcon" href="">
+/* Input card */
+.card{background:var(--surface);border:1px solid var(--stroke);border-radius:var(--rx);box-shadow:0 1px 0 rgba(0,0,0,.03);}
+.add{padding:12px}
+.add h3{margin:0 0 8px;font-size:var(--fs-m);font-weight:800}
+textarea{width:100%;min-height:120px;border:1px solid var(--stroke);border-radius:14px;background:var(--surface);
+  padding:10px;font-size:var(--fs-m);line-height:1.55;color:var(--text);outline:none;resize:vertical;}
+.actions{display:flex;gap:8px;padding:10px 12px 12px}
+.btn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border-radius:14px;
+  border:1px solid var(--stroke);background:var(--surface-2);font-weight:800;font-size:var(--fs-m);cursor:pointer;user-select:none;transition:transform .05s ease}
+.btn:active{transform:translateY(1px)}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-ok{background:#E9F8EF;border-color:#CDEED8;color:#0B6B38}
+.hint{font-size:var(--fs-xs);color:var(--muted);padding:0 12px 12px}
+
+/* Lists */
+.group{margin-top:2px}
+.groupHeader{font-size:var(--fs-m);font-weight:800;padding:4px 6px 6px}
+.list{background:var(--surface);border:1px solid var(--stroke);border-radius:var(--rx);overflow:hidden}
+.cell{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:14px 14px;border-top:1px solid var(--stroke)}
+.cell:first-child{border-top:0}
+.pill{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;color:#fff;font-size:16px;font-weight:800}
+.pill.red{background:var(--red)} .pill.blue{background:var(--blue)} .pill.orange{background:var(--orange)}
+.pill.green{background:var(--green)} .pill.purple{background:var(--purple)} .pill.gray{background:var(--gray)}
+.titleCol{min-width:0}
+.t1{font-weight:800;font-size:var(--fs-m);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.t2{font-size:var(--fs-xs);color:var(--muted);margin-top:2px}
+.chev{color:#98A2B3;font-size:20px}
+
+/* Detail page */
+.detail{display:none}
+.detailHero{padding:8px 12px}
+.detailTitle{font-size:clamp(26px,5.5vw,32px);font-weight:900;letter-spacing:-.02em;margin:4px 0}
+.detailSub{font-size:var(--fs-s);color:var(--muted);margin:0 0 12px}
+.detailCard{background:var(--surface);border:1px solid var(--stroke);border-radius:var(--rx);padding:12px}
+.detailCard h4{margin:6px 0 8px;font-size:var(--fs-m)}
+.detailCard ul{margin:0 0 0 18px;padding:0}
+.detailCard li{padding:4px 0;font-size:var(--fs-m)}
+.detailActions{display:flex;gap:8px;margin-top:10px}
+.smallNote{font-size:var(--fs-xs);color:var(--muted);margin-top:8px}
+
+/* Footer */
+.footer{position:sticky;bottom:0;left:0;right:0;padding:10px 12px;border-top:1px solid var(--stroke);
+  background:color-mix(in srgb, var(--surface) 88%, transparent);display:flex;gap:8px;align-items:center}
+.ghost{flex:1;color:var(--muted);font-size:var(--fs-s)}
+.toggle{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:var(--fs-s)}
+.toggle input{transform:scale(1.05)}
+</style>
 </head>
 <body>
   <div class="stage">
     <div class="heroGlow"></div>
-    <div class="device" aria-label="iPhone mock">
+
+    <div class="device">
       <div class="screen">
-        <div class="content">
-          <div class="activity">
-            <span class="badge"><span class="dot" aria-hidden="true"></span> ROM twin active</span>
-            <label class="toggle"><input id="compactToggle" type="checkbox" checked /> Compact</label>
-          </div>
+        <!-- Appbar -->
+        <div class="appbar">
+          <button class="back" id="backBtn">‹ Back</button>
+          <h1 class="appTitle" id="appTitle">Home</h1>
+          <div class="mode">Mode: <strong id="mode">Auto</strong></div>
+        </div>
 
-          <div class="title">
-            <h1>Daily Summary</h1>
-            <span class="muted">Mode: <strong id="mode">Auto</strong></span>
-          </div>
-
-          <div class="inputCard">
-            <label for="in">Paste 10–20 email subjects or notes (one per line)</label>
-            <textarea id="in" placeholder="Re: Deck for investor intro
+        <!-- HOME VIEW -->
+        <div class="view" id="homeView">
+          <!-- Input -->
+          <div class="card add">
+            <h3>Top Picks</h3>
+            <textarea id="in" placeholder="Paste 8–20 subjects/notes — one per line
+e.g.
+Deck for investor intro
 Meeting moved to 3pm with product
-Fwd: Contract redlines due Friday
+Contract redlines due Friday
 Invoice paid – Stripe
-Reminder: CS homework due tomorrow"></textarea>
-
-            <div class="row" style="align-items:center;">
-              <label class="toggle"><input id="communityToggle" type="checkbox" checked /> Post a fun welcome/suggestion to Discord</label>
+Bug: login loop on prod
+Ship 1.0.2 release notes
+Reminder: homework due tomorrow"></textarea>
+            <div class="actions">
+              <div class="btn" id="demo">Demo</div>
+              <div class="btn" id="clear">Clear</div>
+              <div class="btn btn-primary" id="go">Make my day simple</div>
             </div>
-
-            <div class="seg">
-              <div class="chip tap" id="demo">Demo</div>
-              <div class="chip tap" id="clear">Clear</div>
-              <div class="chip primary tap" id="go">Make my day simple</div>
+            <div class="actions" style="padding-top:0">
+              <div class="btn btn-ok" id="done">Mark all done</div>
             </div>
-            <div class="hint">Local-first vibe: nothing stored — just summarized.</div>
+            <div class="hint">Local-first; nothing stored. We only summarize what you paste.</div>
           </div>
 
-          <div class="card" id="result" style="display:none;">
-            <details open>
-              <summary class="tap"><span>📌 Today’s Highlights</span><span class="caret">›</span></summary>
-              <div class="blk"><ul id="highList"></ul></div>
-            </details>
-            <details open>
-              <summary class="tap"><span>⚡ Urgent</span><span class="caret">›</span></summary>
-              <div class="blk"><ul id="urgentList"></ul></div>
-            </details>
-            <details>
-              <summary class="tap"><span>🌙 For Tomorrow</span><span class="caret">›</span></summary>
-              <div class="blk"><ul id="tomorrowList"></ul></div>
-            </details>
-            <details id="suggestBox">
-              <summary class="tap"><span>✨ Smart Suggestions</span><span class="caret">›</span></summary>
-              <div class="blk"><ul id="suggestList"></ul></div>
-            </details>
+          <!-- Groups -->
+          <div class="group">
+            <div class="groupHeader">📌 Today’s Highlights</div>
+            <div class="list" id="highList"></div>
           </div>
 
-          <div class="bottom">
-            <div class="chip ghost mini">ROM • calm layer</div>
-            <div class="chip tap" id="remind">Send reminder</div>
-            <div class="chip ok tap" id="done">Mark all done</div>
+          <div class="group">
+            <div class="groupHeader">⚡ Urgent</div>
+            <div class="list" id="urgentList"></div>
+          </div>
+
+          <div class="group">
+            <div class="groupHeader">🌙 For Tomorrow</div>
+            <div class="list" id="tomorrowList"></div>
+          </div>
+
+          <div class="group">
+            <div class="groupHeader">✨ Suggestions</div>
+            <div class="list" id="suggestList"></div>
+          </div>
+
+          <div class="footer">
+            <div class="ghost">ROM • calm layer</div>
+            <label class="toggle">
+              <input id="communityToggle" type="checkbox" checked />
+              <span>Share a welcome/suggestion to Discord</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- DETAIL VIEW -->
+        <div class="view detail" id="detailView">
+          <div class="detailHero">
+            <div class="detailTitle" id="dTitle">Title</div>
+            <div class="detailSub" id="dSub">Context & timing</div>
+          </div>
+
+          <div class="card detailCard">
+            <h4>What to do next</h4>
+            <ul id="dSteps"></ul>
+            <div class="detailActions">
+              <div class="btn btn-ok" id="dDone">Mark done</div>
+              <div class="btn" id="dCopy">Copy</div>
+            </div>
+            <div class="smallNote">soon you’ll be able to connect advanced AI for deeper context & auto-drafts.</div>
           </div>
         </div>
       </div>
@@ -155,181 +195,224 @@ Reminder: CS homework due tomorrow"></textarea>
   </div>
 
 <script>
-/* === CONFIG === */
+/* ==== CONFIG ==== */
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxZcplRYBylrz8AQzvZhxtbpQet_EBp76qRnByAkT9WIgy7V06Meye19NipOh36mzfk/exec";
-const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1410110258512134184/b8xweOg3-_K8ZZyG8Wo0uCPbUsyUEO7HGUaVzxUc0saDf-NOhosBjexHg8pXL7ekd98x";
+const DISCORD_WEBHOOK_URL = ""; // keep empty if you don’t want to expose it
 
-/* === ELEMENTS === */
-const el = (id)=>document.getElementById(id);
-const input = el('in'), res = el('result');
-const high = el('highList'), urg = el('urgentList'), tom = el('tomorrowList');
-const mode = el('mode'), suggestList = el('suggestList');
-const communityToggle = el('communityToggle');
-const compactToggle = el('compactToggle');
+/* ==== ELEMENTS ==== */
+const $ = id => document.getElementById(id);
+const appTitle = $('appTitle'), modeEl = $('mode'), backBtn = $('backBtn');
+const homeView = $('homeView'), detailView = $('detailView');
+const input = $('in');
+const highList = $('highList'), urgentList = $('urgentList'), tomorrowList = $('tomorrowList'), suggestList = $('suggestList');
+const dTitle = $('dTitle'), dSub = $('dSub'), dSteps = $('dSteps');
 
-/* compact spacing toggle */
-compactToggle?.addEventListener('change', ()=> {
-  document.querySelector('.device').classList.toggle('compact', compactToggle.checked);
-});
-document.querySelector('.device').classList.add('compact');
-
-/* DEMO & CLEAR */
-el('demo').onclick = ()=>{
-  input.value = `Re: Deck for investor intro
+/* ==== DEMO/CLEAR ==== */
+$('demo').onclick = ()=>{
+  input.value = `Deck for investor intro
 Meeting moved to 3pm with product
-Fwd: Contract redlines due Friday
+Contract redlines due Friday
 Invoice paid – Stripe
-Reminder: CS homework due tomorrow
-Customer asks about pricing update
-Bug report: login loop from iOS
-TA session moved to Thu 4pm
+Bug: login loop on prod
 Ship 1.0.2 release notes
+Reminder: homework due tomorrow
+Customer asks about pricing update
+TA session moved to Thu 4pm
 Follow up with Michelle on pilot`;
-  res.style.display='none';
+  clearAll();
 };
-el('clear').onclick = ()=>{ input.value=''; res.style.display='none'; };
+$('clear').onclick = ()=>{ input.value=''; clearAll(); };
+function clearAll(){ [highList, urgentList, tomorrowList, suggestList].forEach(x=>x.innerHTML=''); }
 
-/* RENDER HELPERS */
-function renderList(listEl, items){
-  listEl.innerHTML = '';
-  items.forEach((t)=>{
-    const text = typeof t === 'string' ? t : (t.text || '');
-    const li = document.createElement('li');
-    li.textContent = text;
-    li.className = 'tap';
-    li.onclick = ()=>{ li.style.textDecoration = (li.style.textDecoration ? '' : 'line-through'); };
-    listEl.appendChild(li);
+/* ==== UTIL ==== */
+const esc = s => String(s).replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
+const cap = s => s ? s.charAt(0).toUpperCase()+s.slice(1).toLowerCase() : '';
+const toText = x => typeof x==='string' ? x : (x?.text||'');
+
+function extractTime(t){ const m=t.match(/\b((?:[01]?\d|2[0-3]):[0-5]\d)\b|\b(\d{1,2})\s*(am|pm)\b/i); return m ? (m[1] || (m[2]+m[3])) : ''; }
+function extractDay(t){
+  const m=t.match(/\b(mon|tue|wed|thu|fri|sat|sun|today|tomorrow|monday|tuesday|weds?|thurs?|friday|saturday|sunday|next|week)\b/i);
+  return m? m[0] : '';
+}
+function isFutureWord(d){ return /^(tomorrow|mon|tue|wed|thu|fri|sat|sun|monday|tuesday|weds?|thurs?|friday|saturday|sunday|next|week)$/i.test(d); }
+
+/* classify → meta object */
+function classify(text){
+  const t = String(text||'').trim();
+  const isBug   = /(bug|issue|crash|prod|outage|hotfix|error)/i.test(t);
+  const isMoney = /(invoice|paid|payment|stripe|pricing|quote|po)/i.test(t);
+  const isMeet  = /(meet|call|zoom|calendar|intro|sync|moved|resched)/i.test(t);
+  const isShip  = /(ship|release|launch|deploy|version|notes|build|rc)/i.test(t);
+  const isDoc   = /(contract|redline|spec|doc|proposal)/i.test(t);
+  const isUrg   = /(urgent|asap|blocker|critical|due|deadline|eod|eow|today)/i.test(t);
+
+  const time = extractTime(t);
+  const dayWord = extractDay(t);
+  const future = dayWord && isFutureWord(dayWord);
+
+  let section = future ? 'tomorrow' : 'today';
+  if (isUrg) section = 'today';
+
+  let pill='gray', glyph='•', title=t, subtitle='';
+  if (isBug){ pill='red'; glyph='⎌'; subtitle='Needs attention'; }
+  else if (isMoney){ pill='green'; glyph='＄'; subtitle='Completed'; }
+  else if (isShip){ pill='purple'; glyph='🚀'; subtitle='Release'; }
+  else if (isDoc){ pill='orange'; glyph='📄'; subtitle= dayWord ? cap(dayWord) : 'Docs'; }
+  else if (isMeet){ pill='blue'; glyph='🕘'; subtitle= time || (future? cap(dayWord) : 'Today'); if (future) title='Prep: '+title; }
+  else { subtitle = time || (future? cap(dayWord) : 'Today'); }
+
+  return { section, pill, glyph, title, subtitle, urgent:isUrg, raw:t };
+}
+
+/* render list of metas */
+function renderCells(container, metas){
+  container.innerHTML='';
+  if (!metas.length){
+    container.innerHTML = `
+      <div class="cell">
+        <div class="pill gray">•</div>
+        <div class="titleCol">
+          <div class="t1">Nothing here yet</div>
+          <div class="t2">Paste a few lines and tap “Make my day simple”.</div>
+        </div>
+        <div class="chev">›</div>
+      </div>`;
+    return;
+  }
+  metas.forEach(meta=>{
+    const row=document.createElement('div');
+    row.className='cell';
+    row.innerHTML=`
+      <div class="pill ${meta.pill}">${meta.glyph}</div>
+      <div class="titleCol">
+        <div class="t1">${esc(meta.title)}</div>
+        <div class="t2">${esc(meta.subtitle)}</div>
+      </div>
+      <div class="chev">›</div>`;
+    row.addEventListener('click', ()=>openDetail(meta));
+    container.appendChild(row);
   });
 }
-function contains(arr, re){ return arr.some(x => (typeof x === 'string' ? x : x.text).match(re)); }
-function firstN(arr, n){ return arr.slice(0,n).map(x => (typeof x === 'string' ? x : x.text)).join(' • '); }
-function buildSuggestions({highlights=[], urgent=[], tomorrow=[]}){
-  const suggestions = [];
-  if (urgent.length) suggestions.push(`📝 Draft replies for top ${Math.min(urgent.length,3)} urgent threads`);
-  if (tomorrow.length) suggestions.push(`🗓️ Block 30 min tomorrow for: ${firstN(tomorrow,2)}`);
-  if (contains(urgent, /(bug|issue|login|prod)/i)) suggestions.push("🐞 Open a quick bug ticket & assign owner");
-  if (contains(highlights, /(invoice|paid|pricing|quote|stripe)/i)) suggestions.push("💸 Log payments & update metrics");
-  if (contains(highlights, /(release|launch|deploy|notes|version|ship)/i)) suggestions.push("🚀 Post concise release notes to your channel");
-  suggestions.push("☀️ Pick 3 for tomorrow & archive the rest");
-  return suggestions.slice(0,5).map(s=>({text:s}));
+
+/* suggestions → metas (FIX for undefined) */
+function buildSuggestionsMetas(metas){
+  const urg = metas.filter(x=>x.urgent);
+  const tom = metas.filter(x=>x.section==='tomorrow');
+  const out = [];
+
+  if (urg.length) out.push({pill:'orange', glyph:'✨', title:`Draft replies for top ${Math.min(urg.length,3)} urgent threads`, subtitle:''});
+  if (tom.length) out.push({pill:'orange', glyph:'✨', title:`Block 30 min for: ${tom[0].title.replace(/^Prep:\s*/,'')}`, subtitle:''});
+  if (metas.some(x=>/(bug|issue|prod|outage|error)/i.test(x.raw))) out.push({pill:'orange', glyph:'✨', title:'File a bug & assign owner', subtitle:''});
+  if (metas.some(x=>/(invoice|paid|stripe|pricing)/i.test(x.raw))) out.push({pill:'orange', glyph:'✨', title:'Update finance dashboard', subtitle:''});
+  if (metas.some(x=>/(release|launch|deploy|version|notes|ship)/i.test(x.raw))) out.push({pill:'orange', glyph:'✨', title:'Post concise release note', subtitle:''});
+  if (!tom.length) out.push({pill:'orange', glyph:'✨', title:'Workout 20 min', subtitle:''});
+  out.push({pill:'orange', glyph:'✨', title:'Pick 3 for tomorrow & archive the rest', subtitle:''});
+
+  return out;
 }
 
-/* LOCAL FALLBACK */
-async function summarizeLocally(lines){
-  const tasks = lines.map(s=>s.trim()).filter(Boolean);
-  const highlights = [], urgent = [], tomorrow = [];
-  const kwUrg = /(due|asap|urgent|redline|deadline|tomorrow|today|EOD|EOW|bug|prod|issue)/i;
-  const kwMoney = /(invoice|paid|payment|stripe|pricing|quote|po)/i;
-  const kwMeet  = /(meet|call|zoom|moved|resched|calendar|intro|sync)/i;
-  const kwShip  = /(ship|release|launch|deploy|version|notes|build)/i;
-  tasks.forEach(t=>{
-    if (kwUrg.test(t)) urgent.push({text: t});
-    else if (kwShip.test(t) || kwMoney.test(t)) highlights.push({text: t});
-    else if (kwMeet.test(t)) tomorrow.push({text: "Prep: " + t});
-    else highlights.push({text: t});
-  });
-  return { mode:'Local', highlights: highlights.slice(0,4), urgent: urgent.slice(0,3), tomorrow: tomorrow.length? tomorrow.slice(0,3) : [{text:"Pick top 3 for tomorrow"}] };
+/* local reasoning (default to TODAY unless explicit future) */
+function reasonLocally(lines){
+  const metas = lines.map(classify);
+  const today = metas.filter(m=>m.section==='today');
+  const urgent = metas.filter(m=>m.urgent);
+  let tomorrow = metas.filter(m=>m.section==='tomorrow');
+
+  if (tomorrow.length===0){
+    tomorrow = [{section:'tomorrow', pill:'blue', glyph:'🕘', title:'Prep: quick workout', subtitle:'Tomorrow', urgent:false, raw:'Workout'}];
+  }
+  return { metas, today, urgent, tomorrow };
 }
 
-/* REMOTE SUMMARY — CORS-safe (form-encoded, no custom headers) */
-async function summarizeRemotely(lines){
-  const params = new URLSearchParams();
-  lines.forEach(v => params.append('items', v)); // items=a&items=b&...
-  const r = await fetch(WEB_APP_URL, { method:'POST', body: params });
-  return r.json();
+/* remote (optional) — used only to set Mode label */
+async function pingAppsScript(lines){
+  const params=new URLSearchParams(); lines.forEach(v=>params.append('items', v));
+  const r=await fetch(WEB_APP_URL,{method:'POST',body:params});
+  let data={}; try{ data=await r.json(); }catch{}
+  if (!r.ok || data.error || (data.status && data.status!==200)) throw new Error();
 }
 
-/* MAIN ACTION */
-el('go').onclick = async ()=>{
+/* MAIN */
+$('go').onclick = async ()=>{
   const lines = input.value.split('\n').map(s=>s.trim()).filter(Boolean);
   if (!lines.length){ alert('Paste a few lines first 🙂'); return; }
-  const btn = el('go'); btn.disabled = true; btn.textContent='Summarizing…';
+  const btn=$('go'); btn.disabled=true; btn.textContent='Summarizing…';
   try{
-    let data;
-    try { data = await summarizeRemotely(lines); } catch (_){ data = await summarizeLocally(lines); }
-    mode.textContent = data.mode || 'Auto';
-    renderList(high, data.highlights || []);
-    renderList(urg, data.urgent || []);
-    renderList(tom, data.tomorrow || []);
-    renderList(suggestList, buildSuggestions(data));
-    res.style.display='block';
+    const local = reasonLocally(lines);
+    try{ await pingAppsScript(lines); modeEl.textContent='LLM'; }catch{ modeEl.textContent='Local'; }
 
-    if (communityToggle.checked) {
-      postCommunityDiscordMessage({ highlights:data.highlights||[], urgent:data.urgent||[], tomorrow:data.tomorrow||[] });
+    // Today should never be empty: if empty, promote from urgent/first items
+    if (!local.today.length){
+      local.today = local.urgent.slice(0,2);
+      if (!local.today.length) local.today = local.metas.slice(0,3);
     }
-  } catch (e){
-    alert('Something went wrong. Check your Web App URL or try again.');
+
+    renderCells(highList, local.today.slice(0,6));
+    renderCells(urgentList, local.urgent.slice(0,3));
+    renderCells(tomorrowList, local.tomorrow.slice(0,4));
+    renderCells(suggestList, buildSuggestionsMetas(local.metas));
   } finally{
-    btn.disabled = false; btn.textContent='Make my day simple';
+    btn.disabled=false; btn.textContent='Make my day simple';
   }
 };
 
-/* REMINDER ACTIONS */
-el('done').onclick = ()=>{
-  document.querySelectorAll('#highList li, #urgentList li, #tomorrowList li').forEach(li=>{ li.style.textDecoration = 'line-through'; });
+/* Mark all done */
+$('done').onclick = ()=>{
+  document.querySelectorAll('.t1').forEach(t1=>{ t1.style.textDecoration='line-through'; t1.style.opacity='0.55'; });
 };
 
-el('remind').onclick = async ()=>{
-  const urgent = Array.from(document.querySelectorAll('#urgentList li')).slice(0,3).map(li=>li.textContent);
-  const tomorrow = Array.from(document.querySelectorAll('#tomorrowList li')).slice(0,3).map(li=>li.textContent);
-  const lines = [];
-  if (urgent.length){ lines.push("Urgent:"); urgent.forEach(x=>lines.push("• " + x)); }
-  if (tomorrow.length){ lines.push("For Tomorrow:"); tomorrow.forEach(x=>lines.push("• " + x)); }
-  const summaryText = lines.join("\n") || "No items captured yet.";
+/* ========= Detail page (full page, Library style) ========= */
+let currentMeta = null;
+function openDetail(meta){
+  currentMeta = meta;
+  appTitle.textContent = 'Library';
+  backBtn.style.display = 'inline-block';
+  $('mode').parentElement.style.visibility = 'hidden';
+  homeView.style.display = 'none';
+  detailView.style.display = 'grid';
 
-  // Discord only
-  if (DISCORD_WEBHOOK_URL) {
-    const content = `⏰ **ROM Reminder**\n${summaryText}`;
-    try{ await fetch(DISCORD_WEBHOOK_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ content }) }); }catch(_){}
-  }
-  alert("✅ Reminder sent!");
-};
-
-/* Community post */
-function postCommunityDiscordMessage(d){
-  if (!DISCORD_WEBHOOK_URL) return;
-  const modes = [
-    (x)=>`👋 **Welcome to ROM Daily Summary!** Vibe check: ${pickOneText(x.highlights) || "paste a few lines to start"} — you’ve got this.`,
-    (x)=>`😂 **AI, be useful pls:** Today → ${pickOneText(x.urgent) || "no fires"} • Tomorrow → ${pickOneText(x.tomorrow) || "1 tiny goal"}.`,
-    (x)=>`💡 **Suggestion:** Block 30 min for: ${pickOneText(x.tomorrow) || "top 1 task"} and archive 3 distractions.`,
-  ];
-  const content = pickOne(modes)(d);
-  fetch(DISCORD_WEBHOOK_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ content }) }).catch(()=>{});
+  dTitle.textContent = meta.title;
+  dSub.textContent = detailSubtitle(meta);
+  dSteps.innerHTML = '';
+  detailSteps(meta).forEach(x=>{
+    const li=document.createElement('li'); li.textContent=x; dSteps.appendChild(li);
+  });
 }
-function pickOne(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
-function pickOneText(arr){ if(!arr || !arr.length) return ""; const x = arr[Math.floor(Math.random()*arr.length)]; return (typeof x==='string'?x:x.text); }
+function closeDetail(){
+  currentMeta = null;
+  appTitle.textContent = 'Home';
+  backBtn.style.display = 'none';
+  $('mode').parentElement.style.visibility = 'visible';
+  detailView.style.display = 'none';
+  homeView.style.display = 'grid';
+}
+backBtn.addEventListener('click', closeDetail);
+$('dCopy').addEventListener('click', ()=>{ if(currentMeta) navigator.clipboard.writeText(currentMeta.title + ' — ' + detailSubtitle(currentMeta)); });
+$('dDone').addEventListener('click', ()=>{
+  if (!currentMeta) return;
+  // strike in the home list
+  const rows = Array.from(document.querySelectorAll('.t1'));
+  const row = rows.find(r => r.textContent === currentMeta.title);
+  if (row){ row.style.textDecoration='line-through'; row.style.opacity='0.55'; }
+  closeDetail();
+});
 
-/* PWA bits (icon + manifest + offline SW) */
-(function setupPWA(){
-  const svg = encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='512' height='512'>
-    <defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop stop-color='#0F1116'/><stop offset='1' stop-color='#1A1D29'/></linearGradient></defs>
-    <rect width='100%' height='100%' rx='96' fill='url(#g)'/>
-    <g transform='translate(128,120)'>
-      <rect x='0' y='0' width='64' height='272' rx='20' fill='#E7EAF0' opacity='0.92'/>
-      <path d='M64,0 h92 a84,84 0 1 1 0,168 h-92 z' fill='#E7EAF0' opacity='0.92'/>
-      <rect x='130' y='148' width='88' height='60' rx='30' fill='#0F1116' opacity='0.96'/>
-    </g>
-  </svg>`);
-  const iconData = `data:image/svg+xml;charset=utf-8,${svg}`;
-  document.getElementById('appleIcon').setAttribute('href', iconData);
-
-  const manifest = { name:"ROM • Daily Summary", short_name:"ROM Summary", display:"standalone", start_url:".", background_color:"#0F1116", theme_color:"#0F1116", icons:[{ src:iconData, sizes:"512x512", type:"image/svg+xml", purpose:"any maskable"}]};
-  const manifestBlob = new Blob([JSON.stringify(manifest)], {type:'application/manifest+json'});
-  const manifestURL = URL.createObjectURL(manifestBlob);
-  const link = document.createElement('link'); link.rel='manifest'; link.href=manifestURL; document.head.appendChild(link);
-
-  if ('serviceWorker' in navigator) {
-    const swCode = `
-      const CACHE='rom-summary-v3';
-      self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['./']))); self.skipWaiting();});
-      self.addEventListener('activate',e=>self.clients.claim());
-      self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(resp=>{const cp=resp.clone(); caches.open(CACHE).then(c=>c.put(e.request,cp)); return resp;})).catch(()=>r))});
-    `;
-    const swBlob = new Blob([swCode], {type:'text/javascript'});
-    const swURL = URL.createObjectURL(swBlob);
-    navigator.serviceWorker.register(swURL).catch(()=>{});
-  }
-})();
+/* Detail helpers */
+function detailSubtitle(m){
+  if (/today/i.test(m.subtitle) || m.section==='today') return 'Today';
+  if (/tomorrow/i.test(m.subtitle) || m.section==='tomorrow') return 'Tomorrow';
+  return m.subtitle || 'Soon';
+}
+function detailSteps(m){
+  const t = m.raw.toLowerCase(), out=[];
+  if (m.pill==='red') out.push('Create a bug ticket and assign an owner','Attach logs/screenshot','Notify channel if customer-facing');
+  else if (m.pill==='green') out.push('Record payment in tracker','Notify stakeholders','Archive email thread');
+  else if (m.pill==='purple') out.push('Write 3-line release note','Post in channel','Plan a 10-min retro');
+  else if (m.pill==='blue') out.push('Confirm agenda','Prep 1 question/doc','Join 5 minutes early');
+  else if (/contract|redline/.test(t)) out.push('Skim redlines & mark blockers','Send 1-line summary back');
+  else out.push('Define the next smallest step','Block 20–30 min focus');
+  return out;
+}
 </script>
 </body>
 </html>
