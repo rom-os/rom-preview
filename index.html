@@ -1,119 +1,51 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <style id="rom-mobile-wrap-fixes">
-  /* ——— Layout constraints ——— */
-  :root{
-    /* slightly narrower max to avoid edge clipping on iOS */
-    --max: 720px;
-    --fs-l: clamp(24px, 4.5vw, 32px); /* calmer title scale on phones */
-  }
-  .barInner, .view{
-    width: 100%;
-    max-width: var(--max);
-    margin-left: auto;
-    margin-right: auto;
-    padding-left: 16px;
-    padding-right: 16px;
-  }
-
-  /* ——— Cards ——— */
-  .card, .task{ border-radius: 20px; }
-  .task *{ max-width: 100%; }                 /* prevent any child from overflowing */
-  .t-title{
-    white-space: normal;                      /* allow wrapping */
-    overflow-wrap: anywhere;                  /* break long words if needed */
-    word-break: break-word;
-    line-height: 1.25;
-    text-decoration-thickness: 2px;           /* nicer strike-through */
-  }
-  .t-desc, .t-rom, .t-app, .t-sub{
-    overflow-wrap: anywhere;
-    word-break: break-word;
-  }
-  .t-rom{ padding: 12px; }                    /* a touch more breathing room */
-
-  /* ——— Grids ——— */
-  .grid{ display: grid; gap: 14px; grid-template-columns: 1fr; }
-  @media (min-width: 900px){
-    .grid{ grid-template-columns: 1fr 1fr; }  /* two columns only on roomy screens */
+  <head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>ROM • Daily Summary</title>
+  <!-- styles come after this -->
+    <style id="rom-mobile-wrap-fixes">
+  /* Layout container */
+  .barInner, .view {
+    width: 100% !important;
+    max-width: 720px !important;   /* keeps lines readable */
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
   }
 
-  /* ——— Buttons / actions ——— */
-  .actions{ gap: 10px; }
-  .actions .btn{ flex: 1 1 48%; }             /* two per row on mid screens */
-  @media (max-width: 420px){
-    .actions .btn{ flex-basis: 100%; }        /* single column buttons on small phones */
-  }
-
-  /* ——— Section headings ——— */
-  .section h4{ font-size: clamp(18px, 4.2vw, 20px); margin-top: 2px; }
-
-  /* ——— Textarea container ——— */
-  textarea{
-    line-height: 1.5;
-    overflow-wrap: anywhere;
-    word-break: break-word;
-  } 
-    /* === Mobile-first wrapping + card feed === */
-.view {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;              /* consistent spacing between sections */
-  max-width: 720px;       /* keeps content from stretching too wide */
-  margin: 0 auto;
-  padding: 0 16px;
-}
-
-/* Cards full width on mobile */
-.task {
-  width: 100%;
-  border-radius: 18px;
-  padding: 16px;
-  background: #11151c;
-  border: 1px solid rgba(255,255,255,0.08);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-/* Titles wrap instead of cut off */
-.t-title, .t-desc, .t-rom {
-  white-space: normal;
-  word-break: break-word;
-  overflow-wrap: anywhere;
-  line-height: 1.4;
-}
-
-/* Grid: one column default, two only on desktop */
-.grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
-}
-@media (min-width: 1000px) {
+  /* Single-column feed by default */
   .grid {
-    grid-template-columns: 1fr 1fr;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
   }
-}
+  /* Only switch to 2 columns on larger desktops */
+  @media (min-width: 1000px) {
+    .grid { grid-template-columns: 1fr 1fr !important; }
+  }
 
-/* Buttons look consistent across breakpoints */
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-.actions .btn {
-  flex: 1;
-  min-width: 120px;
-  text-align: center;
-}
+  /* Cards + text wrapping */
+  .card, .task { border-radius: 20px !important; }
+  .task { width: 100% !important; padding: 16px !important; }
+  .task *, .t-title, .t-desc, .t-rom, .t-app, .t-sub, textarea {
+    max-width: 100% !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
+  }
+  .t-title { line-height: 1.28 !important; text-decoration-thickness: 2px; }
+
+  /* Action buttons wrap nicely on phones */
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; }
+  .actions .btn { flex: 1 1 48% !important; min-width: 120px; text-align: center; }
+  @media (max-width: 420px) { .actions .btn { flex-basis: 100% !important; } }
+
+  /* Section headings scale sanely */
+  .section h4 { font-size: clamp(18px, 4.2vw, 20px) !important; margin-top: 2px; }
 </style>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>ROM • Daily Summary</title>
-
 <style>
 :root{
   --bg:#0F1116; --surface:#171B24; --surface-2:#121621; --stroke:#222838;
