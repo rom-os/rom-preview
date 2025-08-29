@@ -1,1380 +1,374 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>ROM — Everyday AI</title>
-<meta name="description" content="ROM — organize your life from messages, files, reminders into smart cards. Local‑first, real integrations." />
-<style>
-:root{
-  --bg:#FFFFFF; --panel:#FFFFFF; --surface:#FFFFFF; --surface-2:#F8FAFF; --stroke:#E1E8F0;
-  --ink:#0F172A; --muted:#64748B; --accent:#3B82F6;
-  --green:#10B981; --orange:#F59E0B; --red:#EF4444; --blue:#3B82F6;
-  --radius:16px; --shadow:0 4px 12px rgba(15,23,42,0.08);
-  --fs-xs:12px; --fs-s:14px; --fs-m:16px; --fs-l:20px; --fs-xl:28px;
-}
-*{box-sizing:border-box}
-body{margin:0;color:var(--ink);font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;line-height:1.5}
-body::before{
-  content:""; position:fixed; inset:0; z-index:-1;
-  background: 
-    radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
-    radial-gradient(circle at 75% 25%, rgba(16, 185, 129, 0.05) 0%, transparent 50%),
-    radial-gradient(circle at 50% 75%, rgba(245, 158, 11, 0.03) 0%, transparent 50%),
-    linear-gradient(135deg, #FAFBFF 0%, #F1F5F9 50%, #FAFBFF 100%);
-}
-.container{max-width:1100px;margin:0 auto;padding:20px}
-.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding:16px 0}
-.brand{font-weight:700;font-size:24px;color:var(--ink)}
-.actions{display:flex;gap:10px}
-.btn{padding:10px 16px;border-radius:var(--radius);border:1px solid var(--stroke);background:#fff;cursor:pointer;transition:all .15s ease;font-size:14px;font-weight:500;display:inline-flex;align-items:center;gap:6px}
-.btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(15,23,42,.1)}
-.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
-.btn.success{background:var(--green);color:#fff;border-color:var(--green)}
-.btn.warning{background:var(--orange);color:#fff;border-color:var(--orange)}
-.btn.danger{background:var(--red);color:#fff;border-color:var(--red)}
-.btn:disabled{opacity:0.6;cursor:not-allowed;transform:none}
-.hero{background:#fff;border:1px solid var(--stroke);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin-bottom:32px}
-.hero-title{font-size:var(--fs-xl);font-weight:800;margin-bottom:6px}
-.subtext{color:var(--muted);margin-bottom:16px;font-size:16px}
-textarea{width:100%;min-height:120px;padding:14px;border-radius:var(--radius);border:1px solid var(--stroke);background:var(--surface-2);font-size:15px;resize:vertical}
-.section h2{font-size:var(--fs-l);margin:24px 0 12px;font-weight:600}
-.ourday-wrap{background:linear-gradient(180deg,#FFFFFF 0%, #F8FAFF 70%, #FFFFFF 100%); border:1px solid var(--stroke); border-radius:var(--radius); padding:20px; box-shadow:var(--shadow);min-height:120px}
-.card{background:#fff;border:1px solid var(--stroke);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:14px;transition:transform .1s ease}
-.card:hover{transform:translateY(-1px)}
-.card-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.dot{width:10px;height:10px;border-radius:50%}
-.dot.red{background:var(--red)}.dot.orange{background:var(--orange)}.dot.green{background:var(--green)}
-.title{font-weight:600;font-size:16px}
-.badges{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
-.badge{padding:6px 10px;border:1px solid var(--stroke);border-radius:12px;font-size:var(--fs-xs);background:#F8FAFF;font-weight:500}
-.badge[data-why]{cursor:pointer;text-decoration:underline dotted;background:#EEF2FF;border-color:#C7D2FE}
-.badge[data-why]:hover{background:#E0E7FF}
-.why{margin-top:10px;color:#475569;font-size:13px;display:none;background:#F1F5F9;padding:12px;border-radius:10px;border-left:3px solid var(--accent)}
-.card-actions{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}
-.footer{display:flex;justify-content:space-between;align-items:center;margin-top:32px;padding-top:16px;border-top:1px solid var(--stroke);color:var(--muted);font-size:13px}
-.toast{position:fixed;right:20px;bottom:20px;background:var(--ink);color:#fff;padding:12px 18px;border-radius:12px;box-shadow:0 10px 25px rgba(0,0,0,.15);z-index:9999;font-size:14px;opacity:0;transition:all .25s ease;font-weight:500}
-.modal{position:fixed;inset:0;background:rgba(15,23,42,0.4);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:100}
-.modal-box{background:#fff;border-radius:var(--radius);padding:24px;max-width:800px;width:94%;box-shadow:0 20px 50px rgba(15,23,42,.15);position:relative;max-height:85vh;overflow-y:auto}
-.modal-close{position:absolute;top:16px;right:16px;border:1px solid var(--stroke);background:#fff;border-radius:8px;padding:8px 10px;cursor:pointer;font-weight:600}
-.switch{display:flex;gap:10px;align-items:center;border:1px solid var(--stroke);border-radius:var(--radius);padding:12px 16px;margin:6px 0;transition:all .15s ease}
-.switch:hover{background:#F8FAFF}
-.switch input{width:18px;height:18px}
-.switch.connected{background:#ECFDF5;border-color:var(--green);color:var(--green)}
-.switch.connecting{background:#FEF3C7;border-color:var(--orange)}
-.row{display:flex;align-items:center}
-.meta{color:var(--muted);font-size:13px;font-style:italic}
-.hint{color:var(--muted);font-size:14px;line-height:1.4}
-.capsule-item{border:1px solid var(--stroke);padding:16px;border-radius:var(--radius);margin-bottom:10px;background:#FAFBFF}
-.capsule-title{font-weight:600;margin-bottom:6px;color:var(--ink)}
-.capsule-text{margin-bottom:8px;color:#374151}
-.capsule-meta{color:var(--muted);font-size:12px;margin-bottom:10px}
-.capsule-actions{display:flex;gap:8px;flex-wrap:wrap}
-.next-step-detail{background:#EFF6FF;border:1px solid #BFDBFE;padding:14px;border-radius:10px;margin-top:10px;font-size:13px}
-.calendar-options{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}
-.auth-status{padding:8px 12px;border-radius:8px;font-size:12px;margin-top:8px}
-.auth-status.success{background:#ECFDF5;color:#059669;border:1px solid #A7F3D0}
-.auth-status.error{background:#FEF2F2;color:#DC2626;border:1px solid #FECACA}
-.auth-status.loading{background:#FEF3C7;color:#D97706;border:1px solid #FDE68A}
-.file-drop{border:2px dashed var(--stroke);border-radius:var(--radius);padding:20px;text-align:center;color:var(--muted);margin:10px 0;transition:all .15s ease}
-.file-drop:hover{border-color:var(--accent);background:#F8FAFF}
-.file-drop.dragover{border-color:var(--accent);background:#EFF6FF}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>ROM — Everyday AI</title>
+  <meta name="description" content="ROM — organize your life from messages, files, reminders into smart cards. Local‑first, no servers." />
+  <style>
+    :root{
+      --bg:#FFFFFF; --panel:#FFFFFF; --surface:#FFFFFF; --surface-2:#F6F7FB; --stroke:#E8EDF4;
+      --ink:#0B1220; --muted:#667085; --accent:#0A84FF; --accent-2:#6AA3FF;
+      --green:#2ECC71; --orange:#FF9F0A; --red:#EF4444; --purple:#6B5BCE; --blue:#0A84FF; --gray:#98A2B3;
+      --radius:16px; --shadow:0 10px 28px rgba(15,17,22,0.10);
+      --fs-xs:12px; --fs-s:14px; --fs-m:16px; --fs-l:20px; --fs-xl:28px; --fs-xxl:36px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;color:var(--ink);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:var(--bg)}
+    body::before{content:""; position:fixed; inset:0; z-index:-1; background:
+      radial-gradient(circle at 20% 20%, rgba(234, 242, 255, 0.8) 0%, transparent 50%),
+      radial-gradient(circle at 80% 10%, rgba(255, 234, 242, 0.6) 0%, transparent 50%),
+      radial-gradient(circle at 60% 90%, rgba(240, 245, 255, 0.4) 0%, transparent 50%),
+      linear-gradient(135deg, #FFFFFF 0%, #F8FAFF 40%, #F0F5FF 70%, #FFFFFF 100%);
+    }
+    .container{max-width:1120px;margin:0 auto;padding:24px}
+    .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+    .brand{font-weight:800;font-size:18px;letter-spacing:.4px}
+    .actions{display:flex;gap:8px}
+    .btn{padding:10px 16px;border-radius:12px;border:1px solid var(--stroke);background:#fff;cursor:pointer;transition:transform .06s ease, box-shadow .2s, border-color .2s; font-size:14px; color:var(--ink); display:inline-flex; align-items:center; gap:8px}
+    .btn:focus{outline:3px solid rgba(10,132,255,.25); outline-offset:2px}
+    .btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 10px 24px rgba(0,0,0,.06); border-color:#D5DEEA}
+    .btn:active:not(:disabled){transform:translateY(0)}
+    .btn:disabled{opacity:.55;cursor:not-allowed}
+    .btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+    .btn.success{background:var(--green);color:#fff;border-color:var(--green)}
+    .btn.warning{background:var(--orange);color:#fff;border-color:var(--orange)}
+    .spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,.6);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    .statusbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px;color:var(--muted);font-size:12px}
+    .pill{padding:4px 8px;border:1px dashed var(--stroke);border-radius:999px}
+
+    .hero{background:#fff;border:1px solid var(--stroke);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);margin-bottom:20px}
+    .hero-title{font-size:var(--fs-xxl);font-weight:800;margin-bottom:6px}
+    .subtext{color:var(--muted);margin-bottom:16px}
+    textarea{width:100%;min-height:120px;padding:12px;border-radius:12px;border:1px solid var(--stroke);background:var(--surface-2);color:var(--ink)}
+
+    .section h2{font-size:var(--fs-xl);margin:12px 0}
+    .lanes{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .lane{background:linear-gradient(180deg,#FFFFFF 0%, #F8FAFF 70%, #FFFFFF 100%); border:1px solid var(--stroke); border-radius:16px; padding:12px; box-shadow:var(--shadow)}
+    .lane h3{margin:0 0 8px 0;font-size:16px;color:#0B1220}
+    .ourday-wrap{display:none}
+
+    .skeleton{height:96px;border-radius:14px;background:linear-gradient(90deg,#f3f4f8 25%, #e9ecf4 37%, #f3f4f8 63%);background-size:400% 100%;animation:shimmer 1.2s infinite}
+    @keyframes shimmer{0%{background-position:100% 0}100%{background-position:0 0}}
+    .card{background:#fff;border:1px solid var(--stroke);border-radius:14px;box-shadow:var(--shadow);padding:14px;margin-bottom:10px}
+    .card-header{display:flex;align-items:flex-start;gap:10px;margin-bottom:6px}
+    .prio{width:8px;height:8px;border-radius:50%;margin-top:7px}
+    .prio.red{background:var(--red)} .prio.orange{background:var(--orange)} .prio.green{background:var(--green)}
+    .title{font-weight:700; font-size:var(--fs-m)}
+    .meta-row{display:flex;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:12px;margin:6px 0}
+    details.rationale{margin-top:6px}
+    details.rationale>summary{list-style:none; cursor:pointer; color:#0A84FF; font-size:12px}
+    details.rationale>summary::-webkit-details-marker{display:none}
+    .why{margin-top:6px;color:#334155;font-size:13px;background:#F8FAFF;padding:10px;border-radius:10px;border:1px solid #D7E3FF}
+    .card-actions{margin-top:10px;display:flex;gap:6px;flex-wrap:wrap}
+
+    .footer{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:12px;border-top:1px solid var(--stroke);color:var(--muted);font-size:13px}
+
+    .toast{position:fixed;right:16px;bottom:16px;background:#0B1220;color:#fff;padding:10px 14px;border-radius:10px;box-shadow:0 8px 20px rgba(0,0,0,.2);z-index:9999;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none}
+
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center;z-index:60}
+    .modal[open]{display:flex}
+    .modal-box{background:#fff;border:1px solid var(--stroke);border-radius:18px;padding:20px;max-width:920px;width:92%;box-shadow:var(--shadow);position:relative;max-height:82vh;overflow-y:auto}
+    .modal-topbar{position:sticky;top:0;background:#fff;padding:6px 4px 8px;display:flex;gap:8px;justify-content:space-between;border-bottom:1px solid var(--stroke); z-index:2}
+    .modal-close{border:1px solid var(--stroke);background:#fff;border-radius:10px;padding:6px 8px;cursor:pointer}
+
+    .apps{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin:12px 0}
+    .app{border:1px solid var(--stroke);border-radius:12px;padding:12px;background:#FAFBFF;display:flex;flex-direction:column;gap:8px}
+    .chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 8px;font-size:12px;border:1px solid var(--stroke);}
+    .chip.gray{background:#F6F7FB;color:#475467}
+    .chip.blue{background:#E7F0FF;color:#1849A9;border-color:#C2DAFF}
+    .chip.purple{background:#EEE9FF;color:#463AA8;border-color:#D5CCFF}
+    .chip.green{background:#E8F5E8;color:#116A28;border-color:#CBEFD0}
+    .meta{color:var(--muted);font-size:12px}
+
+    .bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+  </style>
 </head>
 <body>
-<div class="container">
-  <div class="header">
-    <div class="brand">ROM</div>
-    <div class="actions">
-      <button class="btn" id="connectBtn">🔗 Connect Apps</button>
-      <button class="btn" id="sampleBtn">📝 Try Sample</button>
-    </div>
-  </div>
-
-  <div class="hero">
-    <div class="hero-title">Everyday AI</div>
-    <div class="subtext">Import real data from your apps or add tasks manually</div>
-    <textarea id="inbox" placeholder="Paste subjects, DMs, reminders — one per line, or connect apps below."></textarea>
-    <div style="margin-top:16px;display:flex;gap:12px;flex-wrap:wrap">
-      <button class="btn primary" id="buildBtn">🤖 Organize with AI →</button>
-      <input type="file" id="fileInput" accept=".csv,.json,.txt" style="display:none" multiple>
-      <button class="btn" id="uploadBtn">📁 Upload Files</button>
-    </div>
-  </div>
-
-  <section class="section ourday">
-    <h2>🎯 Priority Dashboard</h2>
-    <div class="ourday-wrap"><div id="results"></div></div>
-  </section>
-
-  <footer class="footer">
-    <div>🔐 Privacy-first • Real app connections • Local storage</div>
-    <div style="display:flex;gap:12px;align-items:center">
-      <span id="connStatus" style="font-size:12px;color:var(--muted)">Not connected</span>
-      <button class="btn" id="openCaps">💾 Memory Capsules</button>
-    </div>
-  </footer>
-</div>
-
-<!-- Capsules Modal -->
-<div id="capsuleModal" class="modal">
-  <div class="modal-box">
-    <button class="modal-close" id="xCaps">✕</button>
-    <h2>💾 Memory Capsules</h2>
-    <div id="capsules"></div>
-    <div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap">
-      <button class="btn success" id="exportCaps">📤 Export JSON</button>
-      <button class="btn danger" id="clearCaps">🗑️ Clear All</button>
-      <button class="btn" id="closeCaps">Close</button>
-    </div>
-  </div>
-</div>
-
-<!-- Connect Modal -->
-<div id="connectModal" class="modal">
-  <div class="modal-box">
-    <button class="modal-close" id="xConnect">✕</button>
-    <h2>🔗 Connect Your Apps</h2>
-    <p class="hint">Connect your real accounts to import live data from your daily tools.</p>
-    
-    <div id="authStatus" class="auth-status" style="display:none"></div>
-    
-    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:10px;margin:20px 0">
-      <label class="switch" id="gmailSwitch">
-        <input type="checkbox" id="cxGmail"> 
-        <span>📧 Gmail</span>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px">Read emails & labels</div>
-      </label>
-      
-      <label class="switch" id="calendarSwitch">
-        <input type="checkbox" id="cxCalendar"> 
-        <span>📅 Google Calendar</span>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px">Read events & reminders</div>
-      </label>
-      
-      <label class="switch" id="notionSwitch">
-        <input type="checkbox" id="cxNotion"> 
-        <span>📝 Notion</span>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px">Read pages & databases</div>
-      </label>
-      
-      <label class="switch" id="slackSwitch">
-        <input type="checkbox" id="cxSlack"> 
-        <span>💬 Slack</span>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px">Read DMs & mentions</div>
-      </label>
-      
-      <label class="switch" id="filesSwitch">
-        <input type="checkbox" id="cxFiles"> 
-        <span>📁 Local Files</span>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px">Upload CSV/JSON data</div>
-      </label>
-      
-      <label class="switch" id="trelloSwitch">
-        <input type="checkbox" id="cxTrello"> 
-        <span>📋 Trello</span>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px">Read cards & lists</div>
-      </label>
-    </div>
-    
-    <div class="file-drop" id="fileDrop">
-      <div>📁 Drop CSV/JSON files here or click Upload Files button</div>
-      <div style="font-size:12px;margin-top:4px;color:var(--muted)">Supported: Notion exports, Slack exports, task lists</div>
-    </div>
-    
-    <div style="margin-top:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <button class="btn primary" id="authenticateApps">🔐 Authenticate Selected</button>
-        <button class="btn success" id="importData">📥 Import Live Data</button>
+  <div class="container">
+    <div class="header">
+      <div class="brand">ROM</div>
+      <div class="actions">
+        <button class="btn" id="connectBtn">Connect apps</button>
+        <button class="btn" id="sampleBtn">Try sample tour</button>
       </div>
-      <div class="hint" id="connectionStatus">Select apps to connect</div>
     </div>
-    
-    <div style="margin-top:16px;display:flex;gap:10px">
-      <button class="btn" id="closeConnect">Close</button>
+
+    <div class="statusbar">
+      <span class="pill" id="stat-index">Local index: 0 items</span>
+      <span class="pill" id="stat-apps">0 apps auth’d</span>
+      <span class="pill" id="stat-sync">Last sync: never</span>
+      <span class="pill" id="stat-mode">Offline‑first</span>
+    </div>
+
+    <div class="hero">
+      <div class="hero-title">Everyday AI</div>
+      <div class="subtext">Paste a few messages or click sample. Cards show **why** and a **one‑tap Next Step** that routes you to the right app.</div>
+      <textarea id="inbox" placeholder="Paste subjects, DMs, reminders — one per line."></textarea>
+      <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn primary" id="buildBtn"><span class="label">Organize</span></button>
+        <button class="btn" id="clearBtn">Clear</button>
+      </div>
+    </div>
+
+    <section class="section priority">
+      <h2>Priority Dashboard</h2>
+      <div class="lanes">
+        <div class="lane"><h3>Now</h3><div id="lane-now"></div></div>
+        <div class="lane"><h3>Soon</h3><div id="lane-soon"></div></div>
+        <div class="lane"><h3>Waiting</h3><div id="lane-waiting"></div></div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div>All local, no servers.</div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <button class="btn" id="openCaps">Memory Capsules</button>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Capsules Modal -->
+  <div id="capsuleModal" class="modal" role="dialog" aria-modal="true" tabindex="-1">
+    <div class="modal-box">
+      <div class="modal-topbar">
+        <strong>Memory Capsules</strong>
+        <div>
+          <button class="btn" id="xCaps">✕</button>
+        </div>
+      </div>
+      <div id="capsules"></div>
+      <div class="bar" style="justify-content:flex-end;border-top:1px solid var(--stroke);padding-top:12px">
+        <button class="btn success" id="exportCaps">Export JSON</button>
+        <button class="btn warning" id="clearCaps">Clear All</button>
+        <button class="btn" id="closeCaps">Close</button>
+      </div>
     </div>
   </div>
-</div>
 
-<div id="toast" class="toast"></div>
+  <!-- Connect Modal -->
+  <div id="connectModal" class="modal" role="dialog" aria-modal="true" tabindex="-1">
+    <div class="modal-box">
+      <div class="modal-topbar">
+        <strong>Connect Apps</strong>
+        <button class="btn" id="xConnect">✕</button>
+      </div>
+      <div class="apps" id="apps"></div>
+      <div class="bar">
+        <button class="btn" id="authBtn">Authenticate Selected</button>
+        <button class="btn" id="indexBtn">Import Live Data</button>
+        <button class="btn" id="writeBtn">Verify Write‑Back</button>
+        <span class="meta" id="connMeta">Select one or more apps to begin.</span>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn" id="closeConnect">Close</button></div>
+    </div>
+  </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-<script>
-// Global state
-let appState = {
-  connections: {},
-  capsules: [],
-  currentData: []
-};
+  <script>
+  /* === Utilities === */
+  const $ = s => document.querySelector(s);
+  const $$ = s => [...document.querySelectorAll(s)];
+  const store = { get(k, f){ try{ const v = localStorage.getItem(k); return v? JSON.parse(v): f; } catch{ return f; } }, set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); } catch{} } };
+  function toast(msg, t=2000){ const el=$('#toast'); el.textContent=msg; el.style.opacity='1'; el.style.display='block'; clearTimeout(toast._t); toast._t=setTimeout(()=>{el.style.opacity='0'; el.style.display='none';}, t); }
+  function nowIso(){ return new Date().toISOString(); }
 
-// Utility functions
-function $(selector) {
-  return document.querySelector(selector);
-}
-
-function $$(selector) {
-  return document.querySelectorAll(selector);
-}
-
-function createElement(tag, props = {}, ...children) {
-  const element = document.createElement(tag);
-  
-  Object.keys(props).forEach(key => {
-    if (key === 'onclick') {
-      element.addEventListener('click', props[key]);
-    } else if (key === 'innerHTML') {
-      element.innerHTML = props[key];
-    } else if (key.startsWith('data-')) {
-      element.setAttribute(key, props[key]);
-    } else {
-      element[key] = props[key];
-    }
-  });
-  
-  children.flat().forEach(child => {
-    if (typeof child === 'string') {
-      element.appendChild(document.createTextNode(child));
-    } else if (child && child.nodeType) {
-      element.appendChild(child);
-    }
-  });
-  
-  return element;
-}
-
-// Storage with fallback
-const storage = {
-  get(key, fallback = null) {
-    try {
-      const val = localStorage.getItem(key);
-      return val ? JSON.parse(val) : fallback;
-    } catch {
-      return appState[key] ?? fallback;
-    }
-  },
-  
-  set(key, value) {
-    try {
-      localStorage.setItem(key, JSON.stringify(value));
-    } catch {
-      appState[key] = value;
-    }
-  }
-};
-
-// Toast notifications
-function showToast(message, type = 'info') {
-  const toast = $('#toast');
-  if (!toast) return;
-  
-  toast.textContent = message;
-  toast.style.opacity = '0';
-  toast.style.display = 'block';
-  toast.className = `toast ${type}`;
-  
-  requestAnimationFrame(() => {
-    toast.style.opacity = '1';
-  });
-  
-  setTimeout(() => {
-    toast.style.opacity = '0';
-    setTimeout(() => toast.style.display = 'none', 250);
-  }, 3000);
-}
-
-// Real Gmail Integration
-async function authenticateGmail() {
-  try {
-    showToast('🔐 Redirecting to Google OAuth...', 'loading');
-    
-    // Google OAuth 2.0 setup
-    const clientId = 'your-client-id'; // You'll need to replace this with real client ID
-    const redirectUri = window.location.origin;
-    const scope = 'https://www.googleapis.com/auth/gmail.readonly';
-    
-    const authUrl = `https://accounts.google.com/oauth/authorize?` +
-      `client_id=${clientId}&` +
-      `redirect_uri=${encodeURIComponent(redirectUri)}&` +
-      `scope=${encodeURIComponent(scope)}&` +
-      `response_type=code&` +
-      `access_type=offline`;
-    
-    // For demo purposes, simulate authentication
-    setTimeout(() => {
-      appState.connections.gmail = {
-        authenticated: true,
-        accessToken: 'demo_token_gmail_' + Date.now()
-      };
-      storage.set('connections', appState.connections);
-      updateConnectionStatus();
-      showToast('✅ Gmail connected successfully!', 'success');
-    }, 2000);
-    
-    // In real implementation:
-    // window.location.href = authUrl;
-    
-  } catch (error) {
-    console.error('Gmail auth error:', error);
-    showToast('❌ Gmail connection failed', 'error');
-  }
-}
-
-// Real Gmail data fetching
-async function fetchGmailData() {
-  try {
-    const connection = appState.connections.gmail;
-    if (!connection?.authenticated) {
-      throw new Error('Not authenticated');
-    }
-    
-    showToast('📧 Fetching Gmail data...', 'loading');
-    
-    // Real API call would be:
-    // const response = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages', {
-    //   headers: { 'Authorization': `Bearer ${connection.accessToken}` }
-    // });
-    
-    // For demo, simulate real Gmail data
-    setTimeout(() => {
-      const gmailTasks = [
-        'Re: Q4 Budget Review - Action Required (Gmail)',
-        'Re: Client Presentation Deck - Feedback Needed (Gmail)', 
-        'Re: Contract Amendment - Legal Review (Gmail)',
-        'Follow-up: Meeting Notes from Yesterday (Gmail)',
-        'Re: Invoice #2847 - Payment Processing (Gmail)'
-      ];
-      
-      appState.currentData = [...appState.currentData, ...gmailTasks];
-      showToast(`📧 Imported ${gmailTasks.length} items from Gmail`, 'success');
-    }, 1500);
-    
-  } catch (error) {
-    console.error('Gmail fetch error:', error);
-    showToast('❌ Failed to fetch Gmail data', 'error');
-  }
-}
-
-// Real Google Calendar Integration  
-async function authenticateCalendar() {
-  try {
-    showToast('📅 Connecting to Google Calendar...', 'loading');
-    
-    // For demo purposes
-    setTimeout(() => {
-      appState.connections.calendar = {
-        authenticated: true,
-        accessToken: 'demo_token_calendar_' + Date.now()
-      };
-      storage.set('connections', appState.connections);
-      updateConnectionStatus();
-      showToast('✅ Google Calendar connected!', 'success');
-    }, 1800);
-    
-  } catch (error) {
-    console.error('Calendar auth error:', error);
-    showToast('❌ Calendar connection failed', 'error');
-  }
-}
-
-async function fetchCalendarData() {
-  try {
-    const connection = appState.connections.calendar;
-    if (!connection?.authenticated) {
-      throw new Error('Not authenticated');
-    }
-    
-    showToast('📅 Fetching calendar events...', 'loading');
-    
-    // Real API call would be:
-    // const response = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
-    //   headers: { 'Authorization': `Bearer ${connection.accessToken}` }
-    // });
-    
-    setTimeout(() => {
-      const calendarTasks = [
-        'Event: Team Standup Today 9:30 AM (Calendar)',
-        'Event: Client Demo Tomorrow 2:00 PM (Calendar)',
-        'Reminder: Submit Expense Report Due Today (Calendar)',
-        'Event: 1:1 with Manager Friday 3:00 PM (Calendar)',
-        'Reminder: Prepare Q4 Planning Deck (Calendar)'
-      ];
-      
-      appState.currentData = [...appState.currentData, ...calendarTasks];
-      showToast(`📅 Imported ${calendarTasks.length} calendar items`, 'success');
-    }, 1200);
-    
-  } catch (error) {
-    console.error('Calendar fetch error:', error);
-    showToast('❌ Failed to fetch calendar data', 'error');
-  }
-}
-
-// File processing for real app exports
-async function processFile(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      try {
-        const content = e.target.result;
-        const tasks = [];
-        
-        if (file.name.toLowerCase().includes('notion')) {
-          // Process Notion CSV export
-          const lines = content.split('\n').slice(1); // Skip header
-          lines.forEach(line => {
-            if (line.trim()) {
-              const parts = line.split(',');
-              if (parts[0]) {
-                tasks.push(`Page: ${parts[0].replace(/"/g, '')} (Notion)`);
-              }
-            }
-          });
-        } else if (file.name.toLowerCase().includes('slack')) {
-          // Process Slack export
-          try {
-            const data = JSON.parse(content);
-            if (Array.isArray(data)) {
-              data.forEach(msg => {
-                if (msg.text && msg.user) {
-                  tasks.push(`Message: ${msg.text.substring(0, 60)}... (Slack)`);
-                }
-              });
-            }
-          } catch {
-            // Fallback for text format
-            const lines = content.split('\n');
-            lines.forEach(line => {
-              if (line.trim() && !line.startsWith('[')) {
-                tasks.push(`Message: ${line.substring(0, 60)}... (Slack)`);
-              }
-            });
-          }
-        } else if (file.type === 'application/json') {
-          // Process generic JSON
-          try {
-            const data = JSON.parse(content);
-            if (Array.isArray(data)) {
-              data.forEach(item => {
-                if (typeof item === 'string') {
-                  tasks.push(item);
-                } else if (item.title || item.name || item.text) {
-                  tasks.push((item.title || item.name || item.text) + ' (Imported)');
-                }
-              });
-            }
-          } catch (error) {
-            reject(new Error('Invalid JSON format'));
-            return;
-          }
-        } else {
-          // Process plain text/CSV
-          const lines = content.split('\n');
-          lines.forEach(line => {
-            if (line.trim()) {
-              tasks.push(line.trim() + ' (File)');
-            }
-          });
-        }
-        
-        resolve(tasks);
-      } catch (error) {
-        reject(error);
-      }
-    };
-    
-    reader.onerror = () => reject(new Error('Failed to read file'));
-    reader.readAsText(file);
-  });
-}
-
-// Enhanced task analysis
-function analyzeTask(text) {
-  if (!text || !text.trim()) return null;
-  
-  const cleanText = text.trim();
-  const lower = cleanText.toLowerCase();
-  let score = 1;
-  const reasons = [];
-  let category = 'general';
-  const source = detectSource(cleanText);
-  
-  // Urgency detection
-  if (/\b(urgent|asap|emergency|critical|immediate)\b/i.test(cleanText)) {
-    score += 6;
-    reasons.push('marked as urgent');
-  }
-  
-  if (/\b(overdue|late|missed|past due)\b/i.test(cleanText)) {
-    score += 5;
-    reasons.push('overdue item');
-  }
-  
-  if (/\b(today|now|this morning|this afternoon)\b/i.test(cleanText)) {
-    score += 4;
-    reasons.push('due today');
-  }
-  
-  // Category detection
-  if (/\b(meeting|call|coffee|sync|1:1|standup|demo|interview)\b/i.test(cleanText)) {
-    score += 3;
-    reasons.push('meeting scheduled');
-    category = 'meeting';
-  }
-  
-  if (/\b(invoice|payment|billing|budget|expense|financial)\b/i.test(cleanText)) {
-    score += 4;
-    reasons.push('financial matter');
-    category = 'finance';
-  }
-  
-  if (/\b(review|approve|edit|draft|finalize|submit|complete)\b/i.test(cleanText)) {
-    score += 3;
-    reasons.push('requires action');
-    category = 'task';
-  }
-  
-  if (/\b(follow.?up|waiting|pending|response)\b/i.test(cleanText)) {
-    score += 3;
-    reasons.push('needs follow-up');
-    category = 'followup';
-  }
-  
-  // Source priority
-  if (source === 'Gmail') score += 2;
-  if (source === 'Calendar') score += 3;
-  if (source === 'Slack') score += 1;
-  
-  // Generate smart next steps
-  let nextStep = '';
-  let calendarAction = '';
-  
-  switch (category) {
-    case 'meeting':
-      nextStep = `1. Check calendar for conflicts 2. Prepare agenda and talking points 3. Send calendar invite with meeting details 4. Set up any needed materials or documents`;
-      calendarAction = 'Block meeting time and prep time';
-      break;
-    case 'finance':
-      nextStep = `1. Open your accounting/finance system 2. Verify payment details and amounts 3. Process payment or send follow-up 4. Update records and notify relevant parties`;
-      calendarAction = 'Set payment deadline reminder';
-      break;
-    case 'task':
-      nextStep = `1. Open the relevant document or system 2. Complete the required work or review 3. Make necessary edits or updates 4. Send to stakeholders or submit`;
-      calendarAction = 'Block focused work time';
-      break;
-    case 'followup':
-      nextStep = `1. Check previous communications 2. Craft appropriate follow-up message 3. Send reminder or status request 4. Set next follow-up reminder`;
-      calendarAction = 'Schedule follow-up reminder';
-      break;
-    default:
-      nextStep = `1. Clarify what needs to be done 2. Gather necessary resources or information 3. Take the next logical action 4. Follow up as needed`;
-      calendarAction = 'Schedule time to work on this';
-  }
-  
-  return {
-    text: cleanText,
-    score,
-    reasons,
-    category,
-    source,
-    nextStep,
-    calendarAction
+  /* === Connector state machine === */
+  const DEFAULT_CONNECTORS = {
+    google: { key:'google', name:'Google', selected:false, status:'not_connected', lastSync:null, records:0, writeReady:false, stages:['not_connected','authed','indexed','write_ready'] },
+    slack:  { key:'slack',  name:'Slack',  selected:false, status:'not_connected', lastSync:null, records:0, writeReady:false, stages:['not_connected','authed','indexed','write_ready'] },
+    notion: { key:'notion', name:'Notion', selected:false, status:'not_connected', lastSync:null, records:0, writeReady:false, stages:['not_connected','authed','indexed','write_ready'] },
+    trello: { key:'trello', name:'Trello', selected:false, status:'not_connected', lastSync:null, records:0, writeReady:false, stages:['not_connected','authed','indexed','write_ready'] },
+    files:  { key:'files',  name:'Local Files', selected:false, status:'not_connected', lastSync:null, records:0, writeReady:false, stages:['not_connected','indexed'] }
   };
-}
+  let CONNECTORS = store.get('rom_connectors', DEFAULT_CONNECTORS);
+  function saveConnectors(){ store.set('rom_connectors', CONNECTORS); }
 
-function detectSource(text) {
-  const lower = text.toLowerCase();
-  if (lower.includes('gmail') || /^re:/i.test(text)) return 'Gmail';
-  if (lower.includes('calendar') || /^event:/i.test(text)) return 'Calendar';
-  if (lower.includes('notion') || lower.includes('page:')) return 'Notion';
-  if (lower.includes('slack') || lower.includes('message:')) return 'Slack';
-  if (lower.includes('sms') || lower.includes('text:')) return 'SMS';
-  if (lower.includes('trello') || lower.includes('card:')) return 'Trello';
-  if (lower.includes('file') || lower.includes('imported')) return 'File Import';
-  return 'Manual Input';
-}
-
-function prioritizeAndRank(lines) {
-  return lines
-    .map(analyzeTask)
-    .filter(task => task !== null)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 6);
-}
-
-// Memory capsules management
-function addToCapsules(capsule) {
-  const capsules = storage.get('capsules', []);
-  const newCapsule = {
-    ...capsule,
-    id: 'cap_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
-    timestamp: Date.now()
-  };
-  capsules.unshift(newCapsule);
-  storage.set('capsules', capsules);
-  appState.capsules = capsules;
-  updateCapsuleCount();
-  return newCapsule;
-}
-
-function updateCapsuleCount() {
-  const button = $('#openCaps');
-  if (!button) return;
-  
-  const count = storage.get('capsules', []).length;
-  button.textContent = count > 0 ? `💾 Memory Capsules (${count})` : '💾 Memory Capsules';
-}
-
-// Render task cards with real functionality
-function renderTaskCards(tasks) {
-  const container = $('#results');
-  container.innerHTML = '';
-  
-  if (tasks.length === 0) {
-    container.appendChild(createElement('div', {className: 'meta'}, 
-      '🤖 Connect your apps or add tasks manually to see AI prioritization in action!'));
-    return;
-  }
-  
-  tasks.forEach((task, index) => {
-    const priorityColors = ['red', 'orange', 'green', 'green', 'green', 'green'];
-    const priorityColor = priorityColors[index] || 'green';
-    
-    // Auto-save to memory capsules
-    addToCapsules({
-      title: `Priority ${index + 1}: ${task.category}`,
-      text: task.text,
-      source: task.source,
-      category: task.category,
-      nextStep: task.nextStep,
-      priority: index + 1,
-      tags: ['organized', task.category, `priority-${index + 1}`]
-    });
-    
-    const card = createElement('div', {className: 'card'});
-    
-    // Card header
-    const header = createElement('div', {className: 'card-header'});
-    header.appendChild(createElement('div', {className: `dot ${priorityColor}`}));
-    header.appendChild(createElement('div', {className: 'title'}, task.text));
-    
-    // Badges
-    const badges = createElement('div', {className: 'badges'});
-    badges.appendChild(createElement('div', {className: 'badge'}, `Priority #${index + 1}`));
-    badges.appendChild(createElement('div', {className: 'badge'}, task.category.toUpperCase()));
-    badges.appendChild(createElement('div', {className: 'badge'}, task.source));
-    
-    const whyBadge = createElement('div', {
-      className: 'badge',
-      'data-why': index
-    }, '🤔 Why this priority?');
-    
-    whyBadge.addEventListener('click', () => {
-      const whyDiv = $(`#why-${index}`);
-      if (whyDiv) {
-        whyDiv.style.display = whyDiv.style.display === 'block' ? 'none' : 'block';
-      }
-    });
-    badges.appendChild(whyBadge);
-    
-    // Why explanation
-    const whyText = `🧠 AI Analysis: "${task.text}" ranked #${index + 1} because: ${task.reasons.join(', ')}. Detected source: ${task.source}. Category: ${task.category}. Score: ${task.score}/10. This ranking uses keyword analysis, urgency detection, and source importance weighting.`;
-    
-    const whyDiv = createElement('div', {
-      className: 'why',
-      id: `why-${index}`
-    }, whyText);
-    
-    // Action buttons
-    const actions = createElement('div', {className: 'card-actions'});
-    
-    // Next Step button
-    const nextStepBtn = createElement('button', {className: 'btn primary'}, '🎯 Next Steps');
-    nextStepBtn.addEventListener('click', () => {
-      const existing = actions.querySelector('.next-step-detail');
-      if (existing) {
-        existing.remove();
-        return;
-      }
-      
-      const detail = createElement('div', {className: 'next-step-detail'});
-      detail.appendChild(createElement('div', {style: 'font-weight:600;margin-bottom:8px'}, '🎯 AI-Generated Action Plan:'));
-      detail.appendChild(createElement('div', {}, task.nextStep));
-      
-      actions.appendChild(detail);
-      showToast(`📋 Action plan revealed for ${task.category} task`);
-    });
-    
-    // Calendar button with real integration
-    const calendarBtn = createElement('button', {className: 'btn success'}, '📅 Add to Calendar');
-    calendarBtn.addEventListener('click', () => {
-      const existing = actions.querySelector('.calendar-options');
-      if (existing) {
-        existing.remove();
-        return;
-      }
-      
-      const title = encodeURIComponent(task.text);
-      const details = encodeURIComponent(`${task.calendarAction}\n\nNext Steps: ${task.nextStep}\n\nSource: ${task.source}`);
-      const startDate = new Date();
-      const endDate = new Date(startDate.getTime() + 60 * 60 * 1000); // 1 hour default
-      
-      // Real calendar URLs
-      const googleUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}&dates=${startDate.toISOString().replace(/[-:]/g, '').split('.')[0]}Z/${endDate.toISOString().replace(/[-:]/g, '').split('.')[0]}Z`;
-      const outlookUrl = `https://outlook.live.com/calendar/0/deeplink/compose?subject=${title}&body=${details}&startdt=${startDate.toISOString()}&enddt=${endDate.toISOString()}`;
-      
-      const options = createElement('div', {className: 'calendar-options'});
-      
-      // Google Calendar
-      const googleLink = createElement('a', {
-        href: googleUrl,
-        target: '_blank',
-        className: 'btn success'
-      }, '📅 Google Calendar');
-      
-      // Outlook
-      const outlookLink = createElement('a', {
-        href: outlookUrl,
-        target: '_blank',
-        className: 'btn success'
-      }, '📅 Outlook');
-      
-      // iPhone Calendar
-      const iphoneBtn = createElement('button', {className: 'btn'}, '📱 iPhone');
-      iphoneBtn.addEventListener('click', () => {
-        const calText = `${task.text}\n\n${task.calendarAction}\n\nNext: ${task.nextStep}`;
-        if (navigator.clipboard) {
-          navigator.clipboard.writeText(calText).then(() => {
-            showToast('📋 Copied to clipboard! Paste in iPhone Calendar app');
-          });
-        } else {
-          showToast('📱 Manual add: ' + task.text);
-        }
+  function renderConnectors(){
+    const box = $('#apps'); box.innerHTML='';
+    Object.values(CONNECTORS).forEach(c => {
+      const el = document.createElement('div'); el.className='app';
+      const chip = statusChip(c.status);
+      el.innerHTML = `
+        <label style="display:flex;gap:8px;align-items:center">
+          <input type="checkbox" ${c.selected? 'checked':''} data-k="${c.key}" aria-label="Select ${c.name}"/>
+          <strong>${c.name}</strong>
+          <span class="chip ${chip.cls}">${chip.text}</span>
+        </label>
+        <div class="meta">Last sync: ${c.lastSync? new Date(c.lastSync).toLocaleString(): 'never'} • ${c.records} items</div>
+      `;
+      el.querySelector('input').addEventListener('change', (e)=>{
+        CONNECTORS[c.key].selected = e.target.checked; saveConnectors(); updateConnMeta();
       });
-      
-      // Gmail reminder
-      const gmailBtn = createElement('button', {className: 'btn'}, '📧 Email Reminder');
-      gmailBtn.addEventListener('click', () => {
-        const gmailUrl = `https://mail.google.com/mail/?view=cm&su=${title}&body=${details}`;
-        window.open(gmailUrl, '_blank');
-      });
-      
-      options.appendChild(googleLink);
-      options.appendChild(outlookLink);
-      options.appendChild(iphoneBtn);
-      options.appendChild(gmailBtn);
-      
-      actions.appendChild(options);
-      
-      // Auto-save calendar action
-      addToCapsules({
-        title: `📅 Calendar: ${task.text}`,
-        text: task.calendarAction,
-        source: task.source,
-        category: 'calendar',
-        tags: ['calendar-added', task.category]
-      });
-      
-      showToast('📅 Calendar options opened & saved to memory');
+      box.appendChild(el);
     });
-    
-    actions.appendChild(nextStepBtn);
-    actions.appendChild(calendarBtn);
-    
-    // Assemble card
-    card.appendChild(header);
-    card.appendChild(badges);
-    card.appendChild(whyDiv);
-    card.appendChild(actions);
-    
-    container.appendChild(card);
-  });
-  
-  showToast(`🤖 AI organized ${tasks.length} items by priority`);
-}
-
-function renderMemoryCapsules() {
-  const container = $('#capsules');
-  if (!container) return;
-  
-  container.innerHTML = '';
-  const capsules = storage.get('capsules', []);
-  
-  if (capsules.length === 0) {
-    container.appendChild(createElement('div', {className: 'meta'}, 
-      '💾 No memory capsules yet. All your actions and organized tasks are automatically saved here.'));
-    return;
+    updateConnMeta();
   }
-  
-  capsules.forEach(capsule => {
-    const item = createElement('div', {className: 'capsule-item'});
-    
-    item.appendChild(createElement('div', {className: 'capsule-title'}, capsule.title));
-    item.appendChild(createElement('div', {className: 'capsule-text'}, capsule.text));
-    
-    if (capsule.nextStep) {
-      item.appendChild(createElement('div', {
-        style: 'margin:8px 0;padding:8px;background:#EFF6FF;border-radius:8px;font-size:13px;border-left:3px solid var(--blue)'
-      }, '💡 Action Plan: ' + capsule.nextStep));
+  function statusChip(status){
+    switch(status){
+      case 'authed': return {text:'Auth’d', cls:'blue chip'};
+      case 'indexed': return {text:'Indexed', cls:'purple chip'};
+      case 'write_ready': return {text:'Write‑back Ready', cls:'green chip'};
+      default: return {text:'Not Connected', cls:'gray chip'};
     }
-    
-    const metaText = `${new Date(capsule.timestamp).toLocaleString()} • ${capsule.source} • Priority: ${capsule.priority || 'N/A'}`;
-    if (capsule.tags && capsule.tags.length) {
-      metaText += ` • Tags: ${capsule.tags.join(', ')}`;
+  }
+  function anySelected(){ return Object.values(CONNECTORS).some(c=>c.selected); }
+  function anyAuthed(){ return Object.values(CONNECTORS).some(c=>c.status==='authed' || c.status==='indexed' || c.status==='write_ready'); }
+  function anyIndexed(){ return Object.values(CONNECTORS).some(c=>c.status==='indexed' || c.status==='write_ready'); }
+  function appsAuthedCount(){ return Object.values(CONNECTORS).filter(c=>c.status!=='not_connected').length; }
+
+  function updateConnMeta(){
+    const meta=$('#connMeta');
+    const parts=[];
+    parts.push(appsAuthedCount()+" app(s) in pipeline");
+    if(!anySelected()) parts.push('Select apps');
+    $('#authBtn').disabled = !anySelected();
+    $('#indexBtn').disabled = !anyAuthed();
+    $('#writeBtn').disabled = !anyIndexed();
+    meta.textContent = parts.join(' • ');
+  }
+
+  /* === Fake flows (replace with real OAuth + API) === */
+  function busy(btn, label){ const old=btn.innerHTML; btn.disabled=true; btn.innerHTML = `<span class="spinner"></span> ${label}`; return ()=>{ btn.disabled=false; btn.innerHTML = label.replace(/^[^ ]+\s/,''); } }
+  async function authenticateSelected(){ const end = busy($('#authBtn'), ' Working…'); await sleep(700); Object.values(CONNECTORS).forEach(c=>{ if(c.selected){ c.status='authed'; } }); saveConnectors(); renderConnectors(); end(); toast('Authenticated'); }
+  async function importLiveData(){ const end = busy($('#indexBtn'), ' Importing…'); await sleep(900); let total=0; Object.values(CONNECTORS).forEach(c=>{ if(c.status==='authed' || c.status==='indexed' || c.status==='write_ready'){ c.status='indexed'; c.lastSync=nowIso(); const n=Math.floor(Math.random()*30)+10; c.records+=n; total+=n; } }); saveConnectors(); renderConnectors(); bumpIndex(total); end(); toast(`Imported ${total} items`); }
+  async function verifyWriteBack(){ const end = busy($('#writeBtn'), ' Verifying…'); await sleep(700); Object.values(CONNECTORS).forEach(c=>{ if(c.status==='indexed'){ c.status='write_ready'; c.writeReady=true; } }); saveConnectors(); renderConnectors(); end(); toast('Write‑back verified'); }
+  const sleep = ms => new Promise(r=>setTimeout(r, ms));
+
+  /* === Statusbar === */
+  function bumpIndex(n){ const el=$('#stat-index'); const curr= parseInt((el.dataset.count||'0'),10); const next= curr + (n||0); el.dataset.count = String(next); el.textContent = `Local index: ${next} items`; $('#stat-apps').textContent = `${appsAuthedCount()} apps auth’d`; $('#stat-sync').textContent = `Last sync: ${new Date().toLocaleTimeString()}`; }
+
+  /* === Task engine (demo heuristic with reasoning) === */
+  function analyze(line){
+    const lower=line.toLowerCase();
+    const why=[]; let cat='general'; let prio='green';
+    if(/urgent|asap|overdue|today|now/.test(lower)){ prio='red'; why.push('time‑sensitive'); }
+    else if(/tomorrow|soon|friday|this week/.test(lower)){ prio='orange'; why.push('upcoming'); }
+    if(/meeting|coffee|call|1:1|standup|lunch|dinner/.test(lower)){ cat='meeting'; why.push('meeting keyword'); }
+    if(/invoice|payment|bill|budget|finance/.test(lower)){ cat='finance'; why.push('financial keyword'); }
+    if(/review|approve|draft|edit|finalize|submit/.test(lower)){ cat='review'; why.push('review keyword'); }
+    if(/[?]/.test(line)){ why.push('question'); }
+    const origin = /gmail|email|re:/.test(lower)? 'Gmail' : /slack/.test(lower)? 'Slack' : /sms|text|imessage|whatsapp/.test(lower)? 'SMS' : 'Manual';
+    const nextText = nextStep(cat, line);
+    const route = routeAction({origin, cat, text: line});
+    return { line, cat, prio, why, origin, nextText, route };
+  }
+  function nextStep(cat, text){
+    switch(cat){
+      case 'meeting': return 'Confirm time and add a hold to calendar';
+      case 'finance': return 'Open invoice app and pay / follow up';
+      case 'review': return 'Open the doc, review, then send a quick note';
+      default: return 'Take the next concrete step';
     }
-    
-    item.appendChild(createElement('div', {className: 'capsule-meta'}, metaText));
-    
-    const actions = createElement('div', {className: 'capsule-actions'});
-    
-    const addToInboxBtn = createElement('button', {className: 'btn'}, '🔄 Add to Inbox');
-    addToInboxBtn.addEventListener('click', () => {
-      const inbox = $('#inbox');
-      const currentValue = inbox.value;
-      inbox.value = currentValue + (currentValue ? '\n' : '') + capsule.text;
-      showToast('📝 Added to inbox for re-processing');
-    });
-    
-    const deleteBtn = createElement('button', {className: 'btn'}, '🗑️ Delete');
-    deleteBtn.addEventListener('click', () => {
-      if (confirm('Delete this memory capsule permanently?')) {
-        const newCapsules = storage.get('capsules', []).filter(c => c.id !== capsule.id);
-        storage.set('capsules', newCapsules);
-        appState.capsules = newCapsules;
-        renderMemoryCapsules();
-        showToast('🗑️ Memory capsule deleted');
-      }
-    });
-    
-    actions.appendChild(addToInboxBtn);
-    actions.appendChild(deleteBtn);
-    item.appendChild(actions);
-    
-    container.appendChild(item);
-  });
-}
-
-function updateConnectionStatus() {
-  const connections = appState.connections || {};
-  const connectedApps = Object.entries(connections)
-    .filter(([app, data]) => data && data.authenticated)
-    .map(([app]) => app.charAt(0).toUpperCase() + app.slice(1));
-  
-  const statusEl = $('#connStatus');
-  const connectionEl = $('#connectionStatus');
-  
-  if (connectedApps.length > 0) {
-    const statusText = `🔗 Connected: ${connectedApps.join(', ')}`;
-    if (statusEl) statusEl.textContent = statusText;
-    if (connectionEl) connectionEl.textContent = statusText;
-  } else {
-    if (statusEl) statusEl.textContent = 'Not connected';
-    if (connectionEl) connectionEl.textContent = 'Select apps to connect';
   }
-}
-
-// Real app authentication handlers
-async function authenticateApp(appName) {
-  const checkbox = $(`#cx${appName.charAt(0).toUpperCase() + appName.slice(1)}`);
-  const switchEl = checkbox?.closest('.switch');
-  
-  if (!checkbox || !checkbox.checked) return;
-  
-  try {
-    if (switchEl) switchEl.classList.add('connecting');
-    
-    switch (appName.toLowerCase()) {
-      case 'gmail':
-        await authenticateGmail();
-        break;
-      case 'calendar':
-        await authenticateCalendar();
-        break;
-      case 'notion':
-        await authenticateNotion();
-        break;
-      case 'slack':
-        await authenticateSlack();
-        break;
-      case 'trello':
-        await authenticateTrello();
-        break;
-      case 'files':
-        // Files are handled through file upload
-        appState.connections.files = { authenticated: true };
-        showToast('📁 File upload ready');
-        break;
-      default:
-        throw new Error(`${appName} integration not implemented yet`);
+  function routeAction({origin, cat, text}){
+    const enc = encodeURIComponent(text.replace(/^re:\s*/i,''));
+    if(origin==='SMS'){
+      return { label:'Reply in Messages', href:`sms:&body=${encodeURIComponent(proposeReply(text))}` };
     }
-    
-    if (switchEl) {
-      switchEl.classList.remove('connecting');
-      switchEl.classList.add('connected');
+    if(origin==='Slack'){
+      return { label:'Open in Slack', href:'slack://open' };
     }
-    
-  } catch (error) {
-    console.error(`${appName} authentication error:`, error);
-    if (switchEl) switchEl.classList.remove('connecting');
-    if (checkbox) checkbox.checked = false;
-    showToast(`❌ ${appName} connection failed: ${error.message}`);
-  }
-}
-
-// Additional app authentication functions
-async function authenticateNotion() {
-  showToast('📝 Connecting to Notion...', 'loading');
-  
-  // Real Notion OAuth would be:
-  // const authUrl = `https://api.notion.com/v1/oauth/authorize?client_id=${clientId}&response_type=code&owner=user&redirect_uri=${redirectUri}`;
-  
-  setTimeout(() => {
-    appState.connections.notion = {
-      authenticated: true,
-      accessToken: 'demo_notion_' + Date.now()
-    };
-    storage.set('connections', appState.connections);
-    showToast('✅ Notion connected!', 'success');
-  }, 2200);
-}
-
-async function authenticateSlack() {
-  showToast('💬 Connecting to Slack...', 'loading');
-  
-  setTimeout(() => {
-    appState.connections.slack = {
-      authenticated: true,
-      accessToken: 'demo_slack_' + Date.now()
-    };
-    storage.set('connections', appState.connections);
-    showToast('✅ Slack connected!', 'success');
-  }, 1900);
-}
-
-async function authenticateTrello() {
-  showToast('📋 Connecting to Trello...', 'loading');
-  
-  setTimeout(() => {
-    appState.connections.trello = {
-      authenticated: true,
-      accessToken: 'demo_trello_' + Date.now()
-    };
-    storage.set('connections', appState.connections);
-    showToast('✅ Trello connected!', 'success');
-  }, 2100);
-}
-
-// Real data fetching functions
-async function fetchNotionData() {
-  try {
-    const connection = appState.connections.notion;
-    if (!connection?.authenticated) return [];
-    
-    showToast('📝 Fetching Notion data...', 'loading');
-    
-    // Real API would be:
-    // const response = await fetch('https://api.notion.com/v1/databases/{database_id}/query', {
-    //   headers: { 'Authorization': `Bearer ${connection.accessToken}`, 'Notion-Version': '2022-06-28' }
-    // });
-    
-    return new Promise(resolve => {
-      setTimeout(() => {
-        const notionTasks = [
-          'Page: Product Roadmap Q1 - Needs Review (Notion)',
-          'Database: Customer Feedback - 12 new entries (Notion)',
-          'Page: Team OKRs Draft - Pending Approval (Notion)',
-          'Template: Weekly Report - Update Required (Notion)'
-        ];
-        resolve(notionTasks);
-      }, 1400);
-    });
-  } catch (error) {
-    console.error('Notion fetch error:', error);
-    return [];
-  }
-}
-
-async function fetchSlackData() {
-  try {
-    const connection = appState.connections.slack;
-    if (!connection?.authenticated) return [];
-    
-    showToast('💬 Fetching Slack messages...', 'loading');
-    
-    return new Promise(resolve => {
-      setTimeout(() => {
-        const slackTasks = [
-          'DM: Sarah - Design feedback urgent (Slack)',
-          'Channel: #dev - Server maintenance tomorrow (Slack)', 
-          'Thread: Marketing campaign launch discussion (Slack)',
-          'Mention: Code review needed for PR #247 (Slack)'
-        ];
-        resolve(slackTasks);
-      }, 1600);
-    });
-  } catch (error) {
-    console.error('Slack fetch error:', error);
-    return [];
-  }
-}
-
-async function fetchTrelloData() {
-  try {
-    const connection = appState.connections.trello;
-    if (!connection?.authenticated) return [];
-    
-    showToast('📋 Fetching Trello cards...', 'loading');
-    
-    return new Promise(resolve => {
-      setTimeout(() => {
-        const trelloTasks = [
-          'Card: Fix login bug - High Priority (Trello)',
-          'Card: Update user documentation (Trello)',
-          'List: Sprint Backlog - 8 items pending (Trello)',
-          'Card: Performance optimization - In Progress (Trello)'
-        ];
-        resolve(trelloTasks);
-      }, 1300);
-    });
-  } catch (error) {
-    console.error('Trello fetch error:', error);
-    return [];
-  }
-}
-
-// Import all connected app data
-async function importAllConnectedData() {
-  const connections = appState.connections || {};
-  let allTasks = [];
-  let importCount = 0;
-  
-  // Fetch from each connected app
-  if (connections.gmail?.authenticated) {
-    await fetchGmailData();
-    importCount++;
-  }
-  
-  if (connections.calendar?.authenticated) {
-    await fetchCalendarData();
-    importCount++;
-  }
-  
-  if (connections.notion?.authenticated) {
-    const notionTasks = await fetchNotionData();
-    appState.currentData = [...appState.currentData, ...notionTasks];
-    if (notionTasks.length > 0) showToast(`📝 Imported ${notionTasks.length} Notion items`, 'success');
-  }
-  
-  if (connections.slack?.authenticated) {
-    const slackTasks = await fetchSlackData();
-    appState.currentData = [...appState.currentData, ...slackTasks];
-    if (slackTasks.length > 0) showToast(`💬 Imported ${slackTasks.length} Slack items`, 'success');
-  }
-  
-  if (connections.trello?.authenticated) {
-    const trelloTasks = await fetchTrelloData();
-    appState.currentData = [...appState.currentData, ...trelloTasks];
-    if (trelloTasks.length > 0) showToast(`📋 Imported ${trelloTasks.length} Trello items`, 'success');
-  }
-  
-  return appState.currentData;
-}
-
-// Initialize application
-document.addEventListener('DOMContentLoaded', function() {
-  console.log('ROM - Everyday AI initializing...');
-  
-  // Load saved state
-  appState.connections = storage.get('connections', {});
-  appState.capsules = storage.get('capsules', []);
-  updateCapsuleCount();
-  updateConnectionStatus();
-  
-  // Main organize button
-  $('#buildBtn').addEventListener('click', async function() {
-    const manualInput = $('#inbox').value.split(/\r?\n/).filter(line => line.trim());
-    
-    // Import live data from connected apps
-    const connectedData = await importAllConnectedData();
-    const allTasks = [...manualInput, ...connectedData];
-    
-    if (allTasks.length === 0) {
-      showToast('📝 Add tasks manually or connect apps to import data!');
-      return;
+    if(origin==='Gmail'){
+      return { label:'Draft in Gmail', href:`https://mail.google.com/mail/?view=cm&su=${enc}&body=${encodeURIComponent(proposeReply(text))}` };
     }
-    
-    const prioritizedTasks = prioritizeAndRank(allTasks);
-    renderTaskCards(prioritizedTasks);
-    
-    // Clear imported data for next run
-    appState.currentData = [];
-  });
-  
-  // Sample data
-  $('#sampleBtn').addEventListener('click', function() {
-    const sampleData = `Re: Q4 Budget Review - Action Required Today (Gmail)
-Event: Team Standup in 30 minutes (Calendar)
-Page: Product Roadmap Draft - Needs Final Review (Notion)
-DM: Client feedback on proposal urgent (Slack)
-Invoice #2847 overdue 5 days - payment needed
-Follow up: Contract terms discussion with legal
-Card: Fix critical login bug - high priority (Trello)
-Reminder: Submit expense report due today`;
-    
-    $('#inbox').value = sampleData;
-    showToast('📝 Sample data loaded with realistic app sources!');
-  });
-  
-  // File upload handling
-  $('#uploadBtn').addEventListener('click', function() {
-    $('#fileInput').click();
-  });
-  
-  $('#fileInput').addEventListener('change', async function(e) {
-    const files = Array.from(e.target.files);
-    if (files.length === 0) return;
-    
-    showToast(`📁 Processing ${files.length} files...`, 'loading');
-    
-    let allImportedTasks = [];
-    
-    for (const file of files) {
-      try {
-        const tasks = await processFile(file);
-        allImportedTasks = [...allImportedTasks, ...tasks];
-      } catch (error) {
-        console.error('File processing error:', error);
-        showToast(`❌ Failed to process ${file.name}`, 'error');
-      }
+    if(cat==='meeting'){
+      return { label:'Add to Google Calendar', href:`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${enc}&details=${enc}` };
     }
-    
-    if (allImportedTasks.length > 0) {
-      const inbox = $('#inbox');
-      const currentValue = inbox.value;
-      inbox.value = currentValue + (currentValue ? '\n' : '') + allImportedTasks.join('\n');
-      showToast(`📁 Imported ${allImportedTasks.length} tasks from files!`, 'success');
+    if(cat==='finance'){
+      return { label:'Open Invoice App', href:'https://app.qbo.intuit.com/app/homepage' };
     }
-    
-    e.target.value = ''; // Reset file input
-  });
-  
-  // File drop zone
-  const dropZone = $('#fileDrop');
-  if (dropZone) {
-    dropZone.addEventListener('dragover', function(e) {
-      e.preventDefault();
-      this.classList.add('dragover');
-    });
-    
-    dropZone.addEventListener('dragleave', function(e) {
-      e.preventDefault();
-      this.classList.remove('dragover');
-    });
-    
-    dropZone.addEventListener('drop', async function(e) {
-      e.preventDefault();
-      this.classList.remove('dragover');
-      
-      const files = Array.from(e.dataTransfer.files);
-      if (files.length === 0) return;
-      
-      showToast(`📁 Processing ${files.length} dropped files...`, 'loading');
-      
-      let allTasks = [];
-      for (const file of files) {
-        try {
-          const tasks = await processFile(file);
-          allTasks = [...allTasks, ...tasks];
-        } catch (error) {
-          showToast(`❌ Failed to process ${file.name}`, 'error');
-        }
-      }
-      
-      if (allTasks.length > 0) {
-        const inbox = $('#inbox');
-        inbox.value += (inbox.value ? '\n' : '') + allTasks.join('\n');
-        showToast(`📁 Imported ${allTasks.length} tasks from dropped files!`, 'success');
-      }
+    return { label:'Copy reply', href:'#copy', payload:proposeReply(text) };
+  }
+  function proposeReply(text){
+    const t=text.toLowerCase();
+    if(/coffee|meet|lunch|dinner|call/.test(t)) return 'Sounds good — see you then. If anything changes, text me.';
+    if(/review|draft|feedback|approve|look/.test(t)) return 'Got it — I’ll review now and follow up shortly.';
+    if(/invoice|payment|overdue|bill/.test(t)) return 'Thanks — I’ll take care of the invoice and confirm once paid.';
+    if(/[?]/.test(t)) return 'Thanks for the question — I’ll check and get back shortly.';
+    return 'Noted — on it.';
+  }
+
+  function renderCards(lines){
+    const L = { now: $('#lane-now'), soon: $('#lane-soon'), waiting: $('#lane-waiting') };
+    Object.values(L).forEach(el=> el.innerHTML='');
+    const items = lines.map(analyze);
+    items.forEach((it, idx)=>{
+      const card=document.createElement('div'); card.className='card';
+      card.innerHTML = `
+        <div class="card-header">
+          <span class="prio ${it.prio}"></span>
+          <div class="title">${escapeHtml(it.line)}</div>
+        </div>
+        <div class="meta-row">
+          <span>${it.cat.toUpperCase()}</span>
+          <span>${it.origin}</span>
+          <details class="rationale"><summary>Why</summary><div class="why">${it.why.join(', ')||'Heuristics'}</div></details>
+        </div>
+        <div class="card-actions">
+          <button class="btn primary action-btn"><span class="label">Next Step</span></button>
+        </div>`;
+      card.querySelector('.action-btn').addEventListener('click', (e)=> runAction(e.currentTarget, it.route));
+      const lane = it.prio==='red'? L.now : it.prio==='orange'? L.soon : L.waiting;
+      lane.appendChild(card);
     });
   }
-  
-  // Connect apps modal
-  $('#connectBtn').addEventListener('click', function() {
-    $('#connectModal').style.display = 'flex';
-    updateConnectionStatus();
-  });
-  
-  $('#closeConnect').addEventListener('click', function() {
-    $('#connectModal').style.display = 'none';
-  });
-  
-  $('#xConnect').addEventListener('click', function() {
-    $('#connectModal').style.display = 'none';
-  });
-  
-  // Authenticate selected apps
-  $('#authenticateApps').addEventListener('click', async function() {
-    const selectedApps = [];
-    const checkboxes = ['Gmail', 'Calendar', 'Notion', 'Slack', 'Files', 'Trello'];
-    
-    checkboxes.forEach(app => {
-      const checkbox = $(`#cx${app}`);
-      if (checkbox && checkbox.checked) {
-        selectedApps.push(app.toLowerCase());
-      }
-    });
-    
-    if (selectedApps.length === 0) {
-      showToast('📱 Select apps to authenticate first');
-      return;
+  function escapeHtml(s){ return s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  async function runAction(btn, route){
+    const end = buttonBusy(btn);
+    await sleep(150);
+    if(route.href==='#copy'){
+      await navigator.clipboard.writeText(route.payload||''); toast('Reply copied'); end('Done'); return;
     }
-    
-    showToast(`🔐 Authenticating ${selectedApps.length} apps...`, 'loading');
-    
-    // Authenticate each selected app
-    for (const app of selectedApps) {
-      await authenticateApp(app);
-      await new Promise(resolve => setTimeout(resolve, 500)); // Stagger requests
-    }
-    
-    storage.set('connections', appState.connections);
-    updateConnectionStatus();
-  });
-  
-  // Import live data
-  $('#importData').addEventListener('click', async function() {
-    const connections = appState.connections || {};
-    const authenticatedApps = Object.entries(connections)
-      .filter(([app, data]) => data && data.authenticated);
-    
-    if (authenticatedApps.length === 0) {
-      showToast('🔐 Authenticate some apps first!');
-      return;
-    }
-    
-    showToast('📥 Importing live data from all connected apps...', 'loading');
-    
-    // Clear previous data
-    appState.currentData = [];
-    
-    // Import from all connected apps
-    await importAllConnectedData();
-    
-    // Add to inbox
-    if (appState.currentData.length > 0) {
-      const inbox = $('#inbox');
-      const currentValue = inbox.value;
-      inbox.value = currentValue + (currentValue ? '\n' : '') + appState.currentData.join('\n');
-      
-      // Auto-organize
-      setTimeout(() => {
-        $('#buildBtn').click();
-      }, 1000);
-      
-      $('#connectModal').style.display = 'none';
-      showToast(`📥 Imported ${appState.currentData.length} live items! Auto-organizing...`, 'success');
-    } else {
-      showToast('📭 No new data found in connected apps');
-    }
-  });
-  
-  // Memory capsules modal
-  $('#openCaps').addEventListener('click', function() {
-    $('#capsuleModal').style.display = 'flex';
-    renderMemoryCapsules();
-  });
-  
-  $('#closeCaps').addEventListener('click', function() {
-    $('#capsuleModal').style.display = 'none';
-  });
-  
-  $('#xCaps').addEventListener('click', function() {
-    $('#capsuleModal').style.display = 'none';
-  });
-  
-  // Export capsules
-  $('#exportCaps').addEventListener('click', function() {
-    const capsules = storage.get('capsules', []);
-    if (capsules.length === 0) {
-      showToast('📦 No capsules to export');
-      return;
-    }
-    
-    const exportData = {
-      exported: new Date().toISOString(),
-      version: '1.0',
-      capsules: capsules
-    };
-    
-    const dataStr = JSON.stringify(exportData, null, 2);
-    const blob = new Blob([dataStr], {type: 'application/json'});
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `rom-memory-capsules-${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    
-    showToast(`📤 Exported ${capsules.length} memory capsules`, 'success');
-  });
-  
-  // Clear capsules
-  $('#clearCaps').addEventListener('click', function() {
-    const count = storage.get('capsules', []).length;
-    if (count === 0) {
-      showToast('📦 No capsules to clear');
-      return;
-    }
-    
-    if (confirm(`Delete all ${count} memory capsules? This cannot be undone.`)) {
-      storage.set('capsules', []);
-      appState.capsules = [];
-      renderMemoryCapsules();
-      updateCapsuleCount();
-      showToast(`🗑️ Cleared ${count} memory capsules`);
-    }
-  });
-  
-  // Modal controls
-  ['capsuleModal', 'connectModal'].forEach(modalId => {
-    const modal = $(`#${modalId}`);
-    if (modal) {
-      modal.addEventListener('click', function(e) {
-        if (e.target === this) {
-          this.style.display = 'none';
-        }
-      });
-    }
-  });
-  
-  // ESC key to close modals
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-      $('#capsuleModal').style.display = 'none';
-      $('#connectModal').style.display = 'none';
-    }
-  });
-  
-  // Load saved connections and update UI
-  Object.entries(appState.connections).forEach(([app, data]) => {
-    if (data && data.authenticated) {
-      const checkbox = $(`#cx${app.charAt(0).toUpperCase() + app.slice(1)}`);
-      if (checkbox) {
-        checkbox.checked = true;
-        const switchEl = checkbox.closest('.switch');
-        if (switchEl) switchEl.classList.add('connected');
-      }
-    }
-  });
-  
-  updateConnectionStatus();
-  
-  console.log('✅ ROM initialized with real app integration framework');
-});
+    window.open(route.href, '_blank'); end('Opened');
+  }
+  function buttonBusy(btn){ const label=btn.querySelector('.label'); const old=label.textContent; btn.disabled=true; label.textContent='Working…'; const sp=document.createElement('span'); sp.className='spinner'; btn.prepend(sp); return (done='Done')=>{ btn.disabled=false; label.textContent=done; setTimeout(()=> label.textContent='Next Step', 900); sp.remove(); } }
 
-</script>
+  /* === Capsules === */
+  function openCapsules(){ $('#capsules').innerHTML = `<div class="meta">No memory yet. Actions you run will be saved here with sources.</div>`; $('#capsuleModal').setAttribute('open',''); }
+
+  /* === Sample tour === */
+  const SAMPLE = [
+    'Coffee with Alex tomorrow 10am (text)',
+    'Invoice #1187 overdue 7 days — ACME',
+    'Draft product page review before Friday (Notion)'
+  ];
+
+  /* === Event wiring === */
+  document.addEventListener('DOMContentLoaded', ()=>{
+    // Build
+    $('#buildBtn').addEventListener('click', ()=>{
+      const raw = $('#inbox').value.trim().split(/\n/).filter(Boolean);
+      if(!raw.length) return toast('Paste something first');
+      renderCards(raw); toast(`Organized ${raw.length} items`);
+    });
+    // Clear
+    $('#clearBtn').addEventListener('click', ()=> $('#inbox').value='');
+    // Sample tour
+    $('#sampleBtn').addEventListener('click', ()=>{ $('#inbox').value = SAMPLE.join('\n'); toast('Loaded a guided sample. Press Organize.'); });
+
+    // Capsules modal
+    $('#openCaps').addEventListener('click', openCapsules);
+    $('#xCaps').addEventListener('click', ()=> $('#capsuleModal').removeAttribute('open'));
+    $('#closeCaps').addEventListener('click', ()=> $('#capsuleModal').removeAttribute('open'));
+    $('#clearCaps').addEventListener('click', ()=>{ if(confirm('Clear all capsules?')){ toast('Cleared'); $('#capsules').innerHTML = '<div class="meta">No memory yet.</div>'; } });
+    $('#exportCaps').addEventListener('click', ()=>{ const blob = new Blob([JSON.stringify({capsules:[]},null,2)], {type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='rom-capsules.json'; a.click(); toast('Exported'); });
+
+    // Connect modal
+    $('#connectBtn').addEventListener('click', ()=>{ renderConnectors(); $('#connectModal').setAttribute('open',''); });
+    $('#xConnect').addEventListener('click', ()=> $('#connectModal').removeAttribute('open'));
+    $('#closeConnect').addEventListener('click', ()=> $('#connectModal').removeAttribute('open'));
+    $('#authBtn').addEventListener('click', authenticateSelected);
+    $('#indexBtn').addEventListener('click', importLiveData);
+    $('#writeBtn').addEventListener('click', verifyWriteBack);
+
+    // Init statusbar from store
+    bumpIndex(0); renderConnectors();
+  });
+  </script>
 </body>
 </html>
 
