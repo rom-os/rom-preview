@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>ROM — Everyday AI</title>
-  <meta name="description" content="ROM — organize your life from messages, files, reminders into smart cards. Local‑first, no servers." />
+  <meta name="description" content="ROM — organize your life from messages, files, reminders into smart cards. Local-first, no servers." />
   <style>
     :root{
       --bg:#FFFFFF; --panel:#FFFFFF; --surface:#FFFFFF; --surface-2:#F6F7FB; --stroke:#E8EDF4;
@@ -13,54 +13,6 @@
       --radius:16px; --shadow:0 10px 28px rgba(15,17,22,0.10);
       --fs-xs:12px; --fs-s:14px; --fs-m:16px; --fs-l:20px; --fs-xl:28px; --fs-xxl:36px;
     }
-    <!-- CONNECTORS -->
-<section class="rom-card" id="connectors">
-<h3>Connect Apps</h3>
-<p class="muted">Authenticate once. Data stays private; you control actions.</p>
-<div class="btnrow">
-<button id="btn-google">Google Calendar</button>
-<button id="btn-slack">Slack</button>
-<button id="btn-sms">SMS</button>
-</div>
-<div id="connect-status" class="status"></div>
-</section>
-
-
-<!-- DAILY DIGEST + ACTIONS -->
-<section class="rom-card" id="daily-digest">
-<h3>Today’s Catch‑Up</h3>
-<div id="digest-stats" class="muted">Loading…</div>
-<ul id="digest-items" class="list"></ul>
-<div id="digest-actions" class="btnrow"></div>
-</section>
-
-<!-- MULTI‑LLM CHAT -->
-<section class="rom-card" id="ai-chat">
-<h3>ROM Chat</h3>
-<div class="chat-toolbar">
-<label>Model
-<select id="model">
-<option value="openai:gpt-4o-mini">OpenAI — gpt‑4o‑mini</option>
-<option value="gemini:1.5-pro">Gemini — 1.5‑pro</option>
-<option value="anthropic:claude-3-haiku">Anthropic — Claude 3 Haiku</option>
-</select>
-</label>
-<label>Persona
-<select id="persona">
-<option value="neutral">Neutral</option>
-<option value="zodiac">As my zodiac sign</option>
-<option value="athlete">As my favorite athlete</option>
-<option value="founder">Startup founder tone</option>
-</select>
-</label>
-</div>
-<div class="chat-box" id="chat-box"></div>
-<div class="chat-input">
-<input id="prompt" placeholder="Ask ROM…" />
-<button id="send">Send</button>
-</div>
-</section>
-
     *{box-sizing:border-box}
     body{margin:0;color:var(--ink);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:var(--bg)}
     body::before{content:""; position:fixed; inset:0; z-index:-1; background:
@@ -89,14 +41,12 @@
 
     .hero{background:#fff;border:1px solid var(--stroke);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);margin-bottom:20px}
     .hero-title{font-size:var(--fs-xxl);font-weight:800;margin-bottom:6px}
-    .subtext{color:var(--muted);margin-bottom:16px}
     textarea{width:100%;min-height:120px;padding:12px;border-radius:12px;border:1px solid var(--stroke);background:var(--surface-2);color:var(--ink)}
 
     .section h2{font-size:var(--fs-xl);margin:12px 0}
     .lanes{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
     .lane{background:linear-gradient(180deg,#FFFFFF 0%, #F8FAFF 70%, #FFFFFF 100%); border:1px solid var(--stroke); border-radius:16px; padding:12px; box-shadow:var(--shadow)}
     .lane h3{margin:0 0 8px 0;font-size:16px;color:#0B1220}
-    .ourday-wrap{display:none}
 
     .skeleton{height:96px;border-radius:14px;background:linear-gradient(90deg,#f3f4f8 25%, #e9ecf4 37%, #f3f4f8 63%);background-size:400% 100%;animation:shimmer 1.2s infinite}
     @keyframes shimmer{0%{background-position:100% 0}100%{background-position:0 0}}
@@ -140,23 +90,22 @@
       <div class="brand">ROM</div>
       <div class="actions">
         <button class="btn" id="connectBtn">Connect apps</button>
-        <button class="btn" id="sampleBtn">Try sample tour</button>
+        <button class="btn" id="sampleBtn" title="Shortcut: ?">Try sample tour</button>
       </div>
     </div>
 
-    <div class="statusbar">
-      <span class="pill" id="stat-index">Local index: 0 items</span>
-      <span class="pill" id="stat-apps">0 apps auth’d</span>
+    <!-- Statusbar (kept minimal) -->
+    <div class="statusbar" role="status" aria-live="polite">
       <span class="pill" id="stat-sync">Last sync: never</span>
-      <span class="pill" id="stat-mode">Offline‑first</span>
+      <span class="pill" id="stat-mode">Offline-first</span>
     </div>
 
     <div class="hero">
       <div class="hero-title">Everyday AI</div>
-      <div class="subtext">Paste a few messages or click sample. Cards show **why** and a **one‑tap Next Step** that routes you to the right app.</div>
+      <!-- subtext removed -->
       <textarea id="inbox" placeholder="Paste subjects, DMs, reminders — one per line."></textarea>
       <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
-        <button class="btn primary" id="buildBtn"><span class="label">Organize</span></button>
+        <button class="btn primary" id="buildBtn" title="Organize (⌘/Ctrl+Enter)"><span class="label">Organize</span></button>
         <button class="btn" id="clearBtn">Clear</button>
       </div>
     </div>
@@ -164,9 +113,9 @@
     <section class="section priority">
       <h2>Priority Dashboard</h2>
       <div class="lanes">
-        <div class="lane"><h3>Now</h3><div id="lane-now"></div></div>
-        <div class="lane"><h3>Soon</h3><div id="lane-soon"></div></div>
-        <div class="lane"><h3>Waiting</h3><div id="lane-waiting"></div></div>
+        <div class="lane"><h3>Act</h3><div id="lane-act"></div></div>
+        <div class="lane"><h3>Schedule</h3><div id="lane-schedule"></div></div>
+        <div class="lane"><h3>Follow-up</h3><div id="lane-follow"></div></div>
       </div>
     </section>
 
@@ -207,7 +156,7 @@
       <div class="bar">
         <button class="btn" id="authBtn">Authenticate Selected</button>
         <button class="btn" id="indexBtn">Import Live Data</button>
-        <button class="btn" id="writeBtn">Verify Write‑Back</button>
+        <button class="btn" id="writeBtn">Verify Write-Back</button>
         <span class="meta" id="connMeta">Select one or more apps to begin.</span>
       </div>
       <div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn" id="closeConnect">Close</button></div>
@@ -223,13 +172,56 @@
   const store = { get(k, f){ try{ const v = localStorage.getItem(k); return v? JSON.parse(v): f; } catch{ return f; } }, set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); } catch{} } };
   function toast(msg, t=2000){ const el=$('#toast'); el.textContent=msg; el.style.opacity='1'; el.style.display='block'; clearTimeout(toast._t); toast._t=setTimeout(()=>{el.style.opacity='0'; el.style.display='none';}, t); }
   function nowIso(){ return new Date().toISOString(); }
+  const sleep = ms => new Promise(r=>setTimeout(r, ms));
 
-  /* === Connector state machine === */
+  /* === Memory Capsules === */
+  const CAPS_KEY = 'rom_capsules_v1';
+  const getCaps = () => store.get(CAPS_KEY, []);
+  const setCaps = (list) => store.set(CAPS_KEY, list);
+  function addCapsule(c){ const list = getCaps(); list.unshift(c); setCaps(list); }
+  function renderCapsules(){
+    const list = getCaps();
+    const box = $('#capsules');
+    if(!list.length){ box.innerHTML = '<div class="meta">No memory yet. Actions you run will be saved here with sources.</div>'; return; }
+    box.innerHTML = '';
+    list.forEach((c, i)=>{
+      const el = document.createElement('div'); el.className='card';
+      el.innerHTML = `
+        <div class="card-header" style="justify-content:space-between;align-items:center">
+          <div style="display:flex;gap:10px;align-items:flex-start">
+            <span class="prio ${c.prio||'green'}" aria-hidden="true"></span>
+            <div>
+              <div class="title">${escapeHtml(c.text)}</div>
+              <div class="meta-row">
+                <span>${(c.cat||'general').toUpperCase()}</span>
+                <span>${c.origin||'Manual'}</span>
+                <span>${new Date(c.ts).toLocaleString()}</span>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            ${c.href ? `<a class="btn" href="${c.href}" target="_blank" rel="noopener noreferrer">${c.action||'Open'}</a>` : ''}
+            <button class="btn" data-restore="${i}">Restore to board</button>
+            <button class="btn" data-del="${i}">Delete</button>
+          </div>
+        </div>
+        ${c.note? `<div class="why" style="margin-top:8px">${escapeHtml(c.note)}</div>`:''}
+      `;
+      el.querySelector('[data-del]')?.addEventListener('click', ()=>{
+        const arr = getCaps(); arr.splice(i,1); setCaps(arr); renderCapsules(); toast('Deleted');
+      });
+      el.querySelector('[data-restore]')?.addEventListener('click', ()=>{
+        const arr = getCaps(); const item = arr[i];
+        renderCards([item.text]); toast('Restored to board');
+      });
+      box.appendChild(el);
+    });
+  }
+
+  /* === Connectors (limited to Google, Slack, Local Files) === */
   const DEFAULT_CONNECTORS = {
     google: { key:'google', name:'Google', selected:false, status:'not_connected', lastSync:null, records:0, writeReady:false, stages:['not_connected','authed','indexed','write_ready'] },
     slack:  { key:'slack',  name:'Slack',  selected:false, status:'not_connected', lastSync:null, records:0, writeReady:false, stages:['not_connected','authed','indexed','write_ready'] },
-    notion: { key:'notion', name:'Notion', selected:false, status:'not_connected', lastSync:null, records:0, writeReady:false, stages:['not_connected','authed','indexed','write_ready'] },
-    trello: { key:'trello', name:'Trello', selected:false, status:'not_connected', lastSync:null, records:0, writeReady:false, stages:['not_connected','authed','indexed','write_ready'] },
     files:  { key:'files',  name:'Local Files', selected:false, status:'not_connected', lastSync:null, records:0, writeReady:false, stages:['not_connected','indexed'] }
   };
   let CONNECTORS = store.get('rom_connectors', DEFAULT_CONNECTORS);
@@ -259,19 +251,17 @@
     switch(status){
       case 'authed': return {text:'Auth’d', cls:'blue chip'};
       case 'indexed': return {text:'Indexed', cls:'purple chip'};
-      case 'write_ready': return {text:'Write‑back Ready', cls:'green chip'};
+      case 'write_ready': return {text:'Write-back Ready', cls:'green chip'};
       default: return {text:'Not Connected', cls:'gray chip'};
     }
   }
-  function anySelected(){ return Object.values(CONNECTORS).some(c=>c.selected); }
-  function anyAuthed(){ return Object.values(CONNECTORS).some(c=>c.status==='authed' || c.status==='indexed' || c.status==='write_ready'); }
-  function anyIndexed(){ return Object.values(CONNECTORS).some(c=>c.status==='indexed' || c.status==='write_ready'); }
-  function appsAuthedCount(){ return Object.values(CONNECTORS).filter(c=>c.status!=='not_connected').length; }
-
+  const anySelected = () => Object.values(CONNECTORS).some(c=>c.selected);
+  const anyAuthed = () => Object.values(CONNECTORS).some(c=>c.status!=='not_connected');
+  const anyIndexed = () => Object.values(CONNECTORS).some(c=>c.status==='indexed' || c.status==='write_ready');
   function updateConnMeta(){
     const meta=$('#connMeta');
     const parts=[];
-    parts.push(appsAuthedCount()+" app(s) in pipeline");
+    parts.push(Object.values(CONNECTORS).filter(c=>c.status!=='not_connected').length+" app(s) in pipeline");
     if(!anySelected()) parts.push('Select apps');
     $('#authBtn').disabled = !anySelected();
     $('#indexBtn').disabled = !anyAuthed();
@@ -279,32 +269,64 @@
     meta.textContent = parts.join(' • ');
   }
 
-  /* === Fake flows (replace with real OAuth + API) === */
-  function busy(btn, label){ const old=btn.innerHTML; btn.disabled=true; btn.innerHTML = `<span class="spinner"></span> ${label}`; return ()=>{ btn.disabled=false; btn.innerHTML = label.replace(/^[^ ]+\s/,''); } }
+  /* === Fake flows === */
+  function busy(btn, label){ const old=btn.innerHTML; btn.disabled=true; btn.innerHTML = `<span class="spinner"></span> ${label}`; return ()=>{ btn.disabled=false; btn.innerHTML = old; } }
   async function authenticateSelected(){ const end = busy($('#authBtn'), ' Working…'); await sleep(700); Object.values(CONNECTORS).forEach(c=>{ if(c.selected){ c.status='authed'; } }); saveConnectors(); renderConnectors(); end(); toast('Authenticated'); }
-  async function importLiveData(){ const end = busy($('#indexBtn'), ' Importing…'); await sleep(900); let total=0; Object.values(CONNECTORS).forEach(c=>{ if(c.status==='authed' || c.status==='indexed' || c.status==='write_ready'){ c.status='indexed'; c.lastSync=nowIso(); const n=Math.floor(Math.random()*30)+10; c.records+=n; total+=n; } }); saveConnectors(); renderConnectors(); bumpIndex(total); end(); toast(`Imported ${total} items`); }
-  async function verifyWriteBack(){ const end = busy($('#writeBtn'), ' Verifying…'); await sleep(700); Object.values(CONNECTORS).forEach(c=>{ if(c.status==='indexed'){ c.status='write_ready'; c.writeReady=true; } }); saveConnectors(); renderConnectors(); end(); toast('Write‑back verified'); }
-  const sleep = ms => new Promise(r=>setTimeout(r, ms));
+  async function importLiveData(){ const end = busy($('#indexBtn'), ' Importing…'); await sleep(900); let total=0; Object.values(CONNECTORS).forEach(c=>{ if(c.status!=='not_connected'){ c.status='indexed'; c.lastSync=nowIso(); const n=Math.floor(Math.random()*30)+10; c.records+=n; total+=n; } }); saveConnectors(); renderConnectors(); $('#stat-sync').textContent = `Last sync: ${new Date().toLocaleTimeString()}`; end(); toast(`Imported ${total} items`); }
+  async function verifyWriteBack(){ const end = busy($('#writeBtn'), ' Verifying…'); await sleep(700); Object.values(CONNECTORS).forEach(c=>{ if(c.status==='indexed'){ c.status='write_ready'; c.writeReady=true; } }); saveConnectors(); renderConnectors(); end(); toast('Write-back verified'); }
 
-  /* === Statusbar === */
-  function bumpIndex(n){ const el=$('#stat-index'); const curr= parseInt((el.dataset.count||'0'),10); const next= curr + (n||0); el.dataset.count = String(next); el.textContent = `Local index: ${next} items`; $('#stat-apps').textContent = `${appsAuthedCount()} apps auth’d`; $('#stat-sync').textContent = `Last sync: ${new Date().toLocaleTimeString()}`; }
+  /* === Friendlier “Why” === */
+  function friendlyWhy(info){
+    const bits=[];
+    if(info.when) bits.push(`Time-specific: ${info.when}`);
+    if(info.money) bits.push('Worth closing the loop on billing');
+    if(info.review) bits.push('Needs your eyes before it moves forward');
+    if(info.question) bits.push('Someone’s waiting on an answer');
+    if(info.meeting) bits.push('Coordinate on time/place');
+    if(!bits.length) return 'Small step now prevents pile-up later';
+    return bits.join(' • ');
+  }
 
-  /* === Task engine (demo heuristic with reasoning) === */
+  /* === Card analysis + lane routing (Act / Schedule / Follow-up) === */
   function analyze(line){
     const lower=line.toLowerCase();
-    const why=[]; let cat='general'; let prio='green';
-    if(/urgent|asap|overdue|today|now/.test(lower)){ prio='red'; why.push('time‑sensitive'); }
-    else if(/tomorrow|soon|friday|this week/.test(lower)){ prio='orange'; why.push('upcoming'); }
-    if(/meeting|coffee|call|1:1|standup|lunch|dinner/.test(lower)){ cat='meeting'; why.push('meeting keyword'); }
-    if(/invoice|payment|bill|budget|finance/.test(lower)){ cat='finance'; why.push('financial keyword'); }
-    if(/review|approve|draft|edit|finalize|submit/.test(lower)){ cat='review'; why.push('review keyword'); }
-    if(/[?]/.test(line)){ why.push('question'); }
+    let cat='general', prio='green';
+    const info = { when:null, meeting:false, money:false, review:false, question:false };
+
+    // timing (prio)
+    if(/\b(today|now|overdue|asap)\b/.test(lower)){ prio='red'; info.when='today'; }
+    else if(/\b(tomorrow|soon|friday|mon(day)?|tue(sday)?|wed(nesday)?|thu(rsday)?|sat(urday)?|sun(day)?|this week)\b/.test(lower)){
+      prio='orange'; info.when=(line.match(/\b(tomorrow|soon|this week|friday|monday|tuesday|wednesday|thursday|saturday|sunday)\b/i)||[])[0];
+    }
+
+    // domains
+    if(/\b(meeting|coffee|call|1:1|standup|lunch|dinner)\b/.test(lower)){ cat='meeting'; info.meeting=true; }
+    if(/\b(invoice|payment|pay|bill|budget|finance|overdue)\b/.test(lower)){ if(cat==='general') cat='finance'; info.money=true; }
+    if(/\b(review|approve|draft|edit|finalize|submit|feedback)\b/.test(lower)){ if(cat==='general') cat='review'; info.review=true; }
+    if(/[?]/.test(line)){ info.question=true; }
+
     const origin = /gmail|email|re:/.test(lower)? 'Gmail' : /slack/.test(lower)? 'Slack' : /sms|text|imessage|whatsapp/.test(lower)? 'SMS' : 'Manual';
-    const nextText = nextStep(cat, line);
+    const why = friendlyWhy(info);
+
+    // lane routing
+    const lane = routeLane({cat, prio, info});
+
     const route = routeAction({origin, cat, text: line});
-    return { line, cat, prio, why, origin, nextText, route };
+    return { line, cat, prio, why, origin, route, lane };
   }
-  function nextStep(cat, text){
+
+  function routeLane({cat, prio, info}){
+    // Schedule: meetings and any time-bound planning
+    if(cat==='meeting' || info.when && /tomorrow|friday|monday|tuesday|wednesday|thursday|saturday|sunday|this week|soon/i.test(info.when)) return 'schedule';
+    // Follow-up: questions or explicit "follow up" strings
+    if(info.question || /\bfollow\s?up|waiting on|check back\b/i.test(cat)) return 'follow';
+    // Act: urgent/overdue/finance/review/now
+    if(prio==='red' || cat==='finance' || cat==='review') return 'act';
+    // default: act (to avoid empty columns)
+    return 'act';
+  }
+
+  function nextStep(cat){
     switch(cat){
       case 'meeting': return 'Confirm time and add a hold to calendar';
       case 'finance': return 'Open invoice app and pay / follow up';
@@ -312,25 +334,18 @@
       default: return 'Take the next concrete step';
     }
   }
+
   function routeAction({origin, cat, text}){
     const enc = encodeURIComponent(text.replace(/^re:\s*/i,''));
-    if(origin==='SMS'){
-      return { label:'Reply in Messages', href:`sms:&body=${encodeURIComponent(proposeReply(text))}` };
-    }
-    if(origin==='Slack'){
-      return { label:'Open in Slack', href:'slack://open' };
-    }
-    if(origin==='Gmail'){
-      return { label:'Draft in Gmail', href:`https://mail.google.com/mail/?view=cm&su=${enc}&body=${encodeURIComponent(proposeReply(text))}` };
-    }
-    if(cat==='meeting'){
-      return { label:'Add to Google Calendar', href:`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${enc}&details=${enc}` };
-    }
-    if(cat==='finance'){
-      return { label:'Open Invoice App', href:'https://app.qbo.intuit.com/app/homepage' };
-    }
-    return { label:'Copy reply', href:'#copy', payload:proposeReply(text) };
+    const reply = proposeReply(text);
+    if(origin==='SMS')   return { label:'Reply in Messages', href:`sms:&body=${encodeURIComponent(reply)}` };
+    if(origin==='Slack') return { label:'Open in Slack', href:'slack://open' };
+    if(origin==='Gmail') return { label:'Draft in Gmail', href:`https://mail.google.com/mail/?view=cm&su=${enc}&body=${encodeURIComponent(reply)}` };
+    if(cat==='meeting')  return { label:'Add to Google Calendar', href:`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${enc}&details=${enc}` };
+    if(cat==='finance')  return { label:'Open Invoice App', href:'https://app.qbo.intuit.com/app/homepage' };
+    return { label:'Copy reply', href:'#copy', payload:reply };
   }
+
   function proposeReply(text){
     const t=text.toLowerCase();
     if(/coffee|meet|lunch|dinner|call/.test(t)) return 'Sounds good — see you then. If anything changes, text me.';
@@ -341,10 +356,10 @@
   }
 
   function renderCards(lines){
-    const L = { now: $('#lane-now'), soon: $('#lane-soon'), waiting: $('#lane-waiting') };
+    const L = { act: $('#lane-act'), schedule: $('#lane-schedule'), follow: $('#lane-follow') };
     Object.values(L).forEach(el=> el.innerHTML='');
     const items = lines.map(analyze);
-    items.forEach((it, idx)=>{
+    items.forEach((it)=>{
       const card=document.createElement('div'); card.className='card';
       card.innerHTML = `
         <div class="card-header">
@@ -354,56 +369,85 @@
         <div class="meta-row">
           <span>${it.cat.toUpperCase()}</span>
           <span>${it.origin}</span>
-          <details class="rationale"><summary>Why</summary><div class="why">${it.why.join(', ')||'Heuristics'}</div></details>
+          <details class="rationale"><summary>Why this surfaced</summary><div class="why">${escapeHtml(it.why)}</div></details>
         </div>
         <div class="card-actions">
           <button class="btn primary action-btn"><span class="label">Next Step</span></button>
         </div>`;
-      card.querySelector('.action-btn').addEventListener('click', (e)=> runAction(e.currentTarget, it.route));
-      const lane = it.prio==='red'? L.now : it.prio==='orange'? L.soon : L.waiting;
-      lane.appendChild(card);
+      card.querySelector('.action-btn').addEventListener('click', (e)=> runAction(e.currentTarget, it));
+      (L[it.lane] || L.act).appendChild(card);
     });
   }
+
   function escapeHtml(s){ return s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
-  async function runAction(btn, route){
+
+  async function runAction(btn, item){
     const end = buttonBusy(btn);
     await sleep(150);
+    const { route } = item;
+
     if(route.href==='#copy'){
-      await navigator.clipboard.writeText(route.payload||''); toast('Reply copied'); end('Done'); return;
+      try{ await navigator.clipboard.writeText(route.payload||''); toast('Reply copied'); }
+      catch{ toast('Copy failed'); }
+    } else {
+      window.open(route.href, '_blank', 'noopener,noreferrer');
+      toast('Opened');
     }
-    window.open(route.href, '_blank'); end('Opened');
+
+    // Memory capsule
+    addCapsule({
+      ts: nowIso(),
+      text: item.line,
+      cat: item.cat,
+      origin: item.origin,
+      prio: item.prio,
+      action: route.label,
+      href: route.href && route.href !== '#copy' ? route.href : null,
+      note: item.why
+    });
+
+    end('Done');
   }
-  function buttonBusy(btn){ const label=btn.querySelector('.label'); const old=label.textContent; btn.disabled=true; label.textContent='Working…'; const sp=document.createElement('span'); sp.className='spinner'; btn.prepend(sp); return (done='Done')=>{ btn.disabled=false; label.textContent=done; setTimeout(()=> label.textContent='Next Step', 900); sp.remove(); } }
 
-  /* === Capsules === */
-  function openCapsules(){ $('#capsules').innerHTML = `<div class="meta">No memory yet. Actions you run will be saved here with sources.</div>`; $('#capsuleModal').setAttribute('open',''); }
+  function buttonBusy(btn){
+    const label=btn.querySelector('.label'); const old=label.textContent;
+    btn.disabled=true; label.textContent='Working…';
+    let sp=document.createElement('span'); sp.className='spinner'; btn.prepend(sp);
+    return (done='Done')=>{
+      btn.disabled=false; label.textContent=done;
+      setTimeout(()=> label.textContent=old, 900); sp.remove();
+    }
+  }
 
-  /* === Sample tour === */
+  /* Capsules modal controls */
+  function openCapsules(){ renderCapsules(); $('#capsuleModal').setAttribute('open',''); }
+
+  /* Sample */
   const SAMPLE = [
     'Coffee with Alex tomorrow 10am (text)',
     'Invoice #1187 overdue 7 days — ACME',
-    'Draft product page review before Friday (Notion)'
+    'Draft product page review before Friday (Notion?)',
+    'Can you send the deck by EOD?'
   ];
 
-  /* === Event wiring === */
   document.addEventListener('DOMContentLoaded', ()=>{
-    // Build
     $('#buildBtn').addEventListener('click', ()=>{
       const raw = $('#inbox').value.trim().split(/\n/).filter(Boolean);
       if(!raw.length) return toast('Paste something first');
-      renderCards(raw); toast(`Organized ${raw.length} items`);
+      renderCards(raw); toast(`Organized ${raw.length} item${raw.length>1?'s':''}`);
     });
-    // Clear
     $('#clearBtn').addEventListener('click', ()=> $('#inbox').value='');
-    // Sample tour
     $('#sampleBtn').addEventListener('click', ()=>{ $('#inbox').value = SAMPLE.join('\n'); toast('Loaded a guided sample. Press Organize.'); });
 
     // Capsules modal
     $('#openCaps').addEventListener('click', openCapsules);
     $('#xCaps').addEventListener('click', ()=> $('#capsuleModal').removeAttribute('open'));
     $('#closeCaps').addEventListener('click', ()=> $('#capsuleModal').removeAttribute('open'));
-    $('#clearCaps').addEventListener('click', ()=>{ if(confirm('Clear all capsules?')){ toast('Cleared'); $('#capsules').innerHTML = '<div class="meta">No memory yet.</div>'; } });
-    $('#exportCaps').addEventListener('click', ()=>{ const blob = new Blob([JSON.stringify({capsules:[]},null,2)], {type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='rom-capsules.json'; a.click(); toast('Exported'); });
+    $('#clearCaps').addEventListener('click', ()=>{ if(confirm('Clear all capsules?')){ setCaps([]); renderCapsules(); toast('Cleared'); } });
+    $('#exportCaps').addEventListener('click', ()=>{
+      const blob = new Blob([JSON.stringify({capsules:getCaps()},null,2)], {type:'application/json'});
+      const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='rom-capsules.json'; a.click(); toast('Exported');
+    });
 
     // Connect modal
     $('#connectBtn').addEventListener('click', ()=>{ renderConnectors(); $('#connectModal').setAttribute('open',''); });
@@ -413,17 +457,9 @@
     $('#indexBtn').addEventListener('click', importLiveData);
     $('#writeBtn').addEventListener('click', verifyWriteBack);
 
-    // Init statusbar from store
-    bumpIndex(0); renderConnectors();
+    // Statusbar init
+    $('#stat-sync').textContent = `Last sync: never`;
   });
   </script>
-  <!-- SCRIPTS (place near end of <body>) -->
-<script src="assets/js/api.js"></script>
-<script src="assets/js/connectors.js" type="module"></script>
-<script src="assets/js/digest.js" type="module"></script>
-<script src="assets/js/chat.js" type="module"></script>
-    
 </body>
 </html>
-
-
