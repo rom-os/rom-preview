@@ -1,0 +1,14 @@
+.rom-card { background: #0F1116; border: 1px solid #1A1D29; border-radius: 16px; padding: 16px; margin: 16px 0; }
+.muted { opacity: .75; }
+.btnrow { display: flex; gap: 8px; flex-wrap: wrap; }
+.btnrow > button { padding: 10px 12px; border-radius: 12px; border: 1px solid #2A2F3C; background: #151823; cursor: pointer; }
+.status { margin-top: 8px; font-size: 0.9rem; }
+.list { list-style: none; padding: 0; margin: 12px 0; }
+.list li { padding: 6px 0; border-bottom: 1px dashed #222531; }
+.chat-toolbar { display: flex; gap: 12px; align-items: center; margin-bottom: 8px; }
+.chat-box { min-height: 160px; max-height: 320px; overflow: auto; border: 1px solid #1A1D29; border-radius: 12px; padding: 12px; background: #0B0D12; }
+.chat-msg { margin: 8px 0; }
+.chat-msg.user { color: #bfe1ff; }
+.chat-msg.ai { color: #d7ffd9; }
+.chat-input { display: flex; gap: 8px; margin-top: 8px; }
+.chat-input input { flex: 1; padding: 10px; border-radius: 10px; border: 1px solid #2A2F3C; background: #0F121A; color: #fff; }
