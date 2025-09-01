@@ -1,4 +1,5 @@
-import { App } from '@slack/bolt';
+import Bolt from '@slack/bolt';
+const { App } = Bolt as unknown as { App: any };
 
 let bolt: App | null = null;
 

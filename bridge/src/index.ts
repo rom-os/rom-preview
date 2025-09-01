@@ -68,5 +68,16 @@ app.post('/ai/talk', async (req, res) => {
   res.json({ ok:true, plan });
 });
 
+// TEMP Gmail stubs
+app.get('/gmail/install', (_req, res) => res.json({ ok:true, url:null }));
+app.post('/gmail/backfill', (_req, res) => res.json({ ok:true, imported:0 }));
+
+// TEMP iCal stubs
+app.post('/ical/subscribe', (_req, res) => res.json({ ok:true, subs:[] }));
+app.post('/ical/sync', (_req, res) => res.json({ ok:true, imported:0 }));
+
+// TEMP WhatsApp stub
+app.post('/whatsapp/send', (_req, res) => res.json({ ok:true, sid:'stub' }));
+
 app.listen(PORT, () => console.log(`ROM Bridge → http://127.0.0.1:${PORT}`));
 
