@@ -235,8 +235,22 @@
     slack:   { key:'slack',   name:'Slack',            selected:false, status:'not_connected', lastSync:null, records:0, writeReady:false, stages:['not_connected','authed','indexed','write_ready'] },
     files:   { key:'files',   name:'Local Files',      selected:false, status:'not_connected', lastSync:null, records:0, writeReady:false, stages:['not_connected','indexed'] }
   };
-  let CONNECTORS = store.get('rom_connectors', DEFAULT_CONNECTORS);
+  function mergeConnectors(defaults, saved){
+    const out = {};
+    // deep clone defaults
+    for (const k in defaults) out[k] = { ...defaults[k] };
+    // overlay known saved keys
+    if (saved && typeof saved === 'object') {
+      for (const k in saved) {
+        if (out[k]) out[k] = { ...out[k], ...saved[k] };
+      }
+    }
+    return out;
+  }
+
+  let CONNECTORS = mergeConnectors(DEFAULT_CONNECTORS, store.get('rom_connectors', null));
   function saveConnectors(){ store.set('rom_connectors', CONNECTORS); }
+  saveConnectors(); // write merged shape back so future loads are correct
 
   function renderConnectors(){
     const box = $('#apps'); box.innerHTML='';
