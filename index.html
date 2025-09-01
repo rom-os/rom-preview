@@ -164,6 +164,15 @@
   </div>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  
+  // NEW — lets your GitHub Pages call the local Bridge
+const BRIDGE_BASES = ['http://127.0.0.1:3535','http://localhost:3535'];
+async function api(path, init) {
+  for (const base of BRIDGE_BASES) {
+    try { const r = await fetch(base + path, init); if (r.ok) return await r.json(); } catch {}
+  }
+  throw new Error('ROM Bridge not reachable');
+}
 
   <script>
   /* === Utilities === */
