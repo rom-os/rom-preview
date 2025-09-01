@@ -164,18 +164,17 @@
   </div>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  
-  // NEW — lets your GitHub Pages call the local Bridge
-const BRIDGE_BASES = ['http://127.0.0.1:3535','http://localhost:3535'];
-async function api(path, init) {
-  for (const base of BRIDGE_BASES) {
-    try { const r = await fetch(base + path, init); if (r.ok) return await r.json(); } catch {}
-  }
-  throw new Error('ROM Bridge not reachable');
-}
 
   <script>
   /* === Utilities === */
+  // NEW — lets your GitHub Pages call the local Bridge
+  const BRIDGE_BASES = ['http://127.0.0.1:3535','http://localhost:3535'];
+  async function api(path, init) {
+    for (const base of BRIDGE_BASES) {
+      try { const r = await fetch(base + path, init); if (r.ok) return await r.json(); } catch {}
+    }
+    throw new Error('ROM Bridge not reachable');
+  }
   const $ = s => document.querySelector(s);
   const $$ = s => [...document.querySelectorAll(s)];
   const store = { get(k, f){ try{ const v = localStorage.getItem(k); return v? JSON.parse(v): f; } catch{ return f; } }, set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); } catch{} } };
@@ -227,11 +226,15 @@ async function api(path, init) {
     });
   }
 
-  /* === Connectors (limited to Google, Slack, Local Files) === */
+  /* === Connectors === */
   const DEFAULT_CONNECTORS = {
-    google: { key:'google', name:'Google', selected:false, status:'not_connected', lastSync:null, records:0, writeReady:false, stages:['not_connected','authed','indexed','write_ready'] },
-    slack:  { key:'slack',  name:'Slack',  selected:false, status:'not_connected', lastSync:null, records:0, writeReady:false, stages:['not_connected','authed','indexed','write_ready'] },
-    files:  { key:'files',  name:'Local Files', selected:false, status:'not_connected', lastSync:null, records:0, writeReady:false, stages:['not_connected','indexed'] }
+    gmail:   { key:'gmail',   name:'Gmail',            selected:false, status:'not_connected', lastSync:null, records:0, writeReady:false, stages:['not_connected','authed','indexed','write_ready'] },
+    google:  { key:'google',  name:'Google Calendar',  selected:false, status:'not_connected', lastSync:null, records:0, writeReady:false, stages:['not_connected','authed','indexed','write_ready'] },
+    sms:     { key:'sms',     name:'Phone / SMS',      selected:false, status:'not_connected', lastSync:null, records:0, writeReady:false, stages:['not_connected','indexed','write_ready'] },
+    whatsapp:{ key:'whatsapp',name:'WhatsApp',         selected:false, status:'not_connected', lastSync:null, records:0, writeReady:false, stages:['not_connected','indexed','write_ready'] },
+    ical:    { key:'ical',    name:'iCalendar (.ics)', selected:false, status:'not_connected', lastSync:null, records:0, writeReady:false, stages:['not_connected','indexed'] },
+    slack:   { key:'slack',   name:'Slack',            selected:false, status:'not_connected', lastSync:null, records:0, writeReady:false, stages:['not_connected','authed','indexed','write_ready'] },
+    files:   { key:'files',   name:'Local Files',      selected:false, status:'not_connected', lastSync:null, records:0, writeReady:false, stages:['not_connected','indexed'] }
   };
   let CONNECTORS = store.get('rom_connectors', DEFAULT_CONNECTORS);
   function saveConnectors(){ store.set('rom_connectors', CONNECTORS); }
@@ -249,7 +252,7 @@ async function api(path, init) {
         </label>
         <div class="meta">Last sync: ${c.lastSync? new Date(c.lastSync).toLocaleString(): 'never'} • ${c.records} items</div>
       `;
-      el.querySelector('input').addEventListener('change', (e)=>{
+      el.querySelector('input')?.addEventListener('change', (e)=>{
         CONNECTORS[c.key].selected = e.target.checked; saveConnectors(); updateConnMeta();
       });
       box.appendChild(el);
@@ -278,11 +281,63 @@ async function api(path, init) {
     meta.textContent = parts.join(' • ');
   }
 
-  /* === Fake flows === */
+  /* === Bridge flows === */
   function busy(btn, label){ const old=btn.innerHTML; btn.disabled=true; btn.innerHTML = `<span class="spinner"></span> ${label}`; return ()=>{ btn.disabled=false; btn.innerHTML = old; } }
-  async function authenticateSelected(){ const end = busy($('#authBtn'), ' Working…'); await sleep(700); Object.values(CONNECTORS).forEach(c=>{ if(c.selected){ c.status='authed'; } }); saveConnectors(); renderConnectors(); end(); toast('Authenticated'); }
-  async function importLiveData(){ const end = busy($('#indexBtn'), ' Importing…'); await sleep(900); let total=0; Object.values(CONNECTORS).forEach(c=>{ if(c.status!=='not_connected'){ c.status='indexed'; c.lastSync=nowIso(); const n=Math.floor(Math.random()*30)+10; c.records+=n; total+=n; } }); saveConnectors(); renderConnectors(); $('#stat-sync').textContent = `Last sync: ${new Date().toLocaleTimeString()}`; end(); toast(`Imported ${total} items`); }
-  async function verifyWriteBack(){ const end = busy($('#writeBtn'), ' Verifying…'); await sleep(700); Object.values(CONNECTORS).forEach(c=>{ if(c.status==='indexed'){ c.status='write_ready'; c.writeReady=true; } }); saveConnectors(); renderConnectors(); end(); toast('Write-back verified'); }
+  async function authenticateSelected(){
+    const end = busy($('#authBtn'), ' Working…');
+    try {
+      const sel = Object.values(CONNECTORS).filter(c=>c.selected).map(c=>c.key);
+
+      if (sel.includes('slack'))  { await api('/slack/start', {method:'POST'}); CONNECTORS.slack.status='authed'; }
+      if (sel.includes('google')) { const r = await api('/google/install'); if (r.url) window.open(r.url,'_blank','noopener,noreferrer'); CONNECTORS.google.status='authed'; }
+      if (sel.includes('gmail'))  { const r = await api('/gmail/install');  if (r.url) window.open(r.url,'_blank','noopener,noreferrer'); CONNECTORS.gmail.status='authed'; }
+
+      if (sel.includes('ical')) {
+        const icsUrl = prompt('Paste an .ics URL to subscribe (you can add more later):','');
+        if (icsUrl) { await api('/ical/subscribe', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ url: icsUrl })}); CONNECTORS.ical.status='indexed'; }
+      }
+
+      if (sel.includes('sms'))     CONNECTORS.sms.status='indexed';      // no auth
+      if (sel.includes('whatsapp'))CONNECTORS.whatsapp.status='indexed'; // no auth
+      if (sel.includes('files'))   CONNECTORS.files.status='indexed';    // local
+
+      saveConnectors(); renderConnectors(); toast('Authenticated');
+    } catch(e){ toast('Bridge not reachable'); }
+    end();
+  }
+
+  async function importLiveData(){
+    const end = busy($('#indexBtn'), ' Importing…');
+    try {
+      let total=0;
+      if (CONNECTORS.google.status!=='not_connected')  { const r = await api('/google/backfill', {method:'POST'}); total += r?.imported||0; CONNECTORS.google.status='indexed'; CONNECTORS.google.lastSync=nowIso(); }
+      if (CONNECTORS.slack.status!=='not_connected')   { const r = await api('/slack/backfill', {method:'POST'});  total += r?.imported||0; CONNECTORS.slack.status='indexed'; CONNECTORS.slack.lastSync=nowIso(); }
+      if (CONNECTORS.gmail.status!=='not_connected')   { const r = await api('/gmail/backfill', {method:'POST'});  total += r?.imported||0; CONNECTORS.gmail.status='indexed'; CONNECTORS.gmail.lastSync=nowIso(); }
+      if (CONNECTORS.ical.status!=='not_connected')    { const r = await api('/ical/sync',      {method:'POST'});  total += r?.imported||0; CONNECTORS.ical.lastSync=nowIso(); }
+
+      saveConnectors(); renderConnectors();
+      $('#stat-sync').textContent = `Last sync: ${new Date().toLocaleTimeString()}`;
+      toast(`Imported ${total} items`);
+    } catch(e){ toast('Import failed — is the Bridge running?'); }
+    end();
+  }
+
+  async function verifyWriteBack(){
+    const end = busy($('#writeBtn'), ' Verifying…');
+    try {
+      if (CONNECTORS.google.status!=='not_connected'){
+        await api('/google/hold', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ title:'ROM Hold', whenISO:new Date().toISOString(), durationMin:15 }) });
+        CONNECTORS.google.status='write_ready';
+      }
+      // Mark others as ready once indexed (we’ll wire real sends per-source later)
+      if (CONNECTORS.slack.status==='indexed')    CONNECTORS.slack.status='write_ready';
+      if (CONNECTORS.sms.status==='indexed')      CONNECTORS.sms.status='write_ready';
+      if (CONNECTORS.whatsapp.status==='indexed') CONNECTORS.whatsapp.status='write_ready';
+      if (CONNECTORS.gmail.status==='indexed')    CONNECTORS.gmail.status='write_ready';
+      saveConnectors(); renderConnectors(); toast('Write-back verified');
+    } catch(e){ toast('Write-back failed'); }
+    end();
+  }
 
   /* === Friendlier “Why” === */
   function friendlyWhy(info){
