@@ -1,0 +1,7 @@
+node_modules/
+bridge/node_modules/
+dist/
+bridge/dist/
+bridge/.env
+.tokens_*.json
+*.log

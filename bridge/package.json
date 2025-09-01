@@ -4,7 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "postinstall": "echo 'Dependencies installed'"
+    "dev": "node --env-file=.env --watch --loader ts-node/esm src/index.ts",
+    "build": "tsc",
+    "start": "node --env-file=.env dist/index.js"
   },
   "dependencies": {
     "@slack/bolt": "^3.18.0",
@@ -14,5 +16,9 @@
     "googleapis": "^136.0.0",
     "twilio": "^5.2.3",
     "node-ical": "^0.15.1"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
   }
 }
